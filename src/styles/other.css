@@ -408,93 +408,33 @@ a {
 
 .carousel-main {
   & {
-    background-color: var(--bs-secondary-bg-subtle) !important;
-    width: 100%
-  }
-
-  [data-bs-theme=dark] & {
-    background-color: #000 !important;
-  }
-
-  & img {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+    width: 100%;
   }
 
   @media (min-width:645.98px) {	
     & {	
-      --bs-border-size: 0.375rem;
       width: 90% !important;
-      border-radius: var(--bs-border-size) !important;
     }	
   }	
   @media (min-width:767.98px) {	
     & {	
-      width: 70% !important;	
+      width: 65% !important;	
     }	
   }	
   @media (min-width:1024px) {	
     & {	
-      width: 50% !important;	
+      width: 55% !important;	
     }	
   }
   @media (min-width:1440px) {	
     & {	
-      width: 40% !important;	
+      width: 45% !important;	
     }	
   }	
   @media (min-width:2000px) {	
     & {	
-      width: 30% !important;	
+      width: 35% !important;	
     }	
-  }	
-
-  & .carousel-control-prev, 
-  & .carousel-control-next {
-    position: static !important;
-  }
-
-  & .carousel-indicators {
-    color: #212529;
-    display: block !important;
-    position: static !important;
-    margin-left: 0 !important;
-    margin-bottom: 0 !important;
-    margin-right: 0 !important;
-  }
-
-  & .carousel-control-next, 
-  & .carousel-control-prev {
-    filter: invert(1) grayscale(100);
-  }
-
-  & .carousel-products .carousel-control-prev,
-  & .carousel-products .carousel-control-next {
-      position: initial;
-  }
-
-  & .carousel-indicators [data-bs-target], 
-  & .carousel-indicators [data-bs-target] {
-    background-color: #212529;
-  }
-  & .carousel-caption, 
-  & .carousel-caption {
-    color: #212529!important;
-  }
-
-  [data-bs-theme=dark] & .carousel-indicators [data-bs-target],
-  [data-bs-theme=dark] & .carousel-indicators [data-bs-target] {
-    background-color: #fff;
-  }
-
-  [data-bs-theme=dark] & .carousel-caption,
-  [data-bs-theme=dark] & .carousel-caption {
-    color: #fff;
-  }
-
-  [data-bs-theme=dark] & .carousel-control-next, 
-  [data-bs-theme=dark] & .carousel-control-prev {
-    filter: invert(0) !important;
   }
 }
 
