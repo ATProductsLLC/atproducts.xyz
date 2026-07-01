@@ -45,7 +45,7 @@ const flexSize = size ? size : 'md';
                 )}
                 {buttons && (
                   buttons.map(({ href, text, type }, index) => (
-                    <a href={href} class={`btn-solid theme-${type} md:col`}>{text}</a>
+                    <a href={href} class={`btn-solid theme-${type} md:col text-wrap-auto`}>{text}</a>
                   ))
                 )}
                 {dropdownItems && (
