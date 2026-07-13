@@ -1,6 +1,6 @@
 {
   "name": "atproducts.xyz",
-  "version": "2.25.0",
+  "version": "2.25.1",
   "config": {
     "version_short": "2.25"
   },
@@ -25,5 +25,11 @@
   "devDependencies": {
     "@types/bootstrap": "^5.2.10",
     "@types/jquery": "^4.0.1"
+  },
+  "allowScripts": {
+    "esbuild@0.28.0": true,
+    "esbuild@0.28.1": true,
+    "@parcel/watcher@2.5.6": true,
+    "sharp@0.34.5": true
   }
 }
