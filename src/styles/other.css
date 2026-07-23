@@ -1824,10 +1824,6 @@ html.fixedtopnavimage, html.fixedtopnavimage-breadcrumb {
   margin-left: 5px;
 }
 
-.btn-close {
-  min-width: 20px;
-}
-
 .back-to-top {
   position: fixed;
   display: none;
