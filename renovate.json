@@ -1,11 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
-  "labels": [
-    "dependencies"
-  ],
+  "extends": ["config:recommended"],
+  "labels": ["dependencies"],
   "packageRules": [
     {
       "groupName": "Astro packages",
@@ -28,28 +24,26 @@
       "rangeStrategy": "bump",
       "matchPackageNames": [
         "/^jquery/",
-        "/^@types/jquery/"
+        "/^@types\\/jquery/"
       ]
     },
     {
       "groupName": "Requirements.txt dependencies",
-      "matchManagers": [
-        "pip_requirements"
-      ],
+      "matchManagers": ["pip_requirements"],
       "rangeStrategy": "bump"
     },
     {
       "groupName": "Other dependencies",
       "matchPackageNames": [
         "!/^react/",
-        "!/^@types/react/",
+        "!/^@types\\/react/",
         "!/^react-dom/",
         "!/^astro/",
         "!/^@astrojs/",
         "!/^bootstrap/",
         "!/^bootstrap-icons/",
         "!/^jquery/",
-        "!/^@types/jquery/"
+        "!/^@types\\/jquery/"
       ],
       "rangeStrategy": "bump"
     }
