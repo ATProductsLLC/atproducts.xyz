@@ -643,13 +643,7 @@ window.noRun = function noRun(btn) {
   noMoves++;
   const card = btn.closest('.q-card');
   const maxX = card.offsetWidth - btn.offsetWidth - 16;
-  const rx = Math.max(0, Math.floor(Math.random() * maxX));
-  const ry = (Math.random() > .5 ? 1 : -1) * (20 + Math.random() * 40);
 
-  btn.style.position = 'relative';
-  btn.style.transition = 'left .25s, top .25s';
-  btn.style.left = rx + 'px';
-  btn.style.top  = ry + 'px';
   btn.style.opacity = '.35';
 
   const taunts = [
