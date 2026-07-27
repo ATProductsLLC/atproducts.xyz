@@ -47,6 +47,10 @@ body.dialog-open {
   filter: drop-shadow(2px 4px 6px black)
 }
 
+.hero-description {
+  font-size: clamp(1.25rem,1rem + .625vw,1.5rem);
+}
+
 .hero-web {
   background: url('/media/images/hero-web.webp');
 }
