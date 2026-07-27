@@ -7,7 +7,7 @@
   <a href="https://atproducts.xyz#what-new"><img src="https://img.shields.io/badge/stable_version-2.25.1-blue" alt="Stable Version"></a>
   <a href="https://beta.atproducts.xyz#what-new"><img src="https://img.shields.io/badge/beta_version-2.25.1-red" alt="Beta Version"></a>
   <a href="https://beta-testing.atproducts.xyz"><img src="https://img.shields.io/badge/DoBT_version-DoBT_v2.6.2-green" alt="DoBT Version"></a>
-  <img src="https://github.com/Alex-Toucan/atproducts.xyz/workflows/CodeQL/badge.svg" alt="CodeQL">
+  <img src="https://github.com/ATProductsLLC/atproducts.xyz/workflows/CodeQL/badge.svg" alt="CodeQL">
   <a href="https://app.netlify.com/sites/atproducts/deploys"><img src="https://api.netlify.com/api/v1/badges/faf5f3b5-bf03-457d-9deb-dbfc4d3b55ee/deploy-status" alt="Netlify"></a> 
  </p>
  <p>
@@ -35,13 +35,13 @@ The "AT" in AT Products does stand for Alex Toucan.
 
 | Title                       | Link                                                                 | Branch                                                                 |
 |:----------------------------|:----------------------------------------------------------------------|:-------------------------------------------------------------------------|
-| Main Site                  | [atproducts.xyz](https://atproducts.xyz)                             | [main](https://github.com/Alex-Toucan/atproducts.xyz/tree/main)        |
-| Beta Viewing               | [beta.atproducts.xyz](https://beta.atproducts.xyz)                   | [beta](https://github.com/Alex-Toucan/atproducts.xyz/tree/beta)        |
-| Department of Beta Testing | [beta-testing.atproducts.xyz](https://beta-testing.atproducts.xyz)   | [beta-testing](https://github.com/Alex-Toucan/atproducts.xyz/tree/beta-testing) |
-| AT's Unblocked Games       | [games.atproducts.xyz](https://games.atproducts.xyz)                 | [games](https://github.com/Alex-Toucan/atproducts.xyz/tree/games)      |
-| Alex Toucan's Portfolio    | [portfolio.atproducts.xyz](https://portfolio.atproducts.xyz)         | [portfolio](https://github.com/Alex-Toucan/atproducts.xyz/tree/portfolio) |
-| Maintenance Mode           | [maintenance.atproducts.xyz](https://maintenance.atproducts.xyz)     | [maintenance](https://github.com/Alex-Toucan/atproducts.xyz/tree/maintenance) |
-| Blue Ball Machine          | [blue.atproducts.xyz](https://blue.atproducts.xyz)                   | [blue](https://github.com/Alex-Toucan/atproducts.xyz/tree/blue)        |
+| Main Site                  | [atproducts.xyz](https://atproducts.xyz)                             | [main](https://github.com/ATProductsLLC/atproducts.xyz/tree/main)        |
+| Beta Viewing               | [beta.atproducts.xyz](https://beta.atproducts.xyz)                   | [beta](https://github.com/ATProductsLLC/atproducts.xyz/tree/beta)        |
+| Department of Beta Testing | [beta-testing.atproducts.xyz](https://beta-testing.atproducts.xyz)   | [beta-testing](https://github.com/ATProductsLLC/atproducts.xyz/tree/beta-testing) |
+| AT's Unblocked Games       | [games.atproducts.xyz](https://games.atproducts.xyz)                 | [games](https://github.com/ATProductsLLC/atproducts.xyz/tree/games)      |
+| Alex Toucan's Portfolio    | [portfolio.atproducts.xyz](https://portfolio.atproducts.xyz)         | [portfolio](https://github.com/ATProductsLLC/atproducts.xyz/tree/portfolio) |
+| Maintenance Mode           | [maintenance.atproducts.xyz](https://maintenance.atproducts.xyz)     | [maintenance](https://github.com/ATProductsLLC/atproducts.xyz/tree/maintenance) |
+| Blue Ball Machine          | [blue.atproducts.xyz](https://blue.atproducts.xyz)                   | [blue](https://github.com/ATProductsLLC/atproducts.xyz/tree/blue)        |
 <hr>
 <h2>Setup</h2>
 <p>If you wish to contribute to the site and want to copy the repository locally, follow the steps:</p>
