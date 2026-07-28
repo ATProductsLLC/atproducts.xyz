@@ -1,11 +1,11 @@
 // --- Config --- //
 var pureAlert1Type = "alert-dark"; // Color
-var pureAlert1Title = "2.25 BETA NOW FOR VIEWING:"; // Title
-var pureAlert1Icon = 'bi-plus-lg'; // Icon
-var pureAlert1Desc = "As we continue to develop our site to always become bigger and better, we are announcing the new version of the site that will shape the future of our platform: 2.25, which introduces Bootstrap v6. Public viewing is now available by clicking the link below."; // Description
-var pureAlert1Link = 'https://beta-testing.atproducts.xyz/links/'; // Link
-var pureAlert1LinkDesc = 'View more information'; // Link text
-var pureAlert1Enabled = false; // Switch to enable/disable alert
+var pureAlert1Title = "ABIGAIL SITE:"; // Title
+var pureAlert1Icon = 'bi-hearts'; // Icon
+var pureAlert1Desc = "For the people curious to see the exact site that I (Alex Toucan) asked out Abigail on, it is now available for public viewing! The link is below."; // Description
+var pureAlert1Link = 'https://abigail.atproducts.xyz/'; // Link
+var pureAlert1LinkDesc = 'View site.'; // Link text
+var pureAlert1Enabled = true; // Switch to enable/disable alert
 // ---        --- //
 
 function setAlert1Cookie(name, value, days) {
