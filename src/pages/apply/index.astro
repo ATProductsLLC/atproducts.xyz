@@ -16,10 +16,10 @@ import '../../styles/contact.css'
         id="codinghome"
         title="Applying for the DoBT"
         description="Apply for the DoBT today!"
-        primaryHref="#form"
-        primaryText="Application Form"
-        secondaryHref="/media/pdf/DoBT Backup Application Form.pdf"
-        secondaryText="Backup Physical Form"
+        buttons={[
+          { href: "#form", text: "Application Form", type: "primary" },
+          { href: "/media/pdf/DoBT Backup Application Form.pdf", text: "Backup Physical Form", type: "secondary" }
+        ]}
       />
       <main id="apply" class="container">
         <div id="how">

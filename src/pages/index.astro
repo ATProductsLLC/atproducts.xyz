@@ -18,13 +18,13 @@ import BackToTop from '../components/BackToTop.astro';
     <div id="main-content">
       <Hero
         id="codinghome"
-        titleHTML="<h1 class='display-3 fw-bold'>AT Products LLC</h1> <h3 class='display-6 text-body-secondary fw-medium'>Department of Beta Testing</h3>"
+        title="AT Products LLC"
+        secondaryTitle="Department of Beta Testing"
         description="Welcome to AT Products's Department of Beta Testing's website portal!"
-        primaryHref="https://beta.atproducts.xyz/"
-        primaryText="Beta Website"
-        secondaryHref="https://atproducts.xyz/"
-        secondaryText="Main Website"
-        marginBottom="false"
+        buttons={[
+          { href: "https://beta.atproducts.xyz/", text: "Beta Website", type: "primary" },
+          { href: "https://atproducts.xyz/", text: "Main Website", type: "secondary" }
+        ]}
         icons={[
           { icon: "github", desc: "GitHub", href: "https://github.com/Alex-Toucan/atproducts.xyz/tree/beta-testing" },
           { icon: "twitter-x", desc: "Twitter / X", href: "https://twitter.com/ATProductsLLC" },
