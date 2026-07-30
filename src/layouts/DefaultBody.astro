@@ -1,5 +1,5 @@
 ---
-const { index, title, heroid, icon, color, bulletin, description, keywords, author, additionalContent, fourofour, apply } = Astro.props;
+const { title, heroid, icon, color, bulletin, description, keywords, author, additionalContent, fourofour, apply } = Astro.props;
 
 import "../styles/bootstrap.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -105,9 +105,6 @@ import '../styles/cookie.css';
       {fourofour && (
         <script src="/scripts/404.js" is:inline></script>
       )}
-      {index && (
-        <script src="/scripts/index.js" is:inline></script>
-      )}    
     </Fragment>
   </body>
 </html>
