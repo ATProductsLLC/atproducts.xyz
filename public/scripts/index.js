@@ -1,35 +1,3 @@
-// Carousel play/pause
-var playButton = document.querySelector(".playButton");
-var pauseButton = document.querySelector(".pauseButton");
-var nextButton = document.querySelector(".carousel-control-next");
-var previousButton = document.querySelector(".carousel-control-prev");
-var carouselMain = document.querySelector(".carousel-main");
-var slidebtn = document.querySelectorAll(".slidebtn");
-
-$(function () {
-  const carousel = bootstrap.Carousel.getOrCreateInstance(carouselMain, {
-      pause: false,
-      ride: true
-  });
-
-  $(playButton).click(function () {
-      carousel.cycle();
-  });
-
-  $(pauseButton).click(function () {
-      carousel.pause();
-  });
-  
-  $(nextButton).click(handleButton);
-  $(previousButton).click(handleButton);
-  $(slidebtn).click(handleButton);
-
-  function handleButton() {
-      playButton.checked = true;
-      pauseButton.checked = false;
-  }
-});
-
 // History Tabs
 $(document).ready(function() {
   // Initialize the active button and set btn-primary for past years

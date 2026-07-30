@@ -1,1 +1,1 @@
-**NOTE:** All files in the directory have moved to [the LFS branch](https://github.com/Alex-Toucan/atproducts.xyz/tree/lfs/public/media/files).
+**NOTE:** All files in the directory have moved to [the LFS branch](https://github.com/ATProductsLLC/atproducts.xyz/tree/lfs/public/media/files).
