@@ -1,84 +1,66 @@
 ---
-
+const { pageTitle } = Astro.props;
 ---
 
-<a href="#main-content" class="visually-hidden-focusable btn btn-primary position-fixed m-2 hero-filter" style="z-index: 2000;" title="Skip to main content">Skip to main content</a>
+<a href="#main-content" class="visually-hidden-focusable btn-solid theme-primary position-fixed m-2 hero-filter skip-content" title="Skip to main content">Skip to main content</a>
 
-<header>
-  <nav class="navbar navbar-expand-lg fixed-top main-navbar">
+<header class="main-navbar fixed-top">
+  <nav class="navbar lg:navbar-expand fg-2">
     <div class="container-fluid">
-      <a href="https://atproducts.xyz" aria-label="Return to AT Products LLC" class="navbar-toggler d-md-block border-0 p-0 me-lg-2">
+      <a href="https://atproducts.xyz" aria-label="Return to AT Products LLC" class="theme-inverse md:d-block border-0 p-0 lg:me-2 fs-2xl align-self-center">
         <i class="bi bi-arrow-left-short"></i>
       </a>
-      <a class="navbar-brand m-0 me-lg-2" href="/"> 
-        <img src="/media/images/DoBT-Logo-Black.png" height="45px" alt="AT Products LLC - Department of Beta Testing" class="headerimg">
+      <a class="navbar-brand" href="/">
+        <img src="/media/images/DoBT-Logo-Black.webp" height="45px" alt="AT Products LLC - Department of Beta Testing" class="headerimg">
       </a>
-      <button class="navbar-toggler border-0 p-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
+      <button class="btn-icon navbar-toggler" type="button" data-bs-toggle="drawer" data-bs-target="#navbarLeftDrawer" aria-controls="navbarLeftDrawer" aria-expanded="false" aria-label="Toggle navigation">
+        <svg class="navbar-toggler-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><path d="M1 3.5h14M1 8h14M1 12.5h14"/></svg>
       </button>
-
-      <div class="offcanvas offcanvas-start overflow-auto" tabindex="-1" id="offcanvasNavbar">
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title">
-            <img src="/media/images/DoBT-Logo-Black.png" height="45px" alt="ATPLLC - DoBT" class="headerimg">
+      <dialog class="drawer drawer-start" tabindex="-1" id="navbarLeftDrawer" aria-labelledby="navbarLeftDrawerLabel">
+        <div class="drawer-header">
+          <h5 class="drawer-title" id="navbarLeftDrawerLabel">
+            <img src="/media/images/DoBT-Logo-Black.webp" height="45px" alt="AT Products LLC - Department of Beta Testing" class="headerimg">
           </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Close"></button>
         </div>
-
-        <div class="navbar-body d-lg-flex gap-2">
-          <div class="navbar-nav custom-group justify-content-start me-auto">
-            <a class="custom-group-item custom-group-item-action" href="/">Home</a>
-            <a class="custom-group-item custom-group-item-action" href="/apply">Apply</a>
-
-            <div class="custom-group-item p-0 dropdown dropdown-section">
-              <a class="dropdown-toggle custom-group-item-action d-block" href="javascript:void(0)" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                Resources
-              </a>
-              <div class="dropdown-menu p-0 border-0" data-bs-display="static">
-                <div class="custom-group">
-                  <a class="custom-group-item custom-group-item-action" href="/links">Links</a>
-                  <hr class="dropdown-divider d-none d-lg-block">
-                  <a class="custom-group-item custom-group-item-action" href="https://atproducts.xyz">Public Website</a>
-                  <a class="custom-group-item custom-group-item-action" href="https://beta.atproducts.xyz">Beta Website</a>
-                  <hr class="dropdown-divider d-none d-lg-block">
-                  <a class="custom-group-item custom-group-item-action" href="https://github.com/Alex-Toucan/atproducts.xyz/pulls">GitHub PRs</a>
-                  <a class="custom-group-item custom-group-item-action" href="https://github.com/Alex-Toucan/atproducts.xyz/tree/beta">Beta Branch</a>
-                  <a class="custom-group-item custom-group-item-action" href="https://discord.gg/NTVd3vGFMS">Alex's Diary (CodingHome @ Discord)</a>
-                  <a class="custom-group-item custom-group-item-action" href="https://twitter.com/ATProductsLLC">ATPLLC's Twitter</a>
-                  <hr class="dropdown-divider d-none d-lg-block">
-                  <a class="custom-group-item custom-group-item-action" href="https://atproducts.xyz/backup/archive/">Backup Archive (public)</a>
-                  <a class="custom-group-item custom-group-item-action" href="https://beta.atproducts.xyz/backup/archive/">Backup Archive (beta)</a>
-                </div>
-              </div>
-            </div>
-            <a class="custom-group-item custom-group-item-action" href="/guidelines">Guidelines</a>
-          </div>
-
-          <a class="btn btn-primary fw-medium mx-2 mx-lg-0 m-3 my-lg-2" href="/apply">Apply Today!</a>
-
-          <div class="navbar-nav custom-group justify-content-start ms-auto ms-lg-2 nav-tab-link mb-2 mb-lg-0 color-changer">
-            <div class="custom-group-item p-0 dropup dropdown-section color-dropdown">
-              <a class="dropdown-toggle custom-group-item-action color-button d-block" href="javascript:void(0)" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="bd-theme">
-                <span class="theme-icon-active"><i class="bi bi-sun-fill me-2"></i></span>
-                <span class="d-lg-none" id="bd-theme-text">Change theme</span>
-              </a>
-              <div class="dropdown-menu p-0" data-bs-display="static" data-bs-popper="static">
-                <div class="custom-group">
-                  <a class="dropdown-item" href="javascript:void(0)" data-bs-theme-value="light"><i class="bi bi-sun-fill me-2"></i> Light</a>
-                  <a class="dropdown-item" href="javascript:void(0)" data-bs-theme-value="dark"><i class="bi bi-moon-stars-fill me-2"></i> Dark</a>
-                  <a class="dropdown-item" href="javascript:void(0)" data-bs-theme-value="auto"><i class="bi bi-circle-half me-2"></i> Auto</a>
+        <div class="drawer-body">
+          <ul class="navbar-nav me-auto mb-2 md:mb-0">
+            <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="/apply">Apply</a></li>
+            <li class="nav-item"><a class="nav-link" href="/links">Links</a></li>
+            <li class="nav-item"><a class="nav-link" href="/guidelines">Guidelines</a></li>
+          </ul>
+          <div class="d-flex lg:flex-row flex-column gap-4 mt-auto">
+            <a class="btn btn-solid theme-primary fw-medium mx-2 lg:mx-0" href="/apply">Apply Today!</a>
+            <div class="navbar-nav justify-content-start lg:ms-auto nav-tab-link lg:mt-0 mb-0 lg:align-self-center">
+              <div class="p-0">
+                <a class="dropdown-toggle nav-link d-block" href="javascript:void(0)" role="button" data-bs-toggle="menu" data-bs-auto-close="outside" data-bs-placement="top-start" id="bd-theme">
+                  <span class="theme-icon-active"><i class="bi bi-sun-fill me-2 lg:me-0"></i></span>
+                  <span class="lg:d-none" id="bd-theme-text">Change theme</span>
+                  <i class="bi bi-sm bi-chevron-expand ms-1 lg:ms-2" aria-hidden="true"></i>
+                </a>
+                <div class="menu" data-bs-display="static" data-bs-popper="static">
+                  <a class="menu-item text-wrap-auto" href="javascript:void(0)" data-bs-theme-value="light">
+                    <i class="bi bi-sun-fill me-2"></i> Light
+                  </a>
+                  <a class="menu-item text-wrap-auto" href="javascript:void(0)" data-bs-theme-value="dark">
+                    <i class="bi bi-moon-stars-fill me-2"></i> Dark
+                  </a>
+                  <a class="menu-item text-wrap-auto" href="javascript:void(0)" data-bs-theme-value="auto">
+                    <i class="bi bi-circle-half me-2"></i> Auto
+                  </a>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </dialog>
     </div>
   </nav>
 </header>
 
 <noscript>
   <div class="alert alert-dark mb-0" role="alert">
-    <strong>It seems like you don't have JavaScript enabled!</strong> For color modes, accordions, scrollspies, tab panes, dropdowns, popovers, and much more, you'll need JavaScript to work! We do not have fallbacks, so please enable JavaScript or <a href="https://github.com/Alex-Toucan/atproducts.xyz">view the source code to read the information</a>.
+    <strong>It seems like you don't have JavaScript enabled!</strong> You will need JavaScript for color modes, accordions, scrollspies, tab panes, dropdowns, popovers, and more! We do not have fallbacks, so please enable JavaScript or <a href="https://github.com/Alex-Toucan/atproducts.xyz">view the source code to read the information</a>.
   </div>
 </noscript>
