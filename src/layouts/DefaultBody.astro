@@ -1,14 +1,13 @@
 ---
 const { index, title, heroid, icon, color, bulletin, description, keywords, author, additionalContent, fourofour, apply } = Astro.props;
 
-import "bootstrap/dist/css/bootstrap.min.css";
+import "../styles/bootstrap.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js?url"
+import bootstrap from "../scripts/bootstrap.bundle.js?url";
 
 import jquery from "jquery/dist/jquery.min.js?url";
 import jqueryui from "jquery-ui/dist/jquery-ui.min.js?url";
 
-import '../styles/navbar.css';
 import '../styles/other.css';
 import '../styles/cookie.css';
 ---
@@ -78,16 +77,22 @@ import '../styles/cookie.css';
       }
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <Fragment set:html={additionalContent}>
+      <Fragment set:html={additionalContent} />
   </head>
   <body class="fixedtopnavimage">
     <Fragment>  
       <slot/>
     </Fragment>
     <Fragment>
-      <script src={bootstrap}></script>
-      <script src={jquery}></script>
-      <script src={jqueryui}></script>
+      <script>
+        import * as bootstrap from '../scripts/bootstrap.bundle.js';
+        Object.assign(window, bootstrap);
+        window.bootstrap = bootstrap;
+        window.bootstrapReady?.();
+      </script>
+
+      <script src={jquery} is:inline></script>
+      <script src={jqueryui} is:inline></script>
       <script src="/scripts/message.js" is:inline></script>
       <script src="/scripts/scroll.js" is:inline></script>
       <script src="/scripts/purecookie.js" is:inline></script>
