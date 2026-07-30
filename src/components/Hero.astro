@@ -40,9 +40,9 @@ const {
               </>
             }    
           </div>
-          <p class="fs-4 m-3 text-body-secondary">{description}</p>
-          <div class="mx-auto justify-content-between container" id="links">
-            <div class="d-md-flex d-grid gap-2">
+          <p class="fs-lg m-3 mb-0 fg-2">{description}</p>
+          <div class="mx-auto justify-content-between container mt-4" id="links">
+            <div class="md:d-flex d-grid gap-2">
               {errorButton && (
                 <Fragment set:html={errorButton} />
               )}
@@ -53,8 +53,8 @@ const {
                 <a href={secondaryHref} class="btn btn-secondary col-md">{secondaryText}</a>
               )}
               {dropdownItems && (
-                <div class="dropdown col-md">
-                  <button aria-expanded="false" data-bs-toggle="dropdown" type="button" class="btn btn-secondary dropdown-toggle w-100">
+                <div class="dropdown md:col">
+                  <button aria-expanded="false" data-bs-toggle="menu" data-bs-placement="bottom" type="button" class="btn-solid theme-secondary dropdown-toggle w-100">
                     Navigation
                   </button>
                   <ul class="dropdown-menu w-100 white-space-normal">
@@ -68,13 +68,13 @@ const {
               )}
             </div>
             {icons && (
-            <div class="mt-2 p-1 d-flex justify-content-center gap-3 bg-dark rounded-2" id="icons">
-              {icons && icons.map(({ icon, desc, href }, index) => (
-                <a href={href} aria-label={desc} target="_blank" rel="noopener noreferrer" class="link-hero fs-7" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title={desc} key={index}>
-                  <i class={`bi bi-${icon}`}></i>
-                </a>
-              ))}
-            </div>
+              <div class="mt-2 p-1 d-flex justify-content-center gap-4 bg-1 rounded-5" id="icons">
+                {icons && icons.map(({ icon, desc, href }, index) => (
+                  <a href={href} aria-label={desc} target="_blank" rel="noopener noreferrer" class="link-hero" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title={desc}>
+                    <i class={`bi bi-${icon}`}></i>
+                  </a>
+                ))}
+              </div>
             )}
           </div>
         </div>
