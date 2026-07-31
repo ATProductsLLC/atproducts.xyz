@@ -8,6 +8,9 @@ import bootstrap from "../scripts/bootstrap.bundle.js?url";
 import jquery from "jquery/dist/jquery.min.js?url";
 import jqueryui from "jquery-ui/dist/jquery-ui.min.js?url";
 
+import { Font } from "astro:assets";
+
+import '../styles/font.css';
 import '../styles/other.css';
 import '../styles/cookie.css';
 ---
@@ -52,6 +55,7 @@ import '../styles/cookie.css';
         </Fragment>
       }    
       <link rel="manifest" href="/media/favicon/site.webmanifest">
+      <Font cssVariable="--font-body" preload/>
       <meta charset="UTF-8">
       <meta name="msapplication-TileColor" content="#da532c">
       <meta name="title" content={title}>
