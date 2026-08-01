@@ -41,6 +41,31 @@ items = items.sort((a, b) => {
   return a.name.localeCompare(b.name);
 });
 
+function parseSizeToBytes(size) {
+  if (typeof size === "number") return size;
+  if (typeof size !== "string") return -1;
+
+  const match = size.trim().match(/^([\d.]+)\s*([a-zA-Z]*)$/);
+  if (!match) return -1;
+
+  const value = parseFloat(match[1]);
+  const unit = match[2].toLowerCase();
+
+  const multipliers = {
+    "": 1,
+    b: 1,
+    kb: 1024,
+    mb: 1024 ** 2,
+    gb: 1024 ** 3,
+    tb: 1024 ** 4,
+  };
+
+  const mult = multipliers[unit];
+  if (mult === undefined || isNaN(value)) return -1;
+
+  return Math.round(value * mult);
+}
+
 const parent = reqPath.split("/").slice(0, -1).join("/");
 const parentUrl = parent ? `/media/${parent}` : `/media`;
 ---
@@ -99,6 +124,21 @@ const parentUrl = parent ? `/media/${parent}` : `/media`;
       tr:hover {
         background: #1a1a1a;
       }
+      th.sortable {
+        cursor: pointer;
+        user-select: none;
+      }
+      th.sortable:hover {
+        color: #fff;
+      }
+      th.sortable .arrow {
+        display: inline-block;
+        width: 1em;
+        opacity: 0.5;
+      }
+      th.sortable.active .arrow {
+        opacity: 1;
+      }
       .copyright {
         margin-top: 2rem;
         font-size: 1.17em;
@@ -116,19 +156,26 @@ const parentUrl = parent ? `/media/${parent}` : `/media`;
       </p>
     )}
 
-    <table>
+    <table id="indexTable">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Size</th>
-          <th>Modified</th>
+          <th class="sortable" data-key="name" data-type="string">Name <span class="arrow"></span></th>
+          <th class="sortable" data-key="size" data-type="number">Size <span class="arrow"></span></th>
+          <th class="sortable" data-key="mtime" data-type="date">Modified <span class="arrow"></span></th>
         </tr>
       </thead>
       <tbody>
         {items.map(item => {
           const url = `/media/${item.path}`;
+          const sizeBytes = parseSizeToBytes(item.size);
+          const mtimeValue = item.mtime ? new Date(item.mtime).getTime() || 0 : 0;
           return (
-            <tr>
+            <tr
+              data-type={item.type === "directory" ? "1" : "0"}
+              data-name={item.name}
+              data-size={sizeBytes}
+              data-mtime={mtimeValue}
+            >
               <td>
                 <a href={url}>
                   {item.type === "directory" ? "📁" : "📄"} {item.name}
@@ -142,5 +189,63 @@ const parentUrl = parent ? `/media/${parent}` : `/media`;
       </tbody>
     </table>
     <div class="copyright">&reg; <script is:inline src="/static/year.js"></script> <a href="https://atproducts.xyz">AT Products LLC</a></div>
+
+    <script>
+      const table = document.getElementById("indexTable");
+      const tbody = table.querySelector("tbody");
+      const headers = table.querySelectorAll("th.sortable");
+
+      let currentKey = "name";
+      let currentDir = 1;
+
+      function sortRows(type, dir) {
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+
+        rows.sort((a, b) => {
+          const aIsDir = a.dataset.type === "1";
+          const bIsDir = b.dataset.type === "1";
+          if (aIsDir !== bIsDir) return aIsDir ? -1 : 1;
+
+          let cmp = 0;
+          if (type === "string") {
+            cmp = a.dataset.name.localeCompare(b.dataset.name);
+          } else if (type === "number") {
+            cmp = Number(a.dataset.size) - Number(b.dataset.size);
+          } else if (type === "date") {
+            cmp = Number(a.dataset.mtime) - Number(b.dataset.mtime);
+          }
+
+          return cmp * dir;
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+      }
+
+      function updateArrows(activeTh) {
+        headers.forEach(th => {
+          th.classList.remove("active");
+          th.querySelector(".arrow").textContent = "";
+        });
+        activeTh.classList.add("active");
+        activeTh.querySelector(".arrow").textContent = currentDir === 1 ? "▲" : "▼";
+      }
+
+      headers.forEach(th => {
+        th.addEventListener("click", () => {
+          const key = th.dataset.key;
+          const type = th.dataset.type;
+
+          if (currentKey === key) {
+            currentDir *= -1;
+          } else {
+            currentKey = key;
+            currentDir = 1;
+          }
+
+          sortRows(type, currentDir);
+          updateArrows(th);
+        });
+      });
+    </script>
   </body>
 </html>
