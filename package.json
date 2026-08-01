@@ -8,10 +8,14 @@
     "preview": "astro preview"
   },
   "dependencies": {
-    "astro": "^6.3.7",
+    "astro": "^7.1.6",
     "dayjs": "^1.11.20",
     "fast-glob": "^3.3.3",
     "filesize": "^11.0.17",
     "mime-types": "^3.0.2"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "sharp@0.34.5": true
   }
 }
