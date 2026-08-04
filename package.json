@@ -12,14 +12,14 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/react": "^5.0.3",
-    "astro": "^6.1.7",
+    "@astrojs/react": "^6.0.2",
+    "astro": "^7.1.6",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
-    "jquery": "^3.7.1",
+    "jquery": "^4.0.0",
     "jquery-ui": "^1.14.2",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "optionalDependencies": {
     "axios": "^1.13.6",
@@ -28,7 +28,11 @@
     "puppeteer": "^24.37.5"
   },
   "devDependencies": {
-    "@types/jquery": "^3.5.33",
+    "@types/jquery": "^4.0.1",
     "glob": "^13.0.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "puppeteer@24.43.1": true
   }
 }
