@@ -6,6 +6,10 @@ import bootstrap from "../scripts/bootstrap.bundle.js?url";
 import jquery from "jquery/dist/jquery.min.js?url";
 import jqueryui from "jquery-ui/dist/jquery-ui.min.js?url";
 
+import { Font } from 'astro:assets';
+
+import '../styles/font.css';
+
 const { title, icon, color, description, keywords, author, additionalContent } = Astro.props;
 ---
 
@@ -58,6 +62,7 @@ const { title, icon, color, description, keywords, author, additionalContent } =
       )}
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <Font cssVariable="--font-body" preload/>
       <Fragment set:html={additionalContent} />
   </head>
   <body class="h-100">
