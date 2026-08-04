@@ -1,4 +1,4 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 import react from '@astrojs/react';
 /* import compress from "astro-compress"; */
 
@@ -11,6 +11,13 @@ export default defineConfig({
       }
     }
   },
+  fonts: [
+    {
+      provider: fontProviders.google(),
+      name: "Geist",
+      cssVariable: "--font-body",
+    },
+  ],
   integrations: [
     react()/*, 
     compress({

@@ -4,6 +4,9 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js?url"
 
 import '../styles/styles.css';
+import '../styles/font.css';
+
+import { Font } from 'astro:assets';
 
 import jquery from "jquery/dist/jquery.min.js?url";
 import jqueryui from "jquery-ui/dist/jquery-ui.min.js?url";
@@ -26,6 +29,7 @@ const { title, description, keywords, author, additionalContent, ruffle, emulato
       <meta property="og:image" content="/media/favicon/iconembed.png">
       <meta name="twitter:image" content="/media/favicon/iconembed.png">
       <link rel="manifest" href="/media/favicon/site.webmanifest">
+      <Font cssVariable="--font-body" preload/>
       <meta charset="UTF-8">
       <meta name="msapplication-TileColor" content="#da532c">
       <meta name="title" content={title}>
