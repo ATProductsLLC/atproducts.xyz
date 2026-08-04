@@ -1,7 +1,7 @@
 ---
-import "bootstrap/dist/css/bootstrap.min.css";
+import "../styles/bootstrap.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js?url"
+import bootstrap from "../scripts/bootstrap.bundle.js?url";
 
 import jquery from "jquery/dist/jquery.min.js?url";
 import jqueryui from "jquery-ui/dist/jquery-ui.min.js?url";
@@ -65,7 +65,13 @@ const { title, icon, color, description, keywords, author, additionalContent } =
       <slot/>
     </Fragment>
     <Fragment>
-      <script src={bootstrap}></script>
+      <script>
+        import * as bootstrap from '../scripts/bootstrap.bundle.js';
+        Object.assign(window, bootstrap);
+        window.bootstrap = bootstrap;
+        window.bootstrapReady?.();
+      </script>
+      
       <script src={jquery}></script>
       <script src={jqueryui}></script>
     </Fragment>
