@@ -8,7 +8,7 @@ import "../styles/checkout.css";
   description="Support our work with a custom donation."
   author="Alex Toucan"
 >
-  <div class="position-absolute top-0 mt-3 w-100">
+  <div class="position-absolute top-0 mt-6 w-100">
     <div class="mx-auto width-fit-content">
       <a href="https://atproducts.xyz" aria-label="AT Products LLC Homepage">
         <img src="/media/images/longwhite.png" width="45%" class="image mx-auto d-block min-width-200" alt="AT Products LLC Logo">
@@ -16,18 +16,18 @@ import "../styles/checkout.css";
     </div>
   </div>
 
-  <div class="container donate-page h-100 d-grid d-md-flex justify-content-center align-items-center my-0 text-center">
+  <div class="container donate-page h-100 d-grid md:d-flex justify-content-center align-items-center my-0 px-6 text-center">
     <div>
       <h1 class="mb-4 text-center">Make a Donation</h1>
 
-      <p class="text-center text-muted mb-4">
+      <p class="text-center fg-secondary mb-4">
         Every contribution helps sustain our work. You can enter any amount above $1,
         and your payment will be processed securely through Stripe.
       </p>
 
-      <div class="mb-3">
+      <div class="mb-6">
         <label for="donation-amount" class="form-label text-muted">
-          <small>Donation Amount ($USD)</small>
+          <small class="fg-emphasis-secondary">Donation Amount ($USD)</small>
         </label>
 
         <!-- Updated to type="text" for currency formatting -->
@@ -44,18 +44,26 @@ import "../styles/checkout.css";
         </div>
       </div>
 
-      <button id="donate-btn" class="btn btn-primary w-100">
+      <button id="donate-btn" class="btn-solid theme-primary w-100">
         Donate
       </button>
 
-      <a class="icon-link icon-link-hover fs-5 mt-3" href="https://atproducts.xyz/paid">
+      <a class="icon-link icon-link-hover fs-lg mt-6" href="https://atproducts.xyz/paid">
         Return to Paid Services
-        <i class="bi bi-arrow-right h-100"></i>
+        <i class="bi bi-arrow-right h-100 ms-2"></i>
       </a>
 
-      <p class="text-muted mt-3 text-center">
+      <p class="fg-secondary mt-6 text-center">
         Payments are processed securely through Stripe.
       </p>
+    </div>
+  </div>
+
+  <div class="position-absolute bottom-0 mb-6 w-100">
+    <div class="mx-auto width-fit-content">
+      <small class="fg-secondary">
+        {new Date().getFullYear()} &copy; <a href="https://atproducts.xyz" class="text-decoration-none">AT Products LLC</a>
+      </small>
     </div>
   </div>
 
