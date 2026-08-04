@@ -17,6 +17,12 @@ export default defineConfig({
       name: "Geist",
       cssVariable: "--font-body",
     },
+    {
+      provider: fontProviders.google(),
+      name: "Zen Dots",
+      cssVariable: "--font-title",
+    },
+
   ],
   integrations: [
     react()/*, 
