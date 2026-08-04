@@ -1,3 +1,15 @@
 body {
     font-family: var(--font-body), sans-serif;
 }
+
+.hero.hero-main h1 {
+    font-family: var(--font-title), sans-serif;
+    line-height: 1;
+    font-weight: initial !important;
+}
+
+@media (min-width: 768px) {
+    .hero.hero-main h1 {
+        font-size: clamp(3rem,2rem + 5vw,4.25rem);
+    }
+}
