@@ -11,16 +11,16 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
-        "npm:@astrojs/netlify@^7.0.2",
-        "npm:@astrojs/react@5",
-        "npm:astro@^6.0.4",
+        "npm:@astrojs/netlify@^8.1.3",
+        "npm:@astrojs/react@^6.0.2",
+        "npm:astro@^7.1.6",
         "npm:bootstrap-icons@^1.13.1",
         "npm:bootstrap@^5.3.8",
         "npm:jquery-ui@^1.14.2",
-        "npm:jquery@^3.7.1",
+        "npm:jquery@4",
         "npm:netlify@^13.3.5",
-        "npm:react-dom@^19.1.0",
-        "npm:react@^19.2.4",
+        "npm:react-dom@^19.2.8",
+        "npm:react@^19.2.8",
         "npm:stripe@^20.4.1"
       ]
     }
