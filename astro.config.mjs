@@ -19,6 +19,27 @@ export default defineConfig({
       provider: fontProviders.google(),
       name: "Geist",
       cssVariable: "--font-body",
+    },
+    {
+      provider: fontProviders.local(),
+      name: "Croogla 4F",
+      cssVariable: "--font-title",
+      options: {
+        variants: [
+          {
+            weight: 400,
+            style: "normal",
+            src: ["./src/assets/fonts/Croogla4F.woff"],
+            display: "block"
+          },
+          {
+            weight: 400,
+            style: "normal",
+            src: ["./src/assets/fonts/Croogla4F.woff2"],
+            display: "block"
+          }
+        ]
+      }
     }
   ],
 });
