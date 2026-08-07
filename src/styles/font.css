@@ -8,6 +8,10 @@ body {
     font-weight: initial !important;
 }
 
+.hero .secondary-title {
+    font-family: var(--font-secondary-title), sans-serif;
+}
+
 @media (min-width: 768px) {
     .hero .main-title {
         font-size: clamp(3rem,2rem + 5vw,4.25rem);

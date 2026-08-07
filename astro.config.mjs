@@ -40,6 +40,11 @@ export default defineConfig({
           }
         ]
       }
-    }
+    },
+    {
+      provider: fontProviders.google(),
+      name: "Cascadia Code",
+      cssVariable: "--font-secondary-title",
+    },
   ],
 });

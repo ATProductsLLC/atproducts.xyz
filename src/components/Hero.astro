@@ -4,6 +4,7 @@ const {
   title,
   secondaryTitle,
   titleClasses,
+  secondaryTitleClasses,
   description,
   errorButton,
   buttons,
@@ -31,7 +32,7 @@ const {
               <h1 class={`fs-4xl md:fs-5xl fw-bold md:mb-0 ${imageSrc ? 'mt-4 md:mt-0 d-block md:d-inline align-middle' : ''} ${titleClasses ? titleClasses : ''}`}>{title}</h1>
             )}
             {secondaryTitle && (
-              <h3 class='fs-2xl md:fs-3xl fg-secondary fw-medium mb-4'>{secondaryTitle}</h3>
+              <h3 class={`fs-2xl md:fs-3xl fg-secondary fw-medium mb-4 ${secondaryTitleClasses ? secondaryTitleClasses : ''}`}><em>{secondaryTitle}</em></h3>
             )}
           </div>
           <p class="fs-lg m-3 mb-0 fg-2">{description}</p>
