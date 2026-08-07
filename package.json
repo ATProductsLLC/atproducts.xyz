@@ -1,8 +1,8 @@
 {
   "name": "atproducts.xyz-DoBT",
-  "version": "2.6.2",
+  "version": "2.7.0",
   "config": {
-    "version_short": "2.6"
+    "version_short": "2.7"
   },
   "scripts": {
     "dev": "astro dev",
