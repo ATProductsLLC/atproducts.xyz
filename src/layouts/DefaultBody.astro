@@ -60,9 +60,9 @@ const { title, description, keywords, author, additionalContent, ruffle, emulato
       <slot />
     </Fragment>
     <Fragment>
-      <script src={bootstrap}></script>
-      <script src={jquery}></script>
-      <script src={jqueryui}></script>
+      <script is:inline src={bootstrap}></script>
+      <script is:inline src={jquery}></script>
+      <script is:inline src={jqueryui}></script>
       
       {ruffle && (
         <script is:inline src="/scripts/ruffle/ruffle.js"></script>
