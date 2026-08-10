@@ -12,11 +12,11 @@ import AccordionItem from '../components/accordion/AccordionItem.astro';
 additionalContent="<meta name='google-site-verification' content='8CRfwExNu3kB77SccZhzqhwnETsU2dnm0CACBJSRJ5M'>"
 bulletin={[
   { bulletinImage: "Abigail.webp" },
-  { bulletinImage: "2251-072926-1.webp" },
-  { bulletinImage: "2251-072926-2.webp" },
-  { bulletinImage: "2251-072926-3.webp" },
-  { bulletinImage: "2251-072926-4.webp" },
-  { bulletinImage: "2251-072926-5.webp" },
+  { bulletinImage: "2252-081226-1.webp" },
+  { bulletinImage: "2252-081226-2.webp" },
+  { bulletinImage: "2252-081226-3.webp" },
+  { bulletinImage: "2252-081226-4.webp" },
+  { bulletinImage: "2252-081226-5.webp" },
 ]} 
 index="true" accordion="true">
 <div id="page">
@@ -53,19 +53,13 @@ index="true" accordion="true">
           <img src="/media/slideshow/Abigail.webp" class="d-block w-100" alt="I love you baby 💓">
         </div>
         <div class="carousel-item" data-bs-interval="6000">
-          <img src="/media/slideshow/2251-072926-1.webp" class="d-block w-100" alt="2.25.1 Release Slide 1">
+          <img src="/media/slideshow/v2252-081226-1.webp" class="d-block w-100" alt="v2.25.2 Release Slide 1">
         </div>
         <div class="carousel-item" data-bs-interval="6000">
-          <img src="/media/slideshow/2251-072926-2.webp" class="d-block w-100" alt="2.25.1 Release Slide 2">
+          <img src="/media/slideshow/v2252-081226-2.webp" class="d-block w-100" alt="v2.25.2 Release Slide 2">
         </div>
         <div class="carousel-item" data-bs-interval="6000">
-          <img src="/media/slideshow/2251-072926-3.webp" class="d-block w-100" alt="2.25.1 Release Slide 3">
-        </div>
-        <div class="carousel-item" data-bs-interval="6000">
-          <img src="/media/slideshow/2251-072926-4.webp" class="d-block w-100" alt="2.25.1 Release Slide 4">
-        </div>
-        <div class="carousel-item" data-bs-interval="6000">
-          <img src="/media/slideshow/2251-072926-5.webp" class="d-block w-100" alt="2.25.1 Release Slide 5">
+          <img src="/media/slideshow/v2252-081226-3.webp" class="d-block w-100" alt="v2.25.2 Release Slide 3">
         </div>
       </div>
       <div class="d-flex justify-content-between align-items-center">
@@ -74,15 +68,13 @@ index="true" accordion="true">
           <button type="button" data-bs-target="#carousel-A" data-bs-slide-to="1" aria-label="Slide 2"></button>
           <button type="button" data-bs-target="#carousel-A" data-bs-slide-to="2" aria-label="Slide 3"></button>
           <button type="button" data-bs-target="#carousel-A" data-bs-slide-to="3" aria-label="Slide 4"></button>
-          <button type="button" data-bs-target="#carousel-A" data-bs-slide-to="4" aria-label="Slide 5"></button>
-          <button type="button" data-bs-target="#carousel-A" data-bs-slide-to="5" aria-label="Slide 6"></button>
         </div>
         <div class="d-flex gap-1">
           <button class="btn-icon btn-sm carousel-control-play-pause" type="button" data-bs-target="#carousel-A" aria-label="Pause" data-bs-pause-label="Pause" data-bs-play-label="Play">
             <span class="carousel-icon-pause" aria-hidden="true"></span>
             <span class="carousel-icon-play" aria-hidden="true"></span>
           </button>
-          <a href="/media/pdf/2.25.1 Patch Notes.pdf" class="btn-icon btn-sm" target="_blank" rel="noopener noreferrer">
+          <a href="/media/pdf/v2.25.2 Patch Notes.pdf" class="btn-icon btn-sm" target="_blank" rel="noopener noreferrer">
             <i class="bi bi-file-earmark-pdf-fill"></i>
             <span class="visually-hidden">PDF Download</span>
           </a>
@@ -335,50 +327,36 @@ index="true" accordion="true">
       <div id="what-new">
         <h2> What's New? </h2>
         <p>
-          <b>Released On:</b> July 29th, 2026<br>
-          <b>ATP Database:</b> 2.25.1<br>
+          <b>Released On:</b> August 12th, 2026<br>
+          <b>ATP Database:</b> v2.25.2<br>
         </p>
+
+        <b>Added</b>
+        <ul>
+          <li>Added the Mine Falls "Rebuild Update". (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/6bdcbe6" target="_blank" rel="noopener noreferrer">6bdcbe6</a>)</li>
+        </ul>
 
         <b>Changed</b>
         <ul>
-          <li>Revamped the carousel's design to the new Bootstrap v6 default design. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/797" target="_blank" rel="noopener noreferrer">#797</a>)</li>
-          <li>Changed the <code>.btn-close</code> design on the navbar. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/67e427e6a004ace528565e89dcc1e8eafaa9f22f" target="_blank" rel="noopener noreferrer">67e427e</a>)</li>
-          <li>Updated Bootstrap's internal files. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/797" target="_blank" rel="noopener noreferrer">#797</a>, <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/7191432384ed12893fd57789e889936849c1a052" target="_blank" rel="noopener noreferrer">7191432</a> & <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/409e1d0b6a52c8a84769ce4c146d5359d40fe4ea" target="_blank" rel="noopener noreferrer">409e1d0</a>)</li>
-          <li>Updated React from v19.2.7 to v19.2.8. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/806" target="_blank" rel="noopener noreferrer">#806</a> & <a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/812" target="_blank" rel="noopener noreferrer">#812</a>)</li>
-          <li>Updated Astro from v6.4.8 to v7.1.6. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/796" target="_blank" rel="noopener noreferrer">#796</a>, <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/885670e0eb5982709a45268200039fbe5f2d0573" target="_blank" rel="noopener noreferrer">885670e</a>, <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/ede06611b8a8aedb63649acd9816025411e3056f" target="_blank" rel="noopener noreferrer">ede0661</a>, <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/288b1d81b618e1a2408a701156cc7cb4471fafff" target="_blank" rel="noopener noreferrer">288b1d8</a> & <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/6551456" target="_blank" rel="noopener noreferrer">6551456</a>)</li>
-          <li>Updated @astrojs/netlify from v7.0.12 to v8.1.3. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/796" target="_blank" rel="noopener noreferrer">#796</a>, <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/885670e0eb5982709a45268200039fbe5f2d0573" target="_blank" rel="noopener noreferrer">885670e</a>, <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/ede06611b8a8aedb63649acd9816025411e3056f" target="_blank" rel="noopener noreferrer">ede0661</a> & <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/6551456" target="_blank" rel="noopener noreferrer">6551456</a>)</li>
-          <li>Updated @astrojs/react from v5.0.7 to v6.0.2. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/796" target="_blank" rel="noopener noreferrer">#796</a>, <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/885670e0eb5982709a45268200039fbe5f2d0573" target="_blank" rel="noopener noreferrer">885670e</a>, <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/ede06611b8a8aedb63649acd9816025411e3056f" target="_blank" rel="noopener noreferrer">ede0661</a> & <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/6551456" target="_blank" rel="noopener noreferrer">6551456</a>)</li>
-          <li>Updated @types/bootstrap from v5.2.10 to v5.2.11. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/798" target="_blank" rel="noopener noreferrer">#798</a>)</li>
-          <li>Updated actions/checkout from v6 to v7. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/799" target="_blank" rel="noopener noreferrer">#799</a>)</li>
+          <li>Changed the default body font to Geist. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/add94a0" target="_blank" rel="noopener noreferrer">add94a0</a>)</li>
+          <li>Changed the "AT Products LLC" title (index) font to Croogla 4F. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/eec44c8" target="_blank" rel="noopener noreferrer">eec44c8</a> & <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/f21a776" target="_blank" rel="noopener noreferrer">f21a776</a>)</li>
+          <li>Updated Astro from v7.1.6 to v7.2.0. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/820" target="_blank" rel="noopener noreferrer">#820</a>)</li>
+          <li>Updated @astrojs/netlify from v8.1.3 to v8.2.0. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/820" target="_blank" rel="noopener noreferrer">#820</a>)</li>
         </ul>
 
         <b>Bugs Fixed</b>
         <ul>
-          <li>Fixed heros overflowing on mobile devices. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/7727022432d3cab22fd84a7ac5d3b7475d8e70f5" target="_blank" rel="noopener noreferrer">7727022</a>)</li>
-          <li>Fixed hero dropdowns not being 100% width. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/3bbbe14739b6714b56ddf8b8ef0f06d8908169fd" target="_blank" rel="noopener noreferrer">3bbbe14</a>)</li>
-          <li>Fixed Mine Falls's download links and navigation. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/1c03e9f61669b07264845e7e15295a5463b8fbeb" target="_blank" rel="noopener noreferrer">1c03e9f</a> & <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/44bca6c3ca76d0f631e0fcd2e148a7a729e9b30e" target="_blank" rel="noopener noreferrer">44bca6c</a>)</li>
-          <li>Fixed footer icon margins. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/c19128a76f0bbcffe4302310558658c4103cf1bc" target="_blank" rel="noopener noreferrer">c19128a</a>)</li>
-          <li>Fixed Deltasoft AI's link not being colored correctly on the index page. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/a9cddebe381d8173556cac523a697f0d9109878b" target="_blank" rel="noopener noreferrer">a9cddeb</a>)</li>
+          <li>Fixed image padding on communities' heroes. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/8a031a0" target="_blank" rel="noopener noreferrer">8a031a0</a>)</li>
+          <li>Removed a duplicate listing in MDickie's Projects. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/4ef1b79" target="_blank" rel="noopener noreferrer">4ef1b79</a>)</li>
+          <li>Fixed the Contact Form's floating labels not working. (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/361e454" target="_blank" rel="noopener noreferrer">361e454</a>)</li>
         </ul>
 
         <b>Security Vulnerabilities Fixed</b>
         <ul>
-          <li><code>tar@v7.5.16</code>: node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/814" target="_blank" rel="noopener noreferrer">#814</a>) (<a href="https://github.com/advisories/GHSA-r292-9mhp-454m" target="_blank" rel="noopener noreferrer">GHSA-r292-9mhp-454m</a>)</li>
-          <li><code>postcss@v8.5.15</code>: PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/813" target="_blank" rel="noopener noreferrer">#813</a>) (<a href="https://github.com/advisories/GHSA-r28c-9q8g-f849" target="_blank" rel="noopener noreferrer">GHSA-r28c-9q8g-f849</a>)</li>
-          <li><code>fast-uri@v3.1.2</code>: fast-uri vulnerable to host confusion via literal backslash authority delimiter (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/811" target="_blank" rel="noopener noreferrer">#811</a>) (<a href="https://github.com/advisories/GHSA-v2hh-gcrm-f6hx" target="_blank" rel="noopener noreferrer">CVE-2026-16221</a>)</li>
-          <li><code>svgo@v4.0.1</code>: SVGO removeScripts plugin leaves some executable scripts intact (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/809" target="_blank" rel="noopener noreferrer">#809</a>) (<a href="https://github.com/advisories/GHSA-2p49-hgcm-8545" target="_blank" rel="noopener noreferrer">GHSA-2p49-hgcm-8545</a>)</li>
-          <li><code>fast-uri@v3.1.2</code>: fast-uri vulnerable to host confusion via failed IDN canonicalization (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/811" target="_blank" rel="noopener noreferrer">#811</a>) (<a href="https://github.com/advisories/GHSA-4c8g-83qw-93j6" target="_blank" rel="noopener noreferrer">CVE-2026-13676</a>)</li>
-          <li><code>tar@v7.5.16</code>: node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/814" target="_blank" rel="noopener noreferrer">#814</a>) (<a href="https://github.com/advisories/GHSA-gvwx-54wh-qm9j" target="_blank" rel="noopener noreferrer">CVE-2026-59875</a>)</li>
-          <li><code>tar@v7.5.16</code>: node-tar: Negative tar entry size causes infinite loop in archive replace (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/814" target="_blank" rel="noopener noreferrer">#814</a>) (<a href="https://github.com/advisories/GHSA-8x88-c5mf-7j5w" target="_blank" rel="noopener noreferrer">CVE-2026-59874</a>)</li>
-          <li><code>tar@v7.5.16</code>: node-tar: Decompression/parse DoS via unlimited input (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/814" target="_blank" rel="noopener noreferrer">#814</a>) (<a href="https://github.com/advisories/GHSA-23hp-3jrh-7fpw" target="_blank" rel="noopener noreferrer">CVE-2026-59873</a>)</li>
-          <li><code>@astrojs/netlify@v7.0.13</code>: @astrojs/netlify generates an overly-broad Netlify Image CDN allowlist because remotePatterns.pathname metacharacters are not escaped (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/885670e0eb5982709a45268200039fbe5f2d0573" target="_blank" rel="noopener noreferrer">885670e</a>) (<a href="https://github.com/advisories/GHSA-hp3v-mfqw-h74c" target="_blank" rel="noopener noreferrer">GHSA-hp3v-mfqw-h74c</a>)</li>
-          <li><code>tar@v7.5.16</code>: node-tar: Process crash via PAX numeric path type confusion (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/814" target="_blank" rel="noopener noreferrer">#814</a>) (<a href="https://github.com/advisories/GHSA-w8wr-v893-vjvp" target="_blank" rel="noopener noreferrer">CVE-2026-59871</a>)</li>
-          <li><code>astro@v6.4.8</code>: Astro: Reflected XSS via unescaped View Transition animation properties (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/288b1d81b618e1a2408a701156cc7cb4471fafff" target="_blank" rel="noopener noreferrer">288b1d8</a>) (<a href="https://github.com/advisories/GHSA-4g3v-8h47-v7g6" target="_blank" rel="noopener noreferrer">GHSA-4g3v-8h47-v7g6</a>)</li>
-          <li><code>astro@v6.4.8</code>: Astro: XSS via unescaped spread attribute names in renderHTMLElement (incomplete fix for CVE-2026-54298) (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/885670e0eb5982709a45268200039fbe5f2d0573" target="_blank" rel="noopener noreferrer">885670e</a>) (<a href="https://github.com/advisories/GHSA-f48w-9m4c-m7f5" target="_blank" rel="noopener noreferrer">CVE-2026-59729</a>)</li>
-          <li><code>astro@v6.4.8</code>: Astro: Cross-site scripting via unescaped transition:* directive values on hydrated islands (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/796" target="_blank" rel="noopener noreferrer">#796</a>) (<a href="https://github.com/advisories/GHSA-7pw4-f3q4-r2p2" target="_blank" rel="noopener noreferrer">CVE-2026-59727</a>)</li>
-          <li><code>vite@v7.3.2</code>: vite: <code>server.fs.deny</code> bypass on Windows alternate paths (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/3fcf13c2d7d42890c40cdc6fba4dbabf15dcd746" target="_blank" rel="noopener noreferrer">3fcf13c</a>) (<a href="https://github.com/advisories/GHSA-fx2h-pf6j-xcff" target="_blank" rel="noopener noreferrer">CVE-2026-53571</a>)</li>
-          <li><code>@babel/core@v7.29.0</code>: @babel/core: Arbitrary File Read via sourceMappingURL Comment (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/3fcf13c2d7d42890c40cdc6fba4dbabf15dcd746" target="_blank" rel="noopener noreferrer">3fcf13c</a>) (<a href="https://github.com/advisories/GHSA-4x5r-pxfx-6jf8" target="_blank" rel="noopener noreferrer">CVE-2026-49356</a>)</li>
-          <li><code>esbuild@v0.27.7</code>: esbuild allows arbitrary file read when running the development server on Windows (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/796" target="_blank" rel="noopener noreferrer">#796</a>) (<a href="https://github.com/advisories/GHSA-g7r4-m6w7-qqqr" target="_blank" rel="noopener noreferrer">GHSA-g7r4-m6w7-qqqr</a>)</li>
+          <li><code>nanoid@v3.3.16</code>: nanoid: custom generators can loop indefinitely when size is zero (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/1317698" target="_blank" rel="noopener noreferrer">1317698</a>) (<a href="https://github.com/advisories/GHSA-2v37-7h3g-55p8" target="_blank" rel="noopener noreferrer">CVE-2026-67213</a>)</li>
+          <li><code>fast-uri@v3.1.4</code>: fast-uri vulnerable to host confusion via backslash authority introducer (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/819" target="_blank" rel="noopener noreferrer">#819</a>) (<a href="https://github.com/advisories/GHSA-7p8r-x3mc-p8w7" target="_blank" rel="noopener noreferrer">CVE-2026-18446</a>)</li>
+          <li><code>brace-expansion@v5.0.8</code>: brace-expansion Regular Expression Denial of Service vulnerability (<a href="https://github.com/ATProductsLLC/atproducts.xyz/pull/818" target="_blank" rel="noopener noreferrer">#818</a>) (<a href="https://github.com/advisories/GHSA-rgw5-rvv9-x895" target="_blank" rel="noopener noreferrer">CVE-2026-69152</a>)</li>
+          <li><code>brace-expansion@v2.0.1</code>: brace-expansion Regular Expression Denial of Service vulnerability (<a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/f8af263" target="_blank" rel="noopener noreferrer">f8af263</a> & <a href="https://github.com/ATProductsLLC/atproducts.xyz/commit/99cf1d2" target="_blank" rel="noopener noreferrer">99cf1d2</a>) (<a href="https://github.com/advisories/GHSA-v6h2-p8h4-qcjw" target="_blank" rel="noopener noreferrer">CVE-2025-5889</a>)</li>
         </ul>
       </div>
     </main>
