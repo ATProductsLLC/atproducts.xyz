@@ -2,13 +2,14 @@
 const { title, author, date, image } = Astro.props;
 ---
 
-<div id="intro" class="mb-8">
+<div id="intro" class="my-5">
   {image && (
     <figure class="mb-6">
       <img 
         src={image} 
         alt={title} 
         class="img-fluid rounded-4 border-4 border-solid border-secondary d-block mx-auto hero-img"
+        style="max-width: 1000px;"
       />
     </figure>
   )}
@@ -22,12 +23,12 @@ const { title, author, date, image } = Astro.props;
           height="40" 
           class="rounded-4 border-4 border-solid border-secondary my-auto"
         />
-        <div class="md:d-flex d-grid align-items-center md:gap-2">
+        <div class="md:d-flex d-grid align-items-center md:gap-4">
           <span>
-            <span class="text-body-secondary"> By</span> {name}
+            <span class="fg-secondary"> By</span> {name}
           </span>
           <span>
-            <span class="text-body-secondary"> Published</span> {date}
+            <span class="fg-secondary"> Published</span> {date}
           </span>
         </div>
       </div>

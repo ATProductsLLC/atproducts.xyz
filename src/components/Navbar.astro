@@ -1,333 +1,172 @@
 ---
-const { breadcrumb, breadcrumbcontent, link, pageTitle } = Astro.props;
+const { breadcrumb, crumbs = [], pageTitle } = Astro.props;
+
+const trail = [
+  ...crumbs,
+  ...(pageTitle ? [{ name: pageTitle }] : []),
+];
 ---
 
-<a href="#main-content" class="visually-hidden-focusable btn btn-primary position-fixed m-2 hero-filter skip-content" title="Skip to main content">Skip to main content</a>
+<a href="#main-content" class="visually-hidden-focusable btn-solid theme-primary position-fixed m-2 hero-filter skip-content" title="Skip to main content">Skip to main content</a>
 
 <header class="main-navbar fixed-top">
-  <nav class="navbar navbar-expand-lg">
+  <nav class="navbar lg:navbar-expand fg-2">
     <div class="container-fluid">
-      <a class="navbar-brand" href="https://atproducts.xyz/"
-        ><img
-          src={`/media/images/${breadcrumb ? "storyviewer-black.png" : "longblack.webp"}`}
-          height="45px"
-          alt="AT Products LLC"
-          class="headerimg" /></a
-      ><button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#offcanvasNavbar"
-      >
-        <span class="navbar-toggler-icon"></span>
+      <a class="navbar-brand" href="/">
+        <img src="/media/images/longblack.webp" height="45px" alt="AT Products LLC" class="headerimg">
+      </a>
+      <button class="btn-icon navbar-toggler" type="button" data-bs-toggle="drawer" data-bs-target="#navbarLeftDrawer" aria-controls="navbarLeftDrawer" aria-expanded="false" aria-label="Toggle navigation">
+        <svg class="navbar-toggler-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><path d="M1 3.5h14M1 8h14M1 12.5h14"/></svg>
       </button>
-      <div
-        class="offcanvas offcanvas-start overflow-auto"
-        tabindex="-1"
-        id="offcanvasNavbar"
-      >
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title"><img
-          src={`/media/images/${breadcrumb ? "storyviewer-black.png" : "longblack.webp"}`}
-          height="45px"
-          alt="AT Products LLC"
-          class="headerimg" /></h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="offcanvas"
-          ></button>
+      <dialog class="drawer drawer-start" tabindex="-1" id="navbarLeftDrawer" aria-labelledby="navbarLeftDrawerLabel">
+        <div class="drawer-header">
+          <h5 class="drawer-title" id="navbarLeftDrawerLabel">
+            <img src="/media/images/longblack.webp" height="45px" alt="AT Products LLC" class="headerimg">
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Close"></button>
         </div>
-        <div class="navbar-body d-lg-flex gap-2">
-          <div class="navbar-nav custom-group justify-content-start me-auto">
-            <a class="custom-group-item custom-group-item-action" href="https://atproducts.xyz/"
-              >Home</a
-            >
-            <div class="custom-group-item p-0 dropdown dropdown-section">
-              <a
-                class="dropdown-toggle custom-group-item-action d-block"
-                href="javascript:void(0)"
-                role="button"
-                data-bs-toggle="dropdown"
-                data-bs-auto-close="outside"
-              >
+        <div class="drawer-body">
+          <ul class="navbar-nav me-auto mb-2 md:mb-0">
+            <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+            <li class="nav-item">
+              <a class="nav-link dropdown-toggle" href="javascript:void(0)" role="button" data-bs-toggle="menu" aria-expanded="false">
                 Products
+                <i class="bi bi-sm bi-chevron-expand" aria-hidden="true"></i>
               </a>
-              <div class="dropdown-menu p-0 border-0">
-                <div class="custom-group">
-                  <a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://atproducts.xyz/paid"
-                    >Paid Services</a
-                  >
-                  <div class="custom-group-item p-0 dropdown subdropdown dropdown-section">
-                    <a
-                      class="dropdown-toggle custom-group-item-action d-block"
-                      href="javascript:void(0)"
-                      role="button"
-                      data-bs-toggle="dropdown"
-                    >
-                      Web Projects
-                    </a>
-                    <div class="dropdown-menu p-0 border-0">
-                      <div class="custom-group">
-                        <a
-                          class="custom-group-item custom-group-item-action"
-                          href="https://atproducts.xyz/flash"
-                          >Flash Documentation</a
-                        ><a
-                          class="custom-group-item custom-group-item-action"
-                          href="https://atproducts.xyz/mdickie"
-                          >MDickie Projects</a
-                        ><a
-                          class="custom-group-item custom-group-item-action"
-                          href="https://games.atproducts.xyz"
-                          >AT's Unblocked Games</a
-                        ><a
-                          class="custom-group-item custom-group-item-action"
-                          href="https://atproducts.xyz/roms"
-                          >AT's ROM Games</a
-                        >
-                      </div>
-                    </div>
-                  </div>
-                  <a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://atproducts.xyz/stories"
-                    >Stories</a
-                  ><a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://atproducts.xyz/sms"
-                    >SMS Bomb</a
-                  >
-                  <a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://atproducts.xyz/minefalls"
-                    >Mine Falls</a
-                  >
-                  <div class="custom-group-item p-0 dropdown subdropdown dropdown-section">
-                    <a
-                      class="dropdown-toggle custom-group-item-action d-block"
-                      href="javascript:void(0)"
-                      role="button"
-                      data-bs-toggle="dropdown"
-                    >
-                      Pynx Projects
-                    </a>
-                    <div class="dropdown-menu p-0 border-0">
-                      <div class="custom-group">
-                        <a
-                          class="custom-group-item custom-group-item-action"
-                          href="https://atproducts.xyz/pynx/radiumos"
-                          >RadiumOS</a
-                        >
-                        <a
-                          class="custom-group-item custom-group-item-action"
-                          href="https://atproducts.xyz/pynx/ezpkgm"
-                          >ezpkgm</a
-                        ><a
-                          class="custom-group-item custom-group-item-action"
-                          href="https://atproducts.xyz/pynx/pson"
-                          >PSON</a
-                        ><a
-                          class="custom-group-item custom-group-item-action"
-                          href="https://atproducts.xyz/pynx/bxpp"
-                          >BxPP</a
-                        ><a
-                          class="custom-group-item custom-group-item-action"
-                          href="https://atproducts.xyz/pynx/fenta"
-                          >FentaMini</a
-                        ><a
-                          class="custom-group-item custom-group-item-action"
-                          href="https://atproducts.xyz/pynx/inferno"
-                          >Inferno</a
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="custom-group-item p-0 dropdown dropdown-section">
-              <a
-                class="dropdown-toggle custom-group-item-action d-block"
-                href="javascript:void(0)"
-                role="button"
-                data-bs-toggle="dropdown"
-              >
+              <ul class="menu">
+                <li><a class="menu-item text-wrap-auto" href="/paid">Paid Services</a></li>
+                <li class="submenu">
+                  <button class="menu-item" type="button">Web Projects</button>
+                  <ul class="menu">
+                    <li><a class="menu-item text-wrap-auto" href="/flash">Flash Documentation</a></li>
+                    <li><a class="menu-item text-wrap-auto" href="/mdickie">MDickie Projects</a></li>
+                    <li><a class="menu-item text-wrap-auto" href="https://games.atproducts.xyz/">AT's Unblocked Games</a></li>
+                    <li><a class="menu-item text-wrap-auto" href="/roms">AT's ROM Games</a></li>
+                  </ul>
+                </li>                
+                <li><a class="menu-item text-wrap-auto" href="/stories">Stories</a></li>
+                <li><a class="menu-item text-wrap-auto" href="/sms">SMS Bomb</a></li>
+                <li><a class="menu-item text-wrap-auto" href="/minefalls">Mine Falls</a></li>
+                <li class="submenu">
+                  <button class="menu-item" type="button">Pynx Projects</button>
+                  <ul class="menu">
+                    <li><a class="menu-item text-wrap-auto" href="https://radiumos.atproducts.xyz/">RadiumOS</a></li>
+                    <li><a class="menu-item text-wrap-auto" href="/pynx/nyaos">NyaOS</a></li>
+                    <li><a class="menu-item text-wrap-auto" href="/pynx/ezpkgm">ezpkgm</a></li>
+                    <li><a class="menu-item text-wrap-auto" href="/pynx/pson">PSON</a></li>
+                    <li><a class="menu-item text-wrap-auto" href="/pynx/bxpp">BxPP</a></li>
+                    <li><a class="menu-item text-wrap-auto" href="/pynx/fentamini">FentaMini</a></li>
+                    <li><a class="menu-item text-wrap-auto" href="/pynx/inferno">Inferno</a></li>
+                  </ul>
+                </li>                
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link dropdown-toggle" href="javascript:void(0)" role="button" data-bs-toggle="menu" aria-expanded="false">
                 Departments
+                <i class="bi bi-sm bi-chevron-expand" aria-hidden="true"></i>
               </a>
-              <div class="dropdown-menu p-0 border-0">
-                <div class="custom-group">
-                  <a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://beta-testing.atproducts.xyz"
-                    >Department of Beta Testing</a
-                  ><a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://portfolio.atproducts.xyz/#toucanempire"
-                    >The Toucan Empire</a
-                  ><a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://portfolio.atproducts.xyz/#atpweather"
-                    >ATPWeather</a
-                  >
-                </div>
-              </div>
-            </div>
-            <div class="custom-group-item p-0 dropdown dropdown-section">
-              <a
-                class="dropdown-toggle custom-group-item-action d-block"
-                href="javascript:void(0)"
-                role="button"
-                data-bs-toggle="dropdown"
-              >
+              <ul class="menu">
+                <li><a class="menu-item text-wrap-auto" href="https://beta-testing.atproducts.xyz/">Department of Beta Testing</a></li>
+                <li><a class="menu-item text-wrap-auto" href="https://portfolio.atproducts.xyz/#toucanempire">The Toucan Empire</a></li>
+                <li><a class="menu-item text-wrap-auto" href="https://portfolio.atproducts.xyz/#atpweather">ATPWeather</a></li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link dropdown-toggle" href="javascript:void(0)" role="button" data-bs-toggle="menu" aria-expanded="false">
                 Communities
+                <i class="bi bi-sm bi-chevron-expand" aria-hidden="true"></i>
               </a>
-              <div class="dropdown-menu p-0 border-0">
-                <div class="custom-group">
-                  <a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://atproducts.xyz/ehs"
-                    >Ethical Hacking Society</a
-                  ><a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://atproducts.xyz/script"
-                    >The Script Community</a
-                  ><a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://atproducts.xyz/codinghome"
-                    >CodingHome</a
-                  ><a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://atproducts.xyz/noodle"
-                    >Noodle Hackerspace</a
-                  >
-                </div>
-              </div>
-            </div>
-            <div class="custom-group-item p-0 dropdown dropdown-section">
-              <a
-                class="dropdown-toggle custom-group-item-action d-block"
-                href="javascript:void(0)"
-                role="button"
-                data-bs-toggle="dropdown"
-                data-bs-auto-close="outside"
-              >
+              <ul class="menu">
+                <li><a class="menu-item text-wrap-auto" href="/ehs">Ethical Hacking Society</a></li>
+                <li><a class="menu-item text-wrap-auto" href="/script">The Script Community</a></li>
+                <li><a class="menu-item text-wrap-auto" href="/codinghome">CodingHome</a></li>
+                <li><a class="menu-item text-wrap-auto" href="/noodle">Noodle Hackerspace</a></li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link dropdown-toggle" href="javascript:void(0)" role="button" data-bs-toggle="menu" aria-expanded="false">
                 Documentation
+                <i class="bi bi-sm bi-chevron-expand" aria-hidden="true"></i>
               </a>
-              <div
-                class="dropdown-menu p-0 border-0"
-                data-bs-display="static"
-              >
-                <div class="custom-group">
-                  <a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://atproducts.xyz/terms"
-                    >Terms of Service</a
-                  ><a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://atproducts.xyz/discord"
-                    >Discord Rules</a
-                  ><a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://atproducts.xyz/privacy"
-                    >Privacy Policy</a
-                  >
-                  <div class="custom-group-item p-0 dropdown subdropdown dropdown-section">
-                    <a
-                      class="dropdown-toggle custom-group-item-action d-block"
-                      href="javascript:void(0)"
-                      role="button"
-                      data-bs-toggle="dropdown"
-                    >
-                      Other Policies
-                    </a>
-                    <div class="dropdown-menu p-0 border-0">
-                      <div class="custom-group">
-                        <a
-                          class="custom-group-item custom-group-item-action text-wrap"
-                          href="https://atproducts.xyz/paidterms"
-                          >Paid Services & Website Creation Policies and
-                          Terms</a
-                        ><a
-                          class="custom-group-item custom-group-item-action"
-                          href="https://atproducts.xyz/titleiiandvii"
-                          >Title II & VII</a
-                        >
-                      </div>
-                    </div>
-                  </div>
-                  <a
-                    class="custom-group-item custom-group-item-action"
-                    href="https://atproducts.xyz/licenses"
-                    >Licenses</a
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
+              <ul class="menu">
+                <li><a class="menu-item text-wrap-auto" href="/terms">Terms of Service</a></li>
+                <li><a class="menu-item text-wrap-auto" href="/discord">Discord Rules</a></li>
+                <li><a class="menu-item text-wrap-auto" href="/privacy">Privacy Policy</a></li>
+                <li class="submenu">
+                  <button class="menu-item" type="button">Other Policies</button>
+                  <ul class="menu">
+                    <li><a class="menu-item text-wrap-auto" href="/paidterms">Paid Services & Website Creation Policies and Terms</a></li>
+                    <li><a class="menu-item text-wrap-auto" href="/crndpolicy">Civil Rights & Non-Discrimination Policy</a></li>
+                  </ul>
+                </li>                
+                <li><a class="menu-item text-wrap-auto" href="/licenses">Licenses</a></li>
+              </ul>
+            </li>
+          </ul>
+
           {breadcrumb && (
-            <ol class="navbar-nav breadcrumb m-0 flex-row d-block d-lg-none mt-4">
-              <li class="breadcrumb-item"><a href="/">Home</a></li>
-              {link && link.map(({ name, href, dropdown }, index) => (
-                <li class={`breadcrumb-item ${dropdown && breadcrumbcontent ? 'dropdown' : ''}`} key={index}>
-                  <a href={href} class={dropdown && breadcrumbcontent ? 'dropdown-toggle' : ''} data-bs-toggle={dropdown && breadcrumbcontent ? 'dropdown' : undefined} aria-expanded="false">{name}</a>
-                  {dropdown && breadcrumbcontent && (
-                    <ul class="dropdown-menu dropdown-story" data-bs-popper="static" aria-label="Dropdown">
-                      {breadcrumbcontent.map(({ name, href }, index) => (
-                        <li key={index}><a class="dropdown-item" href={href}>{name}</a></li>
-                      ))}
-                    </ul>
+            <ol class="navbar-nav breadcrumb m-0 flex-column d-flex lg:d-none align-items-start mt-4">
+              {trail.map(({ name, href }, i) => (
+                <li class="breadcrumb-item d-flex align-items-center">
+                  {i > 0 && (
+                    <span class="breadcrumb-divider me-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 16" width="6" height="12"><path d="M2 2l4 6-4 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                  )}
+                  {href ? (
+                    <a href={href} class="breadcrumb-link">{name}</a>
+                  ) : (
+                    <span class="breadcrumb-link active" aria-current="page">{name}</span>
                   )}
                 </li>
               ))}
-              <li class="breadcrumb-item active" aria-current="page">{pageTitle}</li>
             </ol>
           )}
-          <div class="navbar-nav custom-group justify-content-start ms-auto nav-tab-link mb-2 mb-lg-0 color-changer">
-            <div class="custom-group-item p-0 dropdown dropdown-section color-dropdown">
-              <a class="dropdown-toggle custom-group-item-action color-button d-block" href="javascript:void(0)" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="bd-theme">
-                <span class="theme-icon-active"><i class="bi bi-sun-fill me-2"></i></span>
-                <span class="d-lg-none" id="bd-theme-text">Change theme</span>
+
+          <div class="navbar-nav justify-content-start lg:ms-auto nav-tab-link mt-auto lg:mt-0 mb-0">
+            <div class="p-0">
+              <a class="dropdown-toggle nav-link d-block" href="javascript:void(0)" role="button" data-bs-toggle="menu" data-bs-auto-close="outside" data-bs-placement="top-start" id="bd-theme">
+                <span class="theme-icon-active"><i class="bi bi-sun-fill me-2 lg:me-0"></i></span>
+                <span class="lg:d-none" id="bd-theme-text">Change theme</span>
+                <i class="bi bi-sm bi-chevron-expand ms-1 lg:ms-2" aria-hidden="true"></i>
               </a>
-              <div class="dropdown-menu p-0" data-bs-display="static" data-bs-popper="static">
-                <div class="custom-group">
-                  <a class="dropdown-item" href="javascript:void(0)" data-bs-theme-value="light">
-                    <i class="bi bi-sun-fill me-2"></i> Light
-                  </a>
-                  <a class="dropdown-item" href="javascript:void(0)" data-bs-theme-value="dark">
-                    <i class="bi bi-moon-stars-fill me-2"></i> Dark
-                  </a>
-                  <a class="dropdown-item" href="javascript:void(0)" data-bs-theme-value="auto">
-                    <i class="bi bi-circle-half me-2"></i> Auto
-                  </a>
-                </div>
+              <div class="menu" data-bs-display="static" data-bs-popper="static">
+                <a class="menu-item text-wrap-auto" href="javascript:void(0)" data-bs-theme-value="light">
+                  <i class="bi bi-sun-fill me-2"></i> Light
+                </a>
+                <a class="menu-item text-wrap-auto" href="javascript:void(0)" data-bs-theme-value="dark">
+                  <i class="bi bi-moon-stars-fill me-2"></i> Dark
+                </a>
+                <a class="menu-item text-wrap-auto" href="javascript:void(0)" data-bs-theme-value="auto">
+                  <i class="bi bi-circle-half me-2"></i> Auto
+                </a>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </dialog>
     </div>
   </nav>
+
   {breadcrumb && (
-    <nav class="navbar pt-0 d-none d-lg-block">
+    <nav class="navbar pt-0 d-none lg:d-block">
       <div class="container-fluid">
         <ol class="navbar-nav breadcrumb m-0 flex-row">
-          <li class="breadcrumb-item"><a href="/">Home</a></li>
-          {link && link.map(({ name, href, dropdown }, index) => (
-            <li class={`breadcrumb-item ${dropdown && breadcrumbcontent ? 'dropdown' : ''}`} key={index}>
-              <a href={href} class={dropdown && breadcrumbcontent ? 'dropdown-toggle' : ''} data-bs-toggle={dropdown && breadcrumbcontent ? 'dropdown' : undefined} aria-expanded="false">{name}</a>
-              {dropdown && breadcrumbcontent && (
-                <ul class="dropdown-menu dropdown-story" data-bs-popper="static" aria-label="Dropdown">
-                  {breadcrumbcontent.map(({ name, href }, index) => (
-                    <li key={index}><a class="dropdown-item" href={href}>{name}</a></li>
-                  ))}
-                </ul>
+          {trail.map(({ name, href }, i) => (
+            <li class="breadcrumb-item d-flex align-items-center">
+              {i > 0 && (
+                <span class="breadcrumb-divider me-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 16" width="6" height="12"><path d="M2 2l4 6-4 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+              )}
+              {href ? (
+                <a href={href} class="breadcrumb-link">{name}</a>
+              ) : (
+                <span class="breadcrumb-link active" aria-current="page">{name}</span>
               )}
             </li>
           ))}
-          <li class="breadcrumb-item active" aria-current="page">{pageTitle}</li>
         </ol>
       </div>
     </nav>
@@ -336,5 +175,6 @@ const { breadcrumb, breadcrumbcontent, link, pageTitle } = Astro.props;
 
 <noscript>
   <div class="alert alert-dark mb-0" role="alert">
-  <strong>It seems like you don't have JavaScript enabled!</strong> You will need JavaScript for color modes, accordions, scrollspies, tab panes, dropdowns, popovers, and more! We do not have fallbacks, so please enable JavaScript or <a href="https://github.com/Alex-Toucan/atproducts.xyz">view the source code to read the information</a>.
+    <strong>It seems like you don't have JavaScript enabled!</strong> You will need JavaScript for color modes, accordions, scrollspies, tab panes, dropdowns, popovers, and more! We do not have fallbacks, so please enable JavaScript or <a href="https://github.com/ATProductsLLC/atproducts.xyz">view the source code to read the information</a>.
+  </div>
 </noscript>

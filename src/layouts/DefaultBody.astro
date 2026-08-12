@@ -6,8 +6,11 @@ import bootstrap from "../scripts/bootstrap.bundle.js?url";
 import jquery from "jquery/dist/jquery.min.js?url";
 import jqueryui from "jquery-ui/dist/jquery-ui.min.js?url";
 
+import '../styles/font.css';
 import '../styles/other.css';
 import '../styles/cookie.css';
+
+import { Font } from 'astro:assets';
 
 const { highlight, title, heroid, icon, color, bulletin, description, keywords, author, additionalContent, index, contact, fourofour, accordion, breadcrumb, devicon } = Astro.props;
 
@@ -61,6 +64,8 @@ if (devicon) {
         </Fragment>
       }    
       <link rel="manifest" href="/media/favicon/site.webmanifest">
+      <Font cssVariable="--font-body" preload/>
+      <Font cssVariable="--font-title" preload/>
       <meta charset="UTF-8">
       <meta name="msapplication-TileColor" content="#131415">
       <meta name="title" content={title}>
@@ -88,7 +93,7 @@ if (devicon) {
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <Fragment set:html={additionalContent} />
   </head>
-  <body class={`${breadcrumb === 'true' ? 'fixedtopnavimage-breadcrumb' : 'fixedtopnavimage'}`}>
+  <body class={`${breadcrumb === 'true' ? 'fixedtopnavimage-breadcrumb' : 'fixedtopnavimage'} container md:px-9`}>
     <Fragment>  
       <slot/>
     </Fragment>
