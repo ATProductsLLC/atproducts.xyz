@@ -16,10 +16,10 @@ import '../../styles/contact.css'
         id="codinghome"
         title="Applying for the DoBT"
         description="Apply for the DoBT today!"
-        primaryHref="#form"
-        primaryText="Application Form"
-        secondaryHref="/media/pdf/DoBT Backup Application Form.pdf"
-        secondaryText="Backup Physical Form"
+        buttons={[
+          { href: "#form", text: "Application Form", type: "primary" },
+          { href: "/media/pdf/DoBT Backup Application Form.pdf", text: "Backup Physical Form", type: "secondary" }
+        ]}
       />
       <main id="apply" class="container">
         <div id="how">
@@ -45,20 +45,20 @@ import '../../styles/contact.css'
             <div class="d-sm-flex gap-2">
               <div class="col">
                   <div class="mb-3 form-floating">
+                    <label for="nameInput" class="form-label fw-normal">Name</label>
                     <input name="name" class="form-control" id="nameInput" placeholder="John Doe" required>
-                    <label for="nameInput" class="form-label">Name</label>
                   </div>
               </div>
               <div class="col">
                 <div class="mb-3 form-floating">
+                  <label for="emailInput" class="form-label fw-normal">Email</label>
                   <input name="Email" type="email" class="form-control" id="emailInput" placeholder="name@example.com" required>
-                  <label for="emailInput" class="form-label">Email</label>
                 </div>
               </div>
             </div>
             <div class="mb-3 form-floating">
+              <label for="textareaInput" class="form-label fw-normal">Application</label>
               <textarea name="Text" class="form-control info-box" id="textareaInput" placeholder="Put your application here." required></textarea>
-              <label for="textareaInput" class="form-label">Application</label>
             </div>
             <div class="mb-2">
               <label 
@@ -82,7 +82,7 @@ import '../../styles/contact.css'
               >
             </div>
             <small>If you wish to include more than one file, you must <a href="mailto:support@atproducts.xyz">email us manually</a> due to Netlify complications. Please allow 72 hours for a response back to your email provided. If your response is considered spam, it may not be responded to.</small>
-            <button type="submit" class="mt-2 btn btn-lg btn-primary col-12">Submit</button>
+            <button type="submit" class="mt-2 btn btn-lg btn-solid theme-primary col-12">Submit</button>
           </form>
         </div>
       </main>

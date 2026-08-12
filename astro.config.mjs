@@ -1,4 +1,4 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 import react from '@astrojs/react';
 import netlify from '@astrojs/netlify';
 
@@ -13,5 +13,38 @@ export default defineConfig({
   integrations: [
     react()
   ],
-  adapter: netlify()
+  adapter: netlify(),
+  fonts: [
+    {
+      provider: fontProviders.google(),
+      name: "Geist",
+      cssVariable: "--font-body",
+    },
+    {
+      provider: fontProviders.local(),
+      name: "Croogla 4F",
+      cssVariable: "--font-title",
+      options: {
+        variants: [
+          {
+            weight: 400,
+            style: "normal",
+            src: ["./src/assets/fonts/Croogla4F.woff"],
+            display: "block"
+          },
+          {
+            weight: 400,
+            style: "normal",
+            src: ["./src/assets/fonts/Croogla4F.woff2"],
+            display: "block"
+          }
+        ]
+      }
+    },
+    {
+      provider: fontProviders.google(),
+      name: "Cascadia Code",
+      cssVariable: "--font-secondary-title",
+    },
+  ],
 });
