@@ -1,0 +1,264 @@
+---
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog", ({ data }) => !data.draft);
+
+  const seen = new Set();
+  const paths = [];
+
+  for (const post of posts) {
+    const d = post.data.date;
+    const year = String(d.getUTCFullYear());
+    const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(d.getUTCDate()).padStart(2, "0");
+
+    for (const level of [year, `${year}/${month}`, `${year}/${month}/${day}`]) {
+      if (!seen.has(level)) {
+        seen.add(level);
+        paths.push({ params: { path: level } });
+      }
+    }
+  }
+
+  return paths;
+}
+
+const reqPath = typeof Astro.params.path === "string" ? Astro.params.path : "";
+const segments = reqPath.split("/").filter(Boolean);
+const [year, month, day] = segments;
+
+const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+
+function postParts(post) {
+  const d = post.data.date;
+  return {
+    year: String(d.getUTCFullYear()),
+    month: String(d.getUTCMonth() + 1).padStart(2, "0"),
+    day: String(d.getUTCDate()).padStart(2, "0"),
+  };
+}
+
+let items = [];
+
+if (day) {
+  items = allPosts
+    .filter((p) => {
+      const parts = postParts(p);
+      return parts.year === year && parts.month === month && parts.day === day;
+    })
+    .map((p) => ({
+      type: "file",
+      name: p.data.title,
+      url: p.data.path ?? `/blog/${p.id.replace(/\.md$/, "")}`,
+      author: p.data.author.map((a) => a.name).join(", "),
+      mtime: p.data.date.toISOString(),
+    }));
+} else if (month) {
+  const days = new Set();
+  for (const p of allPosts) {
+    const parts = postParts(p);
+    if (parts.year === year && parts.month === month) days.add(parts.day);
+  }
+  items = [...days].sort().map((d) => ({
+    type: "directory",
+    name: d,
+    url: `/blog/${year}/${month}/${d}`,
+    author: "",
+    mtime: "",
+  }));
+} else if (year) {
+  const months = new Set();
+  for (const p of allPosts) {
+    const parts = postParts(p);
+    if (parts.year === year) months.add(parts.month);
+  }
+  items = [...months].sort().map((m) => ({
+    type: "directory",
+    name: m,
+    url: `/blog/${year}/${m}`,
+    author: "",
+    mtime: "",
+  }));
+}
+
+const parentUrl =
+  segments.length === 3 ? `/blog/${year}/${month}` : segments.length === 2 ? `/blog/${year}` : `/blog`;
+
+const pageTitle = `Index of /blog/${reqPath}`;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{pageTitle}</title>
+    <link rel="shortcut icon" type="image/png" href="/media/favicon/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/media/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/media/favicon/favicon.png">
+    <link rel="icon" type="image/png" href="/media/favicon/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/media/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/media/favicon/favicon-16x16.png">
+    <link rel="mask-icon" href="/media/favicon/safari-pinned-tab.svg" color="#5bbad5">
+    <meta property="og:image" content="/media/favicon/iconembed.png">
+    <meta name="twitter:image" content="/media/favicon/iconembed.png">
+    <link rel="manifest" href="/media/favicon/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="title" content={pageTitle}>
+    <meta name="description" content={pageTitle}>
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@ATProductsLLC">
+    <meta name="twitter:creator" content="@ATProductsLLC">
+    <meta name="twitter:title" content={pageTitle}>
+    <meta name="twitter:description" content={pageTitle}>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta property="og:title" content={pageTitle}>
+    <meta property="og:description" content={pageTitle}>
+    <meta property="og:site_name" content="AT Products LLC">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <style>
+      body {
+        background: #111;
+        color: #ddd;
+        font-family: monospace;
+        padding: 2rem;
+      }
+      a {
+        color: #4da3ff;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th, td {
+        padding: 0.5rem;
+        border-bottom: 1px solid #333;
+        text-align: left;
+      }
+      tr:hover {
+        background: #1a1a1a;
+      }
+      th.sortable {
+        cursor: pointer;
+        user-select: none;
+      }
+      th.sortable:hover {
+        color: #fff;
+      }
+      th.sortable .arrow {
+        display: inline-block;
+        width: 1em;
+        opacity: 0.5;
+      }
+      th.sortable.active .arrow {
+        opacity: 1;
+      }
+      .copyright {
+        margin-top: 2rem;
+        font-size: 1.17em;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>{pageTitle}</h1>
+
+    <p>
+      <a href={parentUrl}>⬅ Parent Directory</a>
+    </p>
+
+    <table id="indexTable">
+      <thead>
+        <tr>
+          <th class="sortable" data-key="name" data-type="string">Name <span class="arrow"></span></th>
+          <th class="sortable" data-key="author" data-type="string">Author <span class="arrow"></span></th>
+          <th class="sortable" data-key="mtime" data-type="date">Published <span class="arrow"></span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {items.map((item) => {
+          const mtimeValue = item.mtime ? new Date(item.mtime).getTime() || 0 : 0;
+          return (
+            <tr
+              data-type={item.type === "directory" ? "1" : "0"}
+              data-name={item.name}
+              data-author={item.author}
+              data-mtime={mtimeValue}
+            >
+              <td>
+                <a href={item.url}>
+                  {item.type === "directory" ? "📁" : "📄"} {item.name}
+                </a>
+              </td>
+              <td>{item.author || "-"}</td>
+              <td>{item.mtime ? new Date(item.mtime).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" }) : "-"}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+    <div class="copyright">&reg; <script is:inline src="/static/year.js"></script> <a href="https://atproducts.xyz">AT Products LLC</a></div>
+
+    <script>
+      const table = document.getElementById("indexTable");
+      const tbody = table.querySelector("tbody");
+      const headers = table.querySelectorAll("th.sortable");
+
+      let currentKey = "name";
+      let currentDir = 1;
+
+      function sortRows(type, dir) {
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+
+        rows.sort((a, b) => {
+          const aIsDir = a.dataset.type === "1";
+          const bIsDir = b.dataset.type === "1";
+          if (aIsDir !== bIsDir) return aIsDir ? -1 : 1;
+
+          let cmp = 0;
+          if (type === "string" && currentKey === "name") {
+            cmp = a.dataset.name.localeCompare(b.dataset.name);
+          } else if (type === "string" && currentKey === "author") {
+            cmp = a.dataset.author.localeCompare(b.dataset.author);
+          } else if (type === "date") {
+            cmp = Number(a.dataset.mtime) - Number(b.dataset.mtime);
+          }
+
+          return cmp * dir;
+        });
+
+        rows.forEach((row) => tbody.appendChild(row));
+      }
+
+      function updateArrows(activeTh) {
+        headers.forEach((th) => {
+          th.classList.remove("active");
+          th.querySelector(".arrow").textContent = "";
+        });
+        activeTh.classList.add("active");
+        activeTh.querySelector(".arrow").textContent = currentDir === 1 ? "▲" : "▼";
+      }
+
+      headers.forEach((th) => {
+        th.addEventListener("click", () => {
+          const key = th.dataset.key;
+          const type = th.dataset.type;
+
+          if (currentKey === key) {
+            currentDir *= -1;
+          } else {
+            currentKey = key;
+            currentDir = 1;
+          }
+
+          sortRows(type, currentDir);
+          updateArrows(th);
+        });
+      });
+    </script>
+  </body>
+</html>
