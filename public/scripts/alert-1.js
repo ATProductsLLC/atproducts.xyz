@@ -3,7 +3,7 @@ var pureAlert1Type = "alert-dark"; // Color
 var pureAlert1Title = "ABIGAIL SITE:"; // Title
 var pureAlert1Icon = 'bi-heart-fill'; // Icon
 var pureAlert1Desc = "For the people curious to see the exact site that I (Alex Toucan) asked out Abigail on, it is now available for public viewing! The link is below."; // Description
-var pureAlert1Link = 'https://abigail.atproducts.xyz/'; // Link
+var pureAlert1Link = 'https://abigail.atproducts.xyz/form'; // Link
 var pureAlert1LinkDesc = 'View site.'; // Link text
 var pureAlert1Enabled = true; // Switch to enable/disable alert
 // ---        --- //
