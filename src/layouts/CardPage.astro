@@ -4,7 +4,7 @@ const { id, title, description, cardLinks, size } = Astro.props;
 
 <div class={`hero hero-${id}`}>
   <div class="hero-back hero-border h-100">
-    <div class="hero-filter">
+    <div class="hero-filter py-3">
       <div data-bs-theme="dark">
         <h1 class="fs-4xl fw-bold title pt-3 pb-2" set:html={title}></h1>
         {description && (
