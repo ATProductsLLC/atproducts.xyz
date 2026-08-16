@@ -6,9 +6,9 @@ import "../styles/docs.css";
 ---
 
 <Layout 
-    title="RSH Script Engine Documentation" 
-    description="RSH (RadiumOS Shell Script) is a lightweight cooperative scripting language that runs directly on the bare-metal RadiumOS kernel."
-    keywords="radiumos, radium os, pynx, operating system, os, 32-bit, written from scratch, rsh, script engine, documentation, docs"
+    title="RASH Script Engine Documentation" 
+    description="RASH (RAdium SHell) is a lightweight cooperative scripting language that runs directly on the bare-metal RadiumOS kernel."
+    keywords="radiumos, radium os, pynx, operating system, os, 32-bit, written from scratch, RASH, script engine, documentation, docs"
     author="AT Products LLC & Pynx"
     scroll="true"
 >
@@ -17,8 +17,8 @@ import "../styles/docs.css";
         <!-- SIDEBAR -->
         <aside class="sidebar">
             <a class="sidebar-brand audiowide" href="#">
-                RSH Script Engine
-                <span>RadiumOS Docs · v2.3</span>
+                RASH Script Engine
+                <span>RadiumOS Docs · v1.0</span>
             </a>
             <a class="main-link audiowide" href="/">
                 <i class="bi bi-arrow-left"></i> Back to Home
@@ -52,13 +52,13 @@ import "../styles/docs.css";
         <!-- MAIN -->
         <main class="content">
 
-            <h1 class="audiowide">RSH Script Engine v2.3</h1>
+            <h1 class="audiowide">RASH Script Engine v1.0</h1>
             <a class="main-link audiowide d-md-none px-0 border-0 mb-0" href="/">
                 <i class="bi bi-arrow-left"></i> Back to Home
             </a>
             <p class="doc-byline">RadiumOS Documentation &mdash; Written by scp_2801</p>
 
-            <p>RSH (RadiumOS Shell Script) is a lightweight cooperative scripting language that runs directly on the bare-metal RadiumOS kernel. It has no heap allocation, no dynamic memory, and uses fixed-size static buffers throughout. Scripts are loaded from AVFS, parsed into a flat line array, and executed cooperatively by the kernel.</p>
+            <p>RASH (RAdium SHell) is a lightweight cooperative scripting language that runs directly on the bare-metal RadiumOS kernel. It has no heap allocation, no dynamic memory, and uses fixed-size static buffers throughout. Scripts are loaded from AVFS, parsed into a flat line array, and executed cooperatively by the kernel.</p>
 
             <!-- TOC -->
             <div class="toc">
@@ -91,25 +91,25 @@ import "../styles/docs.css";
 
             <!-- 1 -->
             <h2 id="basics">1. Basics and File Structure</h2>
-            <p>RSH scripts are plain text files stored in AVFS. They are executed by calling <code>script_execute_file(path)</code> from C, or via the RSH shell command.</p>
+            <p>RASH scripts are plain text files stored in AVFS. They are executed by calling <code>script_execute_file(path)</code> from C, or via the RASH shell command.</p>
             <p>A script is read top-to-bottom. Blank lines and comment lines are skipped. Every non-blank, non-comment line is a command. Lines are trimmed of leading and trailing whitespace before execution.</p>
             <p>The maximum file size is <strong>32768 bytes (32 KB)</strong>. The maximum number of lines per file is <strong>1000</strong>. Each line may be at most <strong>255 characters</strong>.</p>
-            <p>The file extension <code>.rsh</code> is automatically tried if the given path does not exist verbatim. So <code>script_execute_file("myscript")</code> will also try <code>myscript.rsh</code>.</p>
+            <p>The file extension <code>.rash</code> is automatically tried if the given path does not exist verbatim. So <code>script_execute_file("myscript")</code> will also try <code>myscript.rash</code>.</p>
 
             <h3>Entrypoint Declaration</h3>
             <p>If your script defines functions and wants execution to start from a <code>main</code> function rather than top-to-bottom, put this at the top of the file:</p>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>^entrypoint</pre>
             </div>
             <p>This causes the engine to collect all function definitions first, then call <code>main</code> automatically. Without this directive, all non-function lines execute immediately top to bottom.</p>
 
             <h3>Include</h3>
-            <p>You can include another RSH file with:</p>
+            <p>You can include another RASH file with:</p>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>^include filename
-    ^include "other_script.rsh"</pre>
+    ^include "other_script.rash"</pre>
             </div>
             <p>Includes may be nested up to <strong>8 levels deep</strong>. The included file runs in the same script context (shares variables, maps, and functions).</p>
 
@@ -119,7 +119,7 @@ import "../styles/docs.css";
             <h2 id="comments">2. Comments</h2>
             <p>Any line beginning with <code>%</code> or <code>#</code> is a comment and is completely ignored.</p>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>% This is a comment
     # This is also a comment
     echo Hello   % inline comments are NOT supported - only full-line comments work</pre>
@@ -135,7 +135,7 @@ import "../styles/docs.css";
 
             <h3>Setting Variables</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>set NAME value
     set NAME "value with spaces"
     let NAME value
@@ -146,7 +146,7 @@ import "../styles/docs.css";
             <h3>Variable Expansion</h3>
             <p>Use <code>$NAME</code> or <code>$&lbrace;NAME&rbrace;</code> anywhere in a line to substitute its value. Expansion happens before the command is parsed.</p>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>set X 42
     echo The value is $X
     echo Also works: $&lbrace;X&rbrace;</pre>
@@ -154,7 +154,7 @@ import "../styles/docs.css";
 
             <h3>Unsetting / Default / Swap / Copy</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>unset NAME
     default NAME fallback_value
     swap A B      % exchanges values of A and B
@@ -163,7 +163,7 @@ import "../styles/docs.css";
 
             <h3>Listing / Debugging</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>vars           % print all defined variables
     dump VARNAME   % print raw bytes of a variable as hex</pre>
             </div>
@@ -185,7 +185,7 @@ import "../styles/docs.css";
 
             <h3>echo</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>echo Hello World
     echo "Value is" $X</pre>
             </div>
@@ -193,7 +193,7 @@ import "../styles/docs.css";
 
             <h3>print</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>print Hello
     print $X</pre>
             </div>
@@ -201,7 +201,7 @@ import "../styles/docs.css";
 
             <h3>echoln</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>echoln VARNAME</pre>
             </div>
             <p>Prints the value of the named variable followed by a newline. Takes a variable name, not a literal value.</p>
@@ -217,7 +217,7 @@ import "../styles/docs.css";
                 <li><code>%t</code> — typewriter effect: prints one character at a time with 100ms delay</li>
             </ul>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>set NAME scp_2801
     printf "Hello %s you have %d items%n" $NAME 5
     printf "Port value: %x%n" $PORTVAL</pre>
@@ -231,7 +231,7 @@ import "../styles/docs.css";
 
             <h3>math</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>math RESULT_VAR expression
     math X $A + $B
     math Y $X * 3</pre>
@@ -240,7 +240,7 @@ import "../styles/docs.css";
 
             <h3>inc / dec</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>inc VARNAME         % adds 1
     inc VARNAME 5       % adds 5
     dec VARNAME         % subtracts 1
@@ -249,7 +249,7 @@ import "../styles/docs.css";
 
             <h3>mod / div / pow</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>mod A B RESULT      % RESULT = A mod B
     div A B RESULT      % RESULT = A / B (integer division)
     pow BASE EXP RESULT % RESULT = BASE ^ EXP</pre>
@@ -257,7 +257,7 @@ import "../styles/docs.css";
 
             <h3>sqrt / abs / min / max / clamp / sign</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>sqrt N RESULT           % integer square root
     abs N RESULT            % absolute value
     min A B RESULT          % smaller of A and B
@@ -268,7 +268,7 @@ import "../styles/docs.css";
 
             <h3>rand / hex / dec2</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>rand MIN MAX RESULT     % random integer in [MIN, MAX]
     hex N RESULT            % converts decimal N to hex string (e.g. 0x1F)
     dec2 N RESULT           % parses N (may be hex) and stores decimal value</pre>
@@ -279,7 +279,7 @@ import "../styles/docs.css";
             <!-- 6 -->
             <h2 id="bitwise">6. Bitwise Operations</h2>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>band A B RESULT     % bitwise AND
     bor  A B RESULT     % bitwise OR
     bxor A B RESULT     % bitwise XOR
@@ -296,7 +296,7 @@ import "../styles/docs.css";
             <!-- 7 -->
             <h2 id="strings">7. String Operations</h2>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>strlen   VARNAME RESULT                    % length of value
     substr   VARNAME START LEN RESULT           % extract substring
     strcat   DEST SRC1 SRC2 ...                 % append SRC values onto DEST
@@ -325,7 +325,7 @@ import "../styles/docs.css";
 
             <h3>if / elif / else / endif</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>if CONDITION
     ... body ...
     elif OTHER_CONDITION
@@ -345,7 +345,7 @@ import "../styles/docs.css";
 
             <h3>Inline if</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>if CONDITION do COMMAND
     if CONDITION do COMMAND else OTHER_COMMAND
     echo hello if $X == 5</pre>
@@ -353,7 +353,7 @@ import "../styles/docs.css";
 
             <h3>break / continue / return / exit</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>break       % exits current loop
     continue    % skips to next loop iteration
     return      % exits current function
@@ -362,7 +362,7 @@ import "../styles/docs.css";
 
             <h3>assert</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>assert CONDITION
     assert CONDITION "message if fails"</pre>
             </div>
@@ -374,7 +374,7 @@ import "../styles/docs.css";
 
             <h3>while</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>while CONDITION
     ... body ...
     endwhile</pre>
@@ -383,7 +383,7 @@ import "../styles/docs.css";
 
             <h3>for (range)</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>for VAR in START..END
     ... body ...
     endfor
@@ -396,7 +396,7 @@ import "../styles/docs.css";
 
             <h3>for (token list)</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>for VAR in token1 token2 token3
     ... body ...
     endfor</pre>
@@ -404,7 +404,7 @@ import "../styles/docs.css";
 
             <h3>repeat</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>repeat N COMMAND</pre>
             </div>
             <p>Runs COMMAND N times. <code>ITER</code> holds the current zero-based index.</p>
@@ -414,7 +414,7 @@ import "../styles/docs.css";
             <!-- 10 -->
             <h2 id="switch">10. Switch / Case</h2>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>switch $VARIABLE
     case value1
     ... body ...
@@ -437,7 +437,7 @@ import "../styles/docs.css";
 
             <h3>Defining a Function</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>function myfunction
     echo Running myfunction
     echo First arg is $1
@@ -449,7 +449,7 @@ import "../styles/docs.css";
 
             <h3>One-time Functions</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>ont function setup
     echo This only runs once ever
     endfunction</pre>
@@ -457,7 +457,7 @@ import "../styles/docs.css";
 
             <h3>Recursive Functions</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>function countdown
     echo $1
     if $1 > 0 do call countdown $1 - 1
@@ -467,7 +467,7 @@ import "../styles/docs.css";
 
             <h3>Calling Functions</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>call functionname arg1 arg2 arg3
     functionname arg1 arg2 arg3</pre>
             </div>
@@ -475,7 +475,7 @@ import "../styles/docs.css";
 
             <h3>Function Management</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>func.list       % print all defined functions
     func.drop NAME  % undefine a function
     pool.info       % show function body pool usage</pre>
@@ -483,7 +483,7 @@ import "../styles/docs.css";
 
             <h3>once</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>once TAG COMMAND</pre>
             </div>
             <p>Runs COMMAND the first time this tag is encountered, then never again.</p>
@@ -496,7 +496,7 @@ import "../styles/docs.css";
 
             <h3>Declaring a Map</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>const MAP mymap
     key1: value1
     key2: value2
@@ -510,7 +510,7 @@ import "../styles/docs.css";
 
             <h3>Map Commands</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>map.new NAME [editable]
     map.set NAME KEY VALUE
     map.get NAME KEY RESULT
@@ -535,7 +535,7 @@ import "../styles/docs.css";
 
             <h3>Map Lookup via Variable Expansion</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>set K mykey
     echo $mymap[$K]       % value at key mykey
     echo $mymap[mykey]    % literal key
@@ -544,7 +544,7 @@ import "../styles/docs.css";
 
             <h3>with Block</h3>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>with MAPNAME do
     echo Key is $key Value is $val
     endwith</pre>
@@ -555,7 +555,7 @@ import "../styles/docs.css";
             <!-- 13 -->
             <h2 id="files">13. File / AVFS Commands</h2>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>fexists    FILENAME RESULT    % 1 if file exists
     fsize      FILENAME RESULT    % file size in bytes, or -1
     fread      FILENAME RESULT    % read content into RESULT (up to 4096 bytes)
@@ -574,7 +574,7 @@ import "../styles/docs.css";
             <h2 id="io">14. Port I/O Commands</h2>
             <p>Direct hardware port access. Calls <code>outb</code>/<code>inb</code> directly in the kernel.</p>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>outb PORT VALUE          % write 8-bit VALUE to I/O port PORT
     inb  PORT [RESULT]       % read 8-bit value, store in RESULT (default INB)
     outw PORT VALUE          % write 16-bit value
@@ -588,7 +588,7 @@ import "../styles/docs.css";
             </div>
             <p>You can also use inline function-call syntax:</p>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>outb(0x60, 0xFF)
     set VAL inb(0x64)</pre>
             </div>
@@ -599,7 +599,7 @@ import "../styles/docs.css";
             <h2 id="vga">15. VGA Text Commands</h2>
             <p>Write directly to the VGA text-mode framebuffer at 0xB8000. Screen is 80 columns × 25 rows.</p>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>cls                              % clear the terminal
     color FG [BG]                    % set terminal color (0-15)
     vgaput ROW COL CHAR ATTR         % write single character at position
@@ -615,14 +615,14 @@ import "../styles/docs.css";
             <!-- 16 -->
             <h2 id="timing">16. Timing Commands</h2>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>pause MS                     % sleep for MS milliseconds
     ticks [RESULT]               % store PIT tick count in RESULT (default TICKS)
     elapsed START_VAR RESULT     % RESULT = current_ticks - START_VAR</pre>
             </div>
             <p>At the default RadiumOS PIT frequency of 100 Hz, one tick equals 10ms.</p>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>ticks START
     % ... do work ...
     elapsed START DURATION
@@ -634,7 +634,7 @@ import "../styles/docs.css";
             <!-- 17 -->
             <h2 id="typecheck">17. Type Check Commands</h2>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>isnumber  VARNAME RESULT   % 1 if valid decimal integer
     isempty   VARNAME RESULT   % 1 if empty or undefined
     isdefined VARNAME RESULT   % 1 if variable is defined
@@ -655,15 +655,15 @@ import "../styles/docs.css";
             <!-- 18 -->
             <h2 id="misc">18. Misc / Utility</h2>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>nop                  % no operation
-    log LEVEL MESSAGE    % print [RSH][LEVEL] MESSAGE to terminal
+    log LEVEL MESSAGE    % print [RASH][LEVEL] MESSAGE to terminal
     error MESSAGE        % print red error message and return -1
     warn  MESSAGE        % print yellow warning message
     info  MESSAGE        % print blue info message</pre>
             </div>
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>log DEBUG "Value of X is $X"
     log INFO "Starting scan loop"
     log ERROR "Something went wrong"</pre>
@@ -706,9 +706,9 @@ import "../styles/docs.css";
             <p>Port <code>0x64</code> is the PS/2 status register. Bit 0 indicates whether a scancode is ready. Port <code>0x60</code> is the data port. Scancodes below <code>0x80</code> are key-press events; at or above <code>0x80</code> are key-release events. Scancode <code>0x01</code> is Escape.</p>
 
             <div class="code-block">
-                <div class="code-block-header"><span>RSH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
+                <div class="code-block-header"><span>RASH</span><button class="copy-btn" onclick="copyBlock(this)">Copy</button></div>
                 <pre>% =============================================================
-    % RSH Keyboard Poller Example - RadiumOS / scp_2801
+    % RASH Keyboard Poller Example - RadiumOS / scp_2801
     % Polls PS/2 port 0x60 and prints key names to the terminal.
     % Press Escape to exit.
     % =============================================================
@@ -720,7 +720,7 @@ import "../styles/docs.css";
     cls
     color 11
     echo ==========================================
-    echo  RadiumOS RSH Keyboard Poller
+    echo  RadiumOS RASH Keyboard Poller
     echo  Press any keys. ESC to quit.
     echo ==========================================
     color 7
@@ -870,7 +870,7 @@ import "../styles/docs.css";
             <p><strong>Exit condition:</strong> Scancode <code>0x01</code> (Escape) sets <code>RUNNING</code> to 0, which terminates the while loop on the next condition check.</p>
 
             <hr>
-            <p class="disclaimer">RSH Script Engine v2.3 &mdash; RadiumOS &mdash; scp_2801<br><br>
+            <p class="disclaimer">RASH Script Engine v1.0 &mdash; RadiumOS &mdash; scp_2801<br><br>
 
                 All content related to RadiumOS or TomatoOS is open source and freely distributed.
                 Maintained in partnership with <a href="https://atproducts.xyz" target="_blank" rel="noopener">AT Products LLC</a>.
