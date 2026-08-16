@@ -37,7 +37,7 @@ import "../styles/index.css";
     <div id="commands">
       <h2>Command Reference</h2>
       <p style="font-size:0.9rem; color:#9ac89a; margin-bottom:10px;">
-          Scroll to see all 64 commands. Run <code>help</code> in the shell for the full list.
+          Scroll to see all available commands. Run <code>help</code> in the shell for the full list.
       </p>
       <div class="cmd-wrap">
         <table>
@@ -45,71 +45,47 @@ import "../styles/index.css";
               <tr><th>Command</th><th>Description</th></tr>
           </thead>
           <tbody>
-              <tr class="grp"><td colspan="2">General</td></tr>
-              <tr><td>help</td><td>Display this message</td></tr>
-              <tr><td>clear</td><td>Clear terminal</td></tr>
-              <tr><td>echo</td><td>Echo messages</td></tr>
-              <tr><td>boot</td><td>Show welcome screen</td></tr>
-              <tr><td>cowsay</td><td>Cowsay</td></tr>
-              <tr><td>exit</td><td>Exit the shell</td></tr>
-              <tr><td>hexdump</td><td>Hexdump toolkit</td></tr>
-              <tr><td>ps</td><td>List tasks</td></tr>
-              <tr><td>kill</td><td>Kill task by PID</td></tr>
-              <tr><td>top</td><td>Task monitor</td></tr>
-              <tr><td>search</td><td>Search commands</td></tr>
-
-              <tr class="grp"><td colspan="2">Files</td></tr>
+              <tr class="grp"><td colspan="2">Core / Shell</td></tr>
+              <tr><td>rshidt</td><td>Rash interactive development tool</td></tr>
+              <tr><td>rpkg</td><td>Radium Package Manager</td></tr>
+              <tr><td>rie</td><td>Rust image editor</td></tr>
+              <tr><td>help</td><td>Displays this message</td></tr>
               <tr><td>ls</td><td>List directory</td></tr>
               <tr><td>cat</td><td>Read text file</td></tr>
               <tr><td>rm</td><td>Remove file</td></tr>
+              <tr><td>cowsay</td><td>Cowsay</td></tr>
+              <tr><td>boot</td><td>Show welcome screen</td></tr>
+              <tr><td>echo</td><td>Echo message</td></tr>
+              <tr><td>clear</td><td>Clear terminal</td></tr>
+              <tr><td>hexdump</td><td>Hexdump toolkit</td></tr>
               <tr><td>cd</td><td>Change directory</td></tr>
-              <tr><td>onan</td><td>Text editor</td></tr>
-              <tr><td>cat.hex</td><td>Print file as hex</td></tr>
-              <tr><td>pie</td><td>Rust image editor</td></tr>
+              <tr><td>ps</td><td>List tasks</td></tr>
+              <tr><td>kill</td><td>Kill task by PID</td></tr>
+              <tr><td>top</td><td>Task monitor</td></tr>
+              <tr><td>exit</td><td>Exit the OS</td></tr>
 
-              <tr class="grp"><td colspan="2">Network</td></tr>
-              <tr><td>ping</td><td>Ping a host</td></tr>
-              <tr><td>curl</td><td>Curl</td></tr>
+              <tr class="grp"><td colspan="2">Scripting</td></tr>
+              <tr><td>whd.diag</td><td>Watchdog task diagram</td></tr>
+              <tr><td>script</td><td>Run .rsh/.rash script</td></tr>
+              <tr><td>rsh.line</td><td>Execute a single script line</td></tr>
+              <tr><td>autoexec</td><td>Run autoexec script</td></tr>
+              <tr><td>rash</td><td>Run /bin/autoexec.rsh</td></tr>
+
+              <tr class="grp"><td colspan="2">Networking</td></tr>
+              <tr><td>setdns</td><td>Set DNS resolution (a, b, c, d)</td></tr>
               <tr><td>testdns</td><td>Test DNS resolution</td></tr>
               <tr><td>nettest</td><td>ARP/network test</td></tr>
               <tr><td>rawsend</td><td>Send raw test packet</td></tr>
               <tr><td>netdiag</td><td>Full network diagnostics</td></tr>
               <tr><td>tcpreset</td><td>Force TCP state reset</td></tr>
-              <tr><td>setdns</td><td>Set DNS server (a b c d)</td></tr>
-              <tr><td>ifconfig</td><td>Network interfaces</td></tr>
-              <tr><td>arp</td><td>ARP table</td></tr>
-
-              <tr class="grp"><td colspan="2">Browser &amp; Proxy</td></tr>
-              <tr><td>gbrowser / gb</td><td>Graphical web browser</td></tr>
-              <tr><td>proxy.get</td><td>Download via proxy</td></tr>
-              <tr><td>files.proxy</td><td>Proxy + fi demo</td></tr>
-
-              <tr class="grp"><td colspan="2">Scripting</td></tr>
-              <tr><td>script</td><td>Run .rash/.rash script</td></tr>
-              <tr><td>rashline</td><td>Execute a single script line</td></tr>
-              <tr><td>rash</td><td>Run /bin/autoexec.rash</td></tr>
-              <tr><td>autoexec</td><td>Run /bin/autoexec.rash</td></tr>
-              <tr><td>run.module</td><td>Run a module</td></tr>
-              <tr><td>list.modules</td><td>List all modules</td></tr>
-              <tr><td>remove.module</td><td>Remove a module</td></tr>
-              <tr><td>tag.module</td><td>Tag a module with a label</td></tr>
-              <tr><td>config.module</td><td>Configure a module</td></tr>
-              <tr><td>set.module</td><td>Create a Discord module</td></tr>
-              <tr><td>wbd.diag</td><td>Watchdog task diagram</td></tr>
-
-              <tr class="grp"><td colspan="2">AES Encryption</td></tr>
-              <tr><td>aes.trace.on</td><td>Enable full AES tracing</td></tr>
-              <tr><td>aes.trace.off</td><td>Disable AES tracing</td></tr>
-              <tr><td>aes.trace.flip</td><td>Toggle AES tracing state</td></tr>
-              <tr><td>aes.trace.query</td><td>Check AES tracing status</td></tr>
-              <tr><td>aes.key</td><td>Set AES encryption key</td></tr>
-              <tr><td>aes.enc</td><td>Encrypt a file</td></tr>
-              <tr><td>aes.dec</td><td>Decrypt a file</td></tr>
-
-              <tr class="grp"><td colspan="2">Discord</td></tr>
+              <tr><td>qbrowser</td><td>Graphical web browser</td></tr>
+              <tr><td>qb</td><td>Graphical web browser (alias)</td></tr>
+              <tr><td>jsontest</td><td>JSON parser test</td></tr>
               <tr><td>dinit</td><td>Init Discord (built-in token)</td></tr>
               <tr><td>dtoken</td><td>Set Discord bot token</td></tr>
-              <tr><td>discord</td><td>Who am I</td></tr>
+
+              <tr class="grp"><td colspan="2">Discord</td></tr>
+              <tr><td>dwhoami</td><td>Discord: who am I</td></tr>
               <tr><td>dguilds</td><td>Discord: list servers</td></tr>
               <tr><td>dchannels</td><td>Discord: list channels</td></tr>
               <tr><td>dmsg</td><td>Discord: fetch messages</td></tr>
@@ -119,11 +95,29 @@ import "../styles/index.css";
               <tr><td>ddel</td><td>Discord: delete message</td></tr>
               <tr><td>dshell</td><td>Discord: interactive shell</td></tr>
               <tr><td>dcache</td><td>Discord: show message cache</td></tr>
-              <tr><td>dtest</td><td>Discord: test</td></tr>
+              <tr><td>dtest</td><td>Discord: API test</td></tr>
 
-              <tr class="grp"><td colspan="2">Misc</td></tr>
-              <tr><td>jsontest</td><td>Test JSON parser</td></tr>
-              <tr><td>module.help</td><td>Module help (blank=all types)</td></tr>
+              <tr class="grp"><td colspan="2">Modules</td></tr>
+              <tr><td>set.module</td><td>Create a Discord module</td></tr>
+              <tr><td>config.module</td><td>Configure a module</td></tr>
+              <tr><td>run.module</td><td>Run a module</td></tr>
+              <tr><td>list.modules</td><td>List all modules</td></tr>
+              <tr><td>remove.module</td><td>Remove a module with a label</td></tr>
+              <tr><td>tag.module</td><td>Module help (blank=all types)</td></tr>
+
+              <tr class="grp"><td colspan="2">Proxy</td></tr>
+              <tr><td>proxy.set</td><td>Download via proxy</td></tr>
+              <tr><td>files.proxy</td><td>Proxy 2 files demo</td></tr>
+
+              <tr class="grp"><td colspan="2">AES</td></tr>
+              <tr><td>aes.trace.on</td><td>Enable full AES tracing</td></tr>
+              <tr><td>aes.trace.off</td><td>Disable AES tracing</td></tr>
+              <tr><td>aes.trace.flip</td><td>Toggle AES tracing state</td></tr>
+              <tr><td>aes.trace.query</td><td>Check AES tracing status</td></tr>
+              <tr><td>aes.key</td><td>Set AES encryption key</td></tr>
+              <tr><td>aes.enc</td><td>Encrypt a file</td></tr>
+              <tr><td>aes.dec</td><td>Decrypt a file</td></tr>
+              <tr><td>cat.hex</td><td>Print file as hex</td></tr>
             </tbody>
           </table>
         </div>
