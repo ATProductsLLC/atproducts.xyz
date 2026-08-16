@@ -186,6 +186,7 @@ li code { font-size: 0.82em; }
     font-size: 0.85rem;
     margin: 0.75rem 0 1rem;
     text-shadow: none;
+    overflow-x: auto;
 }
 .doc-table thead th {
     background: rgba(0,20,0,0.95);
