@@ -3,6 +3,7 @@
     --glow-teal: #3bf4d6;
     --glow-orange: #ff9f1c;
     --glow-yellow: #f9ff4d;
+    --glow-blue: #1c9fff;
     --glow-border: rgba(126, 255, 94, 0.35);
     --bg-dark: #050806;
 }
@@ -69,4 +70,30 @@ pre {
     line-height: 1.8;
     margin: 0;
     border: none;
+}
+
+.container-info {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0;
+}
+
+.warn, .info {
+    margin-bottom: 1.5rem !important;
+}
+
+.warn span, .info span {
+    font-size: 0.85rem;
+    border-radius: 4px;
+}
+
+.warn {
+    color: var(--glow-orange);
+    text-shadow: 0 0 10px rgba(255,159,28,0.6);
+}
+
+.info {
+    color: var(--glow-blue);
+    text-shadow: 0 0 10px rgba(28, 159, 255, 0.6);
 }

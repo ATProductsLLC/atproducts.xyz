@@ -24,8 +24,16 @@ import "../styles/index.css";
     </div>
     <div id="general-info">
       <h2> General Information </h2>
+      <div class="container-info">
+        <p class="warn">
+            <strong>⚠ Secure warning.</strong><br>
+            <span>To secure RadiumOS, you must modify the source code <b>or</b> make <a href="/docs">RASH</a> runtime scripts.
+            </span>
+        </p>
+      </div>
       <p>RadiumOS (formerly TomatoOS) is a 32-bit OS, similar to a former project, <a href="https://atproducts.xyz/pynx/nyaos">NyaOS</a>, developed however completely from scratch. Test this OS in a virtual machine!
       </p>
+      <p>RadiumOS uses the x86 <code>inb</code> and <code>outb</code> instructions for direct hardware communication. These instructions allow the kernel to read and write bytes to hardware ports, enabling low‑level device control.</p>
       <h3>Minimum Requirements</h3>
       <table class="req-table">
         <tr><td>CPU</td><td>At least 1 core</td></tr>
@@ -125,11 +133,13 @@ import "../styles/index.css";
       </div>
       <div id="run">
         <h2>How to Run</h2>
-          <p class="warn">
-              <strong>⚠ QEMU recommended.</strong>
-              Download from <a href="https://www.qemu.org/" target="_blank">qemu.org</a>.
-              VirtualBox and VMware have been tested and works on Windows machienes, but QEMU is the most reliable, stable, and recommended option.
-          </p>
+          <div class="container-info">
+            <p class="warn">
+                <strong>⚠ QEMU recommended.</strong><br>
+                <span>Download from <a href="https://www.qemu.org/" target="_blank">qemu.org</a>.
+                VirtualBox and VMware have been tested and works on Windows machienes, but QEMU is the most reliable, stable, and recommended option.</span>
+            </p>
+          </div>
           <p style="margin-top:8px;">
               Download <a href="https://lfs.atproducts.xyz/media/files/RadiumOS.iso">RadiumOS.iso</a> and run:
           </p>

@@ -237,12 +237,6 @@ tr.grp td {
   border-bottom: 1px solid rgba(59,244,214,0.15);
 }
 
-.warn {
-  color: var(--glow-orange);
-  text-shadow: 0 0 10px rgba(255,159,28,0.6);
-  font-size: 0.95rem;
-}
-
 .dl-link {
   display: block;
   margin: 6px 0;
