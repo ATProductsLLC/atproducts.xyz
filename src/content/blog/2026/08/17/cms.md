@@ -9,7 +9,7 @@ author:
 image: "/media/images/Banner.png"
 keywords: "AT Products LLC, 2026 review, company growth, annual summary, ATP"
 color: "#212529"
-tags: ["Company", "Year in Review"]
+tags: ["CMS", "Content Management System", "Website Management", "Client Solutions"]
 path: "/blog/2026/08/17/cms"
 
 ---
