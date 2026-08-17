@@ -33,11 +33,11 @@ import '../styles/blog.css';
       <a href={hrefFor(featured)} class="text-decoration-none text-reset d-block mb-5">
         <div class="card bg-body-tertiary border-0 overflow-hidden rounded-8 featured-post">
           <div class="row g-0 align-items-stretch">
-            <div class="col-md-6">
+            <div class="md:col-6">
               <img src={featured.data.image} class="w-100 h-100 object-fit-cover" alt={featured.data.title} loading="eager" style="min-height: 320px;">
             </div>
-            <div class="col-md-6">
-              <div class="card-body h-100 d-flex flex-column p-4 p-lg-5 rounded-top-0 rounded-bottom-8">
+            <div class="md:col-6">
+              <div class="card-body h-100 d-flex flex-column p-4 lg:p-5 rounded-top-0 rounded-bottom-8">
                 <span class="badge text-bg-primary align-self-start mb-3 fw-medium">Latest</span>
                 <h2 class="card-title fw-semibold mb-3">{featured.data.title}</h2>
                 <p class="card-text text-body-secondary mb-4">{featured.data.excerpt ?? featured.data.description}</p>
@@ -57,7 +57,7 @@ import '../styles/blog.css';
     )}
 
     {rest.length > 0 && (
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+      <div class="row row-cols-1 sm:row-cols-2 lg:row-cols-3 g-4">
         {rest.map((post) => (
           <div class="col">
             <div class="card h-100 bg-body-tertiary border-0 rounded-8 position-relative post-card">
