@@ -6,7 +6,7 @@ date: 2025-08-16
 author:
   - name: "Alex Toucan"
     image: "/media/favicon/iconembed.png"
-image: "/media/images/banner.png"
+image: "/media/images/Banner.png"
 keywords: "Discord safety, minor protection, AT Products LLC, CodingHome, community guidelines, moderation policies"
 color: "#212529"
 tags: ["Safety", "Community", "Discord"]
