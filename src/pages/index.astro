@@ -1,6 +1,8 @@
 ---
 import DefaultBody from "../layouts/DefaultBody.astro";
 import Navbar from "../components/Navbar.astro";
+import BackToTop from "../components/BackToTop.astro";
+import Footer from "../components/Footer.astro";
 import { getCollection } from "astro:content";
 
 const allPosts = await getCollection("blog", ({ data }) => !data.draft);
@@ -97,6 +99,8 @@ import '../styles/blog.css';
       </div>
     )}
   </div>
+  <Footer />
+  <BackToTop />
 </DefaultBody>
 
 <style>

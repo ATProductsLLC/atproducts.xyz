@@ -111,6 +111,10 @@ body.dialog-open {
   margin-bottom: 0 !important;
 }
 
+blockquote, .footer-header, .index-link, .quote {
+  font-size: 1.25rem !important;
+}
+
 a {
   text-underline-offset: .25rem;
   text-decoration-color: rgba(var(--bs-link-color-rgb), 0.25);
