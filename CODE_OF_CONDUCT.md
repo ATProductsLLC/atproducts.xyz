@@ -7,7 +7,7 @@ community a harassment-free experience for everyone, regardless of age, body
 size, visible or invisible disability, ethnicity, sex characteristics, gender
 identity and expression, level of experience, education, socio-economic status,
 nationality, personal appearance, race, religion, or sexual identity
-and orientation (Additional information can be found in the [Paid Services & Website Creation Policies and Terms](https://atproducts.xyz/crndpolicy)).
+and orientation (Additional information can be found in the [Civil Rights & Non-Discrimination Policy](https://atproducts.xyz/crndpolicy)).
 
 We pledge to act and interact in ways that contribute to an open, welcoming,
 diverse, inclusive, and healthy community.
