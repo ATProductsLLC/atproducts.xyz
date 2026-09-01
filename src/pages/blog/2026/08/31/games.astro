@@ -1,0 +1,440 @@
+---
+import DefaultBody from "../../../../../layouts/DefaultBody.astro"
+import Navbar from "../../../../../components/Navbar.astro"
+import BackToTop from "../../../../../components/BackToTop.astro"
+import BlogIntro from "../../../../../layouts/BlogIntro.astro"
+import Scrollspy from "../../../../../components/Scrollspy.astro"
+import CodeBlock from "../../../../../components/CodeBlock.astro"
+
+import "../../../../../styles/font.css";
+---
+
+<DefaultBody
+  title="How to Host “AT’s Unblocked Games” Locally on Your Computer"
+  description="A step-by-step guide to running AT's Unblocked Games locally using Node.js, Astro, and Netlify CLI."
+  author="Alex Toucan"
+  keywords="AT's Unblocked Games, local hosting, Node.js, Astro, Netlify, tutorial, localhost, gaming"
+  color="#212529"
+  breadcrumb="true"
+>
+  <Navbar
+    breadcrumb={true}
+    crumbs={[
+      { name: "Blog", href: "/" },
+      { name: "2026", href: "/blog/2026" },
+      { name: "08", href: "/blog/2026/08" },
+      { name: "31", href: "/blog/2026/08/30" },
+    ]}
+    pageTitle="How to Host “AT’s Unblocked Games” Locally on Your Computer"
+  />
+
+  <Scrollspy id="host-local-game-site"
+    scrollcontent={[
+      { name: "Requirements", href: "#requirements" },
+      { name: "Useful Downloads", href: "#useful-downloads" },
+      { name: "Step 1", href: "#step-1-download-the-games-branch" },
+      { name: "Step 2", href: "#step-2-install-nodejs-and-npm" },
+      { name: "Step 3", href: "#step-3-add-nodejs-to-your-user-path" },
+      { name: "Step 4", href: "#step-4-open-the-project-directory" },
+      { name: "Step 5", href: "#step-5-install-the-project-dependencies" },
+      { name: "Step 6", href: "#step-6-install-astro-and-netlify-cli" },
+      { name: "Step 7", href: "#step-7-do-i-need-a-netlify-account" },
+      { name: "Step 8", href: "#step-8-build-the-website" },
+      { name: "Step 9", href: "#step-9-start-the-netlify-local-server" },
+      { name: "Step 10", href: "#step-10-access-the-local-website" },
+      { name: "Official Links", href: "#official-links" },
+    ]}
+  >
+    <Fragment slot="scrollspy-content">
+      <BlogIntro
+        title="How to Host “AT’s Unblocked Games” Locally on Your Computer"
+        author={[
+          { name: "Alex Toucan", image: "/media/favicon/iconembed.png" },
+        ]}
+        date="August 31st, 2026"
+      />
+
+      <div id="body" class="mt-4">
+        <p>
+          Ever wanted to access <strong>AT’s Unblocked Games</strong> but couldn't because a firewall, proxy, or network filter blocked the website or one of its hosted domains?
+        </p>
+
+        <p>
+          If you have a copy of the project and are allowed to run it on your computer, you can host it locally using <strong>Node.js, Astro, and Netlify CLI</strong>. The website will run from your own computer through a <code>localhost</code> address.
+        </p>
+
+        <p>
+          This guide explains how to download the project, install Node.js and Git, configure Node.js if you don't have administrator access, install the required dependencies, build the website, and start the local server.
+        </p>
+
+        <blockquote>
+          <p>
+            <strong>Important:</strong> Only use this on computers and networks where you are permitted to run the software. Hosting the project locally does not authorize you to bypass restrictions imposed by a school, employer, or network administrator.
+          </p>
+        </blockquote>
+
+        <h2 id="requirements">Requirements</h2>
+        <p>You'll need:</p>
+        <ul>
+          <li>Windows or Linux</li>
+          <li>Node.js and npm</li>
+          <li>Git (optional, but recommended)</li>
+          <li>Internet access for downloading the project and dependencies</li>
+          <li>Permission to run the software on your computer</li>
+        </ul>
+
+        <h3 id="useful-downloads">Useful Downloads</h3>
+        <ul>
+          <li><strong>ATProducts repository:</strong> <a href="https://github.com/ATProductsLLC/atproducts.xyz" target="_blank" rel="noopener noreferrer">https://github.com/ATProductsLLC/atproducts.xyz</a></li>
+          <li><strong>Node.js:</strong> <a href="https://nodejs.org/en/download" target="_blank" rel="noopener noreferrer">https://nodejs.org/en/download</a></li>
+          <li><strong>Git for Windows:</strong> <a href="https://git-scm.com/install/windows" target="_blank" rel="noopener noreferrer">https://git-scm.com/install/windows</a></li>
+        </ul>
+
+        <p>
+          A Netlify account is not normally necessary simply to run the project locally, although some Netlify-specific functionality may require authentication.
+        </p>
+
+        <hr />
+
+        <h2 id="step-1-download-the-games-branch">Step 1 — Download the <code>games</code> Branch</h2>
+        <p>
+          The project is hosted in the <code>ATProductsLLC/atproducts.xyz</code> GitHub repository.
+        </p>
+        <p>There are two ways to download it.</p>
+
+        <h3 id="option-a-use-git">Option A — Use Git</h3>
+        <p>Git is recommended because it makes updating the project much easier.</p>
+        <p>If you don't already have Git, download it here (recommended to install via WinGet):</p>
+        <p><a href="https://git-scm.com/install/windows" target="_blank" rel="noopener noreferrer">https://git-scm.com/install/windows</a></p>
+        <p>After installing Git, open <strong>Command Prompt</strong> or <strong>PowerShell</strong> and run:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">git clone -b games https://github.com/ATProductsLLC/atproducts.xyz</Fragment></CodeBlock>
+
+        <p>Then enter the project directory:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">cd atproducts.xyz</Fragment></CodeBlock>
+
+        <p>You now have a local copy of the games branch.</p>
+
+        <h4 id="updating-the-project-later">Updating the project later</h4>
+        <p>One advantage of using Git is that you can easily download updates.</p>
+        <p>From inside the atproducts.xyz directory, run:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">git pull origin games</Fragment></CodeBlock>
+
+        <p>This downloads the latest changes from the games branch.</p>
+
+        <h3 id="option-b-download-a-zip">Option B — Download a ZIP</h3>
+        <p>If you don't want to install Git, you can download the repository manually.</p>
+        <p>Open the repository:</p>
+        <p><a href="https://github.com/ATProductsLLC/atproducts.xyz" target="_blank" rel="noopener noreferrer">https://github.com/ATProductsLLC/atproducts.xyz</a></p>
+        <p>Select the games branch.</p>
+        <p>Click Code.</p>
+        <p>Click Download ZIP.</p>
+        <p>Extract the ZIP file.</p>
+        <p>Open the extracted atproducts.xyz directory.</p>
+        <p>Git is recommended if you expect to update the project frequently, but downloading a ZIP works if you only need a local copy.</p>
+
+        <h2 id="step-2-install-nodejs-and-npm">Step 2 — Install Node.js and npm</h2>
+        <p>This project requires Node.js and npm.</p>
+        <p>Download Node.js from the official website:</p>
+        <p><a href="https://nodejs.org/en/download" target="_blank" rel="noopener noreferrer">https://nodejs.org/en/download</a></p>
+        <p>For most users, the LTS version is the recommended choice.</p>
+
+        <h3 id="windows-using-the-installer">Windows — Using the Installer</h3>
+        <p>If you have administrator access, the easiest method is to download the Windows installer and install Node.js normally.</p>
+        <p>After installation, open a new Command Prompt or PowerShell window.</p>
+        <p>Check Node.js:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">node -v</Fragment></CodeBlock>
+
+        <p>Then check npm:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">npm -v</Fragment></CodeBlock>
+
+        <p>Both commands should return version numbers.</p>
+
+        <h3 id="windows-without-administrator-access">Windows — Without Administrator Access</h3>
+        <p>If you don't have administrator privileges, you can use the Node.js ZIP version instead.</p>
+        <p>Open:</p>
+        <p><a href="https://nodejs.org/en/download" target="_blank" rel="noopener noreferrer">https://nodejs.org/en/download</a></p>
+        <p>Download the appropriate Windows ZIP package.</p>
+        <p>Extract it to a permanent location. For example:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">C:\Users\YourName\nodejs</Fragment></CodeBlock>
+
+        <p>Make sure the extracted directory contains:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">node.exe</Fragment></CodeBlock>
+
+        <p>You will then need to add this directory to your User PATH.</p>
+
+        <h2 id="step-3-add-nodejs-to-your-user-path">Step 3 — Add Node.js to Your User PATH</h2>
+        <p>This step is necessary if you're using the Node.js ZIP version and Windows cannot find node or npm.</p>
+        <p>If you're using the ZIP version without administrator access, add Node.js to your User environment variables rather than the system-wide PATH.</p>
+
+        <h3 id="windows-path">Windows</h3>
+        <ol>
+          <li>Press <strong>Windows + S</strong>.</li>
+          <li>Search for: <strong>Edit environment variables for your account</strong></li>
+          <li>Open it.</li>
+          <li>Under User variables for YourName, find <strong>Path</strong>.</li>
+          <li>Select <strong>Path</strong>.</li>
+          <li>Click <strong>Edit</strong>.</li>
+          <li>Click <strong>New</strong>.</li>
+          <li>Enter the directory containing <code>node.exe</code>.</li>
+        </ol>
+
+        <p>For example:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">C:\Users\YourName\nodejs</Fragment></CodeBlock>
+
+        <p>Click OK.</p>
+        <p>Click OK again to save your changes.</p>
+        <p><strong>Important:</strong> Add the directory containing <code>node.exe</code>, not <code>node.exe</code> itself.</p>
+        <p>For example, if Node.js is located at:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">C:\Users\John\nodejs\node.exe</Fragment></CodeBlock>
+
+        <p>your PATH entry should be:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">C:\Users\John\nodejs</Fragment></CodeBlock>
+
+        <p>Restart your terminal</p>
+        <p>Close any Command Prompt, PowerShell, or Windows Terminal windows that were open before you changed PATH.</p>
+        <p>Open a new terminal and run:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">node -v</Fragment></CodeBlock>
+
+        <p>Then:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">npm -v</Fragment></CodeBlock>
+
+        <p>If both return version numbers, Node.js is ready.</p>
+
+        <h2 id="step-4-open-the-project-directory">Step 4 — Open the Project Directory</h2>
+        <p>Open Command Prompt or PowerShell and navigate to the project directory.</p>
+        <p>For example:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">cd C:\Users\YourName\Downloads\atproducts.xyz</Fragment></CodeBlock>
+
+        <p>If you cloned the repository from your current directory, you can simply use:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">cd atproducts.xyz</Fragment></CodeBlock>
+
+        <p>You should be inside the directory containing the project's <code>package.json</code>.</p>
+
+        <h2 id="step-5-install-the-project-dependencies">Step 5 — Install the Project Dependencies</h2>
+        <p>From inside the atproducts.xyz directory, run:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">npm install</Fragment></CodeBlock>
+
+        <p>This installs the packages specified by the project's <code>package.json</code>.</p>
+        <p>This may take a while depending on your computer and internet connection.</p>
+        <p>After it finishes, you should have a <code>node_modules</code> directory.</p>
+        <p><strong>Tip:</strong> You generally don't need to manually install every package listed in <code>package.json</code>. <code>npm install</code> handles that for you.</p>
+
+        <h2 id="step-6-install-astro-and-netlify-cli">Step 6 — Install Astro and Netlify CLI</h2>
+        <p>The project uses Astro to build the website and Netlify CLI to serve it locally.</p>
+        <p>Install both command-line tools with:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">npm install -g astro netlify-cli</Fragment></CodeBlock>
+
+        <p>The <code>-g</code> option installs the packages globally so their command-line commands can be used from your terminal.</p>
+        <p>Check Astro:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">astro --version</Fragment></CodeBlock>
+
+        <p>Then check Netlify CLI:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">netlify --version</Fragment></CodeBlock>
+
+        <p>Both should return version information.</p>
+
+        <h2 id="step-7-do-i-need-a-netlify-account">Step 7 — Do I Need a Netlify Account?</h2>
+        <p>For basic local development, you generally don't need a Netlify account simply to run a local server.</p>
+        <p>However, the project's setup may use Netlify-specific functionality that requires authentication or a linked Netlify site.</p>
+        <p>If the Netlify CLI asks you to log in, run:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">netlify login</Fragment></CodeBlock>
+
+        <p>You may also need to link the local project:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">netlify link</Fragment></CodeBlock>
+
+        <p>Follow the prompts displayed by the Netlify CLI.</p>
+
+        <h2 id="step-8-build-the-website">Step 8 — Build the Website</h2>
+        <p>From inside the atproducts.xyz directory, run:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">astro build</Fragment></CodeBlock>
+
+        <p>Astro will build the website and generate the output in the <code>dist</code> directory.</p>
+        <p>Wait for the build to finish successfully before continuing.</p>
+
+        <h2 id="step-9-start-the-netlify-local-server">Step 9 — Start the Netlify Local Server</h2>
+        <p>Now run:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">netlify dev --dir=dist</Fragment></CodeBlock>
+
+        <p>Netlify should start a local server and display a URL, commonly something similar to: <code>http://localhost:8888</code>.</p>
+
+        <p>Open the URL shown in your terminal.</p>
+        <p>You should now see the locally hosted version of AT's Unblocked Games.</p>
+        <p><strong>Tip:</strong> Don't assume the port will always be 8888. If Netlify displays a different localhost address, use the address shown in your terminal.</p>
+
+        <h3 id="why-use-netlify-dev">Why Use <code>netlify dev</code>?</h3>
+        <p>You might wonder why you can't simply open <code>dist/index.html</code> in your browser.</p>
+        <p>The project contains a <code>netlify.toml</code> configuration file. This can configure Netlify-specific behavior such as HTTP headers and Content Security Policy (CSP) rules.</p>
+        <p>Opening the HTML file directly would use a <code>file://</code> URL and would not reproduce the same server environment.</p>
+        <p>Instead, use:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">netlify dev --dir=dist</Fragment></CodeBlock>
+
+        <p>This serves the built website through Netlify's local development environment, allowing you to test Netlify-specific configuration locally.</p>
+        <p>This is particularly useful if you need the CSP configured in <code>netlify.toml</code> to be applied while testing the site.</p>
+
+        <h2 id="step-10-access-the-local-website">Step 10 — Access the Local Website</h2>
+        <p>Once Netlify is running, open the localhost URL shown in your terminal.</p>
+        <p>For example:<code>http://localhost:8888</code>.</p>
+
+        <p>The website is now running locally on your computer.</p>
+        <p>Keep the terminal window open while you're using the site.</p>
+        <p>To stop the server, press <code>CTRL + C</code>.</p>
+
+        <h2 id="updating-the-website">Updating the Website</h2>
+        <p>If you cloned the project using Git, updating it is straightforward.</p>
+        <p>First, stop the running server: <code>CTRL + C</code>.</p>
+
+        <p>Then download the latest changes:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">git pull origin games</Fragment></CodeBlock>
+
+        <p>Reinstall dependencies:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">npm install</Fragment></CodeBlock>
+
+        <p>Build the updated website:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">astro build</Fragment></CodeBlock>
+
+        <p>Start the local server again:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">netlify dev --dir=dist</Fragment></CodeBlock>
+
+        <h2 id="troubleshooting">Troubleshooting</h2>
+
+        <h3 id="node-is-not-recognized"><code>node</code> is not recognized</h3>
+        <p>If you see <code>'node' is not recognized as an internal or external command</code>, check that the directory containing <code>node.exe</code> has been added to your User PATH.</p>
+        <p>For example:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">C:\Users\John\nodejs</Fragment></CodeBlock>
+
+        <p>After changing PATH, close and reopen your terminal.</p>
+        <p>Then run:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">node -v</Fragment></CodeBlock>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">npm -v</Fragment></CodeBlock>
+
+        <h3 id="npm-is-not-recognized"><code>npm</code> is not recognized</h3>
+        <p>First check whether Node.js itself works:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">node -v</Fragment></CodeBlock>
+
+        <p>If Node.js works but npm doesn't, make sure you extracted the complete Node.js ZIP package.</p>
+        <p>Then close and reopen your terminal and try:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">npm -v</Fragment></CodeBlock>
+
+        <h3 id="astro-is-not-recognized"><code>astro</code> is not recognized</h3>
+        <p>Try reinstalling Astro:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">npm install -g astro</Fragment></CodeBlock>
+
+        <p>Then:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">astro --version</Fragment></CodeBlock>
+
+        <p>If it still isn't recognized, your npm global executable directory may not be in your User PATH.</p>
+
+        <h3 id="netlify-is-not-recognized"><code>netlify</code> is not recognized</h3>
+        <p>Install the Netlify CLI again:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">npm install -g netlify-cli</Fragment></CodeBlock>
+
+        <p>Then:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">netlify --version</Fragment></CodeBlock>
+
+        <p>If the command still isn't recognized, check your npm global executable PATH.</p>
+
+        <h3 id="netlify-asks-me-to-log-in">Netlify asks me to log in</h3>
+        <p>If the project requires a Netlify-specific feature, the CLI may ask you to authenticate.</p>
+        <p>Run:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">netlify login</Fragment></CodeBlock>
+
+        <p>Then, if necessary:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">netlify link</Fragment></CodeBlock>
+
+        <p>Follow the instructions provided by Netlify.</p>
+
+        <h3 id="port-8888-is-already-being-used">Port 8888 is already being used</h3>
+        <p>If another application is using port 8888, Netlify may select another available port or report a conflict.</p>
+        <p>Use the localhost URL displayed by Netlify rather than assuming the site will always use port 8888.</p>
+
+        <h3 id="the-csp-isnt-working">The CSP isn't working</h3>
+        <p>If you're using <code>netlify dev</code> specifically to test the CSP in <code>netlify.toml</code>, make sure you've rebuilt the project after making changes:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">astro build</Fragment></CodeBlock>
+
+        <p>Then restart the server:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">netlify dev --dir=dist</Fragment></CodeBlock>
+
+        <p>You can also open your browser's Developer Tools and look in the Console for Content Security Policy violations.</p>
+        <p>In Chrome or Edge, press <code>F12</code> and open the Console tab.</p>
+
+        <h2 id="quick-start">Quick Start</h2>
+        <p>Once Git and Node.js are installed, the basic process is:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">git clone -b games https://github.com/ATProductsLLC/atproducts.xyz<br>
+cd atproducts.xyz<br>
+npm install<br>
+npm install -g astro netlify-cli<br>
+astro build<br>
+netlify dev --dir=dist</Fragment></CodeBlock>
+
+        <p>Then open the localhost URL displayed by Netlify.</p>
+
+        <p>For future updates:</p>
+
+        <CodeBlock language="Bash" highlight_as="bash"><Fragment slot="code-example">git pull origin games<br>
+npm install<br>
+astro build<br>
+netlify dev --dir=dist</Fragment></CodeBlock>
+
+        <h2 id="official-links">Official Links</h2>
+        <ul>
+          <li><b>ATProductsLLC/atproducts.xyz:</b> <a href="https://github.com/ATProductsLLC/atproducts.xyz" target="_blank" rel="noopener noreferrer">https://github.com/ATProductsLLC/atproducts.xyz</a></li>
+          <li><b>Node.js:</b> <a href="https://nodejs.org/en/download" target="_blank" rel="noopener noreferrer">https://nodejs.org/en/download</a></li>
+          <li><b>Git for Windows:</b> <a href="https://git-scm.com/install/windows" target="_blank" rel="noopener noreferrer">https://git-scm.com/install/windows</a></li>
+        </ul>
+
+        <p class="mt-3">
+          Thank you for reading,<br />
+          — Alex Toucan, Founder and Owner of AT Products LLC
+        </p>
+        <hr>
+        <div id="copyright">
+          <h6>&copy; {new Date().getFullYear()} AT Products LLC</h6>
+          <h6>AT Products LLC is the publisher and copyright holder of this article.</h6>
+        </div>
+      </div>
+    </Fragment>
+  </Scrollspy>
+  <BackToTop />
+</DefaultBody>
+
