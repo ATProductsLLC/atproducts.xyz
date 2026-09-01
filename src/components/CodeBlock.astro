@@ -1,0 +1,43 @@
+---
+const { language, highlight_as, code } = Astro.props;
+
+let icon = "";
+if (language === "CSS") {
+  icon = "devicon-css3-plain";
+} else if (language === "HTML") {
+  icon = "devicon-html5-plain";
+} else if (language === "JavaScript") {
+  icon = "devicon-javascript-plain";
+} else if (language === "TypeScript") {
+  icon = "devicon-typescript-plain";
+} else if (language === "Bash") {
+  icon = "devicon-bash-plain";
+} else if (language === "SQL") {
+  icon = "devicon-sqldeveloper-plain";
+} else if (language === "Haskell") {
+  icon = "devicon-haskell-plain";
+} else if (language === "C++") {
+  icon = "devicon-cplusplus-plain";
+} else if (language === "Python") {
+  icon = "devicon-python-plain";
+} else if (language === "JSON") {
+  icon = "devicon-json-plain";
+} else if (language === "Node.js") {
+  icon = "devicon-nodejs-plain";
+} else {
+  icon = "bi bi-code-slash";
+}
+---
+
+<div class="bg-1 rounded-4">
+  <div class="bg-2 rounded-top-4 py-2 px-3 border-bottom d-flex justify-content-between">
+    <div class="d-flex gap-2">
+      {icon && <i class={`${icon} my-auto`}></i>}
+      <small class="font-monospace my-auto">
+        <span>{language}</span>
+      </small>
+    </div>
+    <i class="bi bi-clipboard btn btn-clipboard bg-transparent p-0 min-h-0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Copy to Clipboard"></i>
+  </div>
+  <pre class="p-3"><code class={`language-${highlight_as}`}><slot name="code-example" /></code></pre>
+</div>
