@@ -3,7 +3,7 @@ import DefaultBody from "../../../../../layouts/DefaultBody.astro"
 import Navbar from "../../../../../components/Navbar.astro"
 import BackToTop from "../../../../../components/BackToTop.astro"
 import BlogIntro from "../../../../../layouts/BlogIntro.astro"
-import Footer from "../../../../../components/Footer.astro"
+import Scrollspy from "../../../../../components/Scrollspy.astro"
 
 import "../../../../../styles/font.css";
 ---
@@ -27,66 +27,73 @@ import "../../../../../styles/font.css";
   ]}
   pageTitle="How We're Using CMS With Our Clients"
 />
-  <main id="minors" class="container md:px-9">
-    <BlogIntro 
-      title="How We're Using CMS With Our Clients" 
-      author={[
-        {name: "Alex Toucan", image: "/media/favicon/iconembed.png"},
-      ]}
-      date="August 17th, 2026"
-    />
-    <div id="body" class="mt-4">
-        <p>
-            <b>NOTE REGARDING TO CLIENTS:</b> If you are a client of AT Products LLC, please reach out to add a CMS to your project. We will be happy to assist you in setting up a CMS that fits your needs and helps you manage your content more effectively.
+  <Scrollspy id="cms"
+  >
+    <Fragment slot="scrollspy-content">
+      <BlogIntro 
+        title="How We're Using CMS With Our Clients" 
+        author={[
+          {name: "Alex Toucan", image: "/media/favicon/iconembed.png"},
+        ]}
+        date="August 17th, 2026"
+      />
+      <div id="body" class="mt-4">
+          <p>
+              <b>NOTE REGARDING TO CLIENTS:</b> If you are a client of AT Products LLC, please reach out to add a CMS to your project. We will be happy to assist you in setting up a CMS that fits your needs and helps you manage your content more effectively.
+          </p>
+          <p>
+              At AT Products LLC, we understand the importance of providing our clients with the best tools to manage their content effectively. That's why we're leveraging Content Management Systems (CMS) to streamline the process of content creation, editing, and publishing for our clients.
+          </p>
+          <h2>What is a CMS?</h2>
+          <p>
+              A CMS, which stands for a Content Management System, is a software application that allows users to create, edit, and manage digital content without needing extensive technical knowledge. It provides a user-friendly interface that simplifies the process of managing websites, blogs, and other online platforms.
+          </p>
+          <p>
+              A CMS also replaces the need to edit code manually to add, edit, or delete content, which our clients may not be familiar with, but had to do in the past. With a CMS, our clients can easily update their websites, add new content, and manage such without needing to rely on a developer or to learn coding for every change.
+          </p>
+          <h2>How We're Using CMS With Our Clients</h2>
+          <p>For this section, we'll using one of our clients site, <a href="https://stephanystreasures.com" target="_blank" rel="noopener noreferrer">Stephany's Treasures</a>, which is the first site we've implemented a CMS for.</p>
+          <figure>
+              <img src="/media/slideshow/Screenshot_17-8-2026_17310_stephanystreasures.com.jpeg" class="img-fluid rounded-2 border border-secondary mt-3 article-image" style="width:100%; max-width: 900px;" alt="The dashboard's login page.">
+              <figcaption class="fg-secondary mt-1 mb-3"><small>The dashboard's login page.</small></figcaption>
+          </figure>
+          <p>For our clients, emails from Netlify has been sent to notify them to create a new user using <a href="https://docs.netlify.com/manage/security/secure-access-to-sites/identity/overview/" target="_blank" rel="noopener noreferrer">Netlify Identity</a>; once they have created their user, they can log in to the CMS and start managing their content.</p>
+          <p>We also use <a href="https://decapcms.org/" target="_blank" rel="noopener noreferrer">Decap CMS</a>, which is a headless CMS that allows for flexible content management, which works flawlessly with <a href="https://docs.netlify.com/manage/security/secure-access-to-sites/git-gateway/" target="_blank" rel="noopener noreferrer">Git Gateway</a>.</p>
+          <figure>
+              <img src="/media/slideshow/screenshot-1787004318279.png" class="img-fluid rounded-2 border border-secondary mt-3 article-image" style="width:100%; max-width: 900px;" alt="The index page showing a new 'Admin Dashboard' link on the footer.">
+              <figcaption class="fg-secondary mt-1 mb-3"><small>The index page showing a new "Admin Dashboard" link on the footer.</small></figcaption>
+          </figure>
+          <p>To return to the CMS, a new link will be available where they can access it at any time (as shown in the screenshot above, it being the "Admin Dashboard" link on the footer).</p>
+          <figure>
+              <img src="/media/slideshow/Screenshot_17-8-2026_17343_stephanystreasures.com.jpeg" class="img-fluid rounded-2 border border-secondary mt-3 article-image" style="width:100%; max-width: 900px;" alt="The dashboard's index page once logged in.">
+              <figcaption class="fg-secondary mt-1 mb-3"><small>The dashboard's index page once logged in.</small></figcaption>
+          </figure>
+          <figure>
+              <img src="/media/slideshow/Screenshot_17-8-2026_172134_stephanystreasures.com.jpeg" class="img-fluid rounded-2 border border-secondary mt-3 article-image" style="width:100%; max-width: 900px;" alt="An example of editing a product in the CMS, showing the product's details and options.">
+              <figcaption class="fg-secondary mt-1 mb-3"><small>An example of editing a product in the CMS, showing the product's details and options.</small></figcaption>
+          </figure>
+          <p>Once inside a client's CMS, they can easily manage their content, for example, new products for their store. This products section allows them to add, edit, and delete products as needed, and it'll sync to their page, and even <a href="https://stripe.com/" target="_blank" rel="noopener noreferrer">Stripe</a> if they have it integrated.</p>
+          <figure>
+              <img src="/media/slideshow/Screenshot_17-8-2026_172213_stephanystreasures.com.jpeg" class="img-fluid rounded-2 border border-secondary mt-3 article-image" style="width:100%; max-width: 900px;" alt="An example of a product that was edited in the CMS, showing the product's details and options on the site.">
+              <figcaption class="fg-secondary mt-1 mb-3"><small>An example of a product that was edited in the CMS, showing the product's details and options on the site.</small></figcaption>
+          </figure>
+          <p>In the example above, a product was edited in the CMS, and the changes were reflected on the site. This demonstrates how our clients can easily manage their content without needing to know how to code or make changes directly to the website's codebase.</p>
+          <p>Overall, using a CMS allows our clients to have more control over their content, and it streamlines the process of managing their websites. It also allows us to provide better support and maintenance for our clients, as we can easily make updates and changes to their sites without needing to go through a lengthy development process.</p>
+          <h2>Conclusion</h2>
+          <p>In conclusion, using a CMS with our clients has been a game-changer for both us and our clients. It allows for easier content management, faster updates, and a more user-friendly experience for our clients. We look forward to continuing to implement CMS solutions for our clients and helping them manage their content more effectively.</p>
+          <p>We hope this article has provided you with a better understanding of what a CMS is and how we're using it with our clients. If you're interested in learning more about CMS or how we can help you implement one for your website, please don't hesitate to reach out to us.</p>
+          <p>Thank you for reading, and we look forward to helping you manage your content more effectively with a CMS!</p>
+        <p class="mt-3">
+          Thank you for reading, 
+          <br>— Alex Toucan, Founder and Owner of AT Products LLC
         </p>
-        <p>
-            At AT Products LLC, we understand the importance of providing our clients with the best tools to manage their content effectively. That's why we're leveraging Content Management Systems (CMS) to streamline the process of content creation, editing, and publishing for our clients.
-        </p>
-        <h2>What is a CMS?</h2>
-        <p>
-            A CMS, which stands for a Content Management System, is a software application that allows users to create, edit, and manage digital content without needing extensive technical knowledge. It provides a user-friendly interface that simplifies the process of managing websites, blogs, and other online platforms.
-        </p>
-        <p>
-            A CMS also replaces the need to edit code manually to add, edit, or delete content, which our clients may not be familiar with, but had to do in the past. With a CMS, our clients can easily update their websites, add new content, and manage such without needing to rely on a developer or to learn coding for every change.
-        </p>
-        <h2>How We're Using CMS With Our Clients</h2>
-        <p>For this section, we'll using one of our clients site, <a href="https://stephanystreasures.com" target="_blank" rel="noopener noreferrer">Stephany's Treasures</a>, which is the first site we've implemented a CMS for.</p>
-        <figure>
-            <img src="/media/slideshow/Screenshot_17-8-2026_17310_stephanystreasures.com.jpeg" class="img-fluid rounded-2 border border-secondary mt-3 article-image" style="width:100%; max-width: 900px;" alt="The dashboard's login page.">
-            <figcaption class="fg-secondary mt-1 mb-3"><small>The dashboard's login page.</small></figcaption>
-        </figure>
-        <p>For our clients, emails from Netlify has been sent to notify them to create a new user using <a href="https://docs.netlify.com/manage/security/secure-access-to-sites/identity/overview/" target="_blank" rel="noopener noreferrer">Netlify Identity</a>; once they have created their user, they can log in to the CMS and start managing their content.</p>
-        <p>We also use <a href="https://decapcms.org/" target="_blank" rel="noopener noreferrer">Decap CMS</a>, which is a headless CMS that allows for flexible content management, which works flawlessly with <a href="https://docs.netlify.com/manage/security/secure-access-to-sites/git-gateway/" target="_blank" rel="noopener noreferrer">Git Gateway</a>.</p>
-        <figure>
-            <img src="/media/slideshow/screenshot-1787004318279.png" class="img-fluid rounded-2 border border-secondary mt-3 article-image" style="width:100%; max-width: 900px;" alt="The index page showing a new 'Admin Dashboard' link on the footer.">
-            <figcaption class="fg-secondary mt-1 mb-3"><small>The index page showing a new "Admin Dashboard" link on the footer.</small></figcaption>
-        </figure>
-        <p>To return to the CMS, a new link will be available where they can access it at any time (as shown in the screenshot above, it being the "Admin Dashboard" link on the footer).</p>
-        <figure>
-            <img src="/media/slideshow/Screenshot_17-8-2026_17343_stephanystreasures.com.jpeg" class="img-fluid rounded-2 border border-secondary mt-3 article-image" style="width:100%; max-width: 900px;" alt="The dashboard's index page once logged in.">
-            <figcaption class="fg-secondary mt-1 mb-3"><small>The dashboard's index page once logged in.</small></figcaption>
-        </figure>
-        <figure>
-            <img src="/media/slideshow/Screenshot_17-8-2026_172134_stephanystreasures.com.jpeg" class="img-fluid rounded-2 border border-secondary mt-3 article-image" style="width:100%; max-width: 900px;" alt="An example of editing a product in the CMS, showing the product's details and options.">
-            <figcaption class="fg-secondary mt-1 mb-3"><small>An example of editing a product in the CMS, showing the product's details and options.</small></figcaption>
-        </figure>
-        <p>Once inside a client's CMS, they can easily manage their content, for example, new products for their store. This products section allows them to add, edit, and delete products as needed, and it'll sync to their page, and even <a href="https://stripe.com/" target="_blank" rel="noopener noreferrer">Stripe</a> if they have it integrated.</p>
-        <figure>
-            <img src="/media/slideshow/Screenshot_17-8-2026_172213_stephanystreasures.com.jpeg" class="img-fluid rounded-2 border border-secondary mt-3 article-image" style="width:100%; max-width: 900px;" alt="An example of a product that was edited in the CMS, showing the product's details and options on the site.">
-            <figcaption class="fg-secondary mt-1 mb-3"><small>An example of a product that was edited in the CMS, showing the product's details and options on the site.</small></figcaption>
-        </figure>
-        <p>In the example above, a product was edited in the CMS, and the changes were reflected on the site. This demonstrates how our clients can easily manage their content without needing to know how to code or make changes directly to the website's codebase.</p>
-        <p>Overall, using a CMS allows our clients to have more control over their content, and it streamlines the process of managing their websites. It also allows us to provide better support and maintenance for our clients, as we can easily make updates and changes to their sites without needing to go through a lengthy development process.</p>
-        <h2>Conclusion</h2>
-        <p>In conclusion, using a CMS with our clients has been a game-changer for both us and our clients. It allows for easier content management, faster updates, and a more user-friendly experience for our clients. We look forward to continuing to implement CMS solutions for our clients and helping them manage their content more effectively.</p>
-        <p>We hope this article has provided you with a better understanding of what a CMS is and how we're using it with our clients. If you're interested in learning more about CMS or how we can help you implement one for your website, please don't hesitate to reach out to us.</p>
-        <p>Thank you for reading, and we look forward to helping you manage your content more effectively with a CMS!</p>
-      <p class="mt-3">
-        Thank you for reading, 
-        <br>— Alex Toucan, Founder and Owner of AT Products LLC
-      </p>
-    </div>
-  </main>
-  <Footer />
+        <hr>
+        <div id="copyright">
+          <h6>&copy; {new Date().getFullYear()} AT Products LLC</h6>
+          <h6>AT Products LLC is the publisher and copyright holder of this article.</h6>
+        </div>
+      </div>
+    </Fragment>
+  </Scrollspy>
   <BackToTop />
 </DefaultBody>
