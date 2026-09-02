@@ -118,6 +118,7 @@ blockquote, .footer-header, .index-link, .quote {
 a {
   text-underline-offset: .25rem;
   text-decoration-color: rgba(var(--bs-link-color-rgb), 0.25);
+  overflow-wrap: anywhere;
 }
 
 @media (min-width: 645.98px) {
