@@ -1,90 +1,629 @@
----
-import "../styles/bootstrap.css";
-import Bootstrap from '../components/Bootstrap-loader.astro';
----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Abigail</title>
+<meta name="description" content="A page to appreciate Abigail.">
+<meta name="theme-color" content="#3a2b4d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="shortcut icon" type="image/png" href="/media/favicon/iconembed.png">
+<link rel="icon" type="image/png" href="/media/favicon/iconembed.png">
+<meta property="og:title" content="For Abigail 🌸">
+<meta property="og:image" content="https://abigail.atproducts.xyz/media/favicon/iconembed.png">
+<meta name="theme-color" content="#ff3a76">
+<meta name="msapplication-TileColor" content="#da532c">
+<link rel="manifest" href="/media/favicon/site.webmanifest">
+<style>
+  :root{
+    --plum:#3557a0;
+    --plum-deep:#141c33;
+    --gold:#e8879f;
+    --blush:#f6c9d6;
+    --paper:#faf7f5;
+    --ink:#26232b;
+    --line: rgba(255,255,255,0.14);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Work Sans', sans-serif;
+    font-size:17px;
+    line-height:1.6;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    letter-spacing:-0.01em;
+  }
+  a{color:inherit;}
 
-<html class="h-100" lang="en" data-bs-theme="dark">
-  <head>
-    <title>Abigail's Subdomain</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/static/cookie.css">
-    <link rel="stylesheet" href="/static/other.css">
-    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="preload" as="style" href="/static/other.css">
-    <link rel="preload" as="script" href="/static/darkmode.js">
-    <link rel="shortcut icon" type="image/png" href="/media/favicon/favicon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/media/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" href="/media/favicon/favicon.png">
-    <link rel="icon" type="image/png" href="/media/favicon/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/media/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/media/favicon/favicon-16x16.png">
-    <link rel="mask-icon" href="/media/favicon/safari-pinned-tab.svg" color="#5bbad5">
-    <meta property="og:image" content="/media/favicon/iconembed.png">
-    <meta name="twitter:image" content="https://abigail.atproducts.xyz/media/favicon/iconembed.png">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <link rel="manifest" href="/media/favicon/site.webmanifest">
-    <meta charset="UTF-8">
-    <meta name="title" content="Abigail Grady's Subdomain">
-    <meta name="description" content="Abigail Grady's Subdomain">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:site" content="@ATProductsLLC">
-    <meta name="twitter:creator" content="@ATProductsLLC">
-    <meta name="twitter:title" content="Abigail's Subdomain">
-    <meta name="twitter:description" content="Abigail Grady's Subdomain">
-    <meta name="author" content="Alex Toucan">
-    <meta property="og:title" content="Abigail's Subdomain">
-    <meta property="og:description" content="Abigail Grady's Subdomain">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:site_name" content="Abigail Grady">
-    <script is:inline src="/static/darkmode.js"></script>
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    min-height:88vh;
+    background:radial-gradient(120% 140% at 20% 0%, var(--plum) 0%, var(--plum-deep) 60%, #0a0e1c 100%);
+    color:#f4ece2;
+    display:flex;
+    align-items:center;
+    overflow:hidden;
+  }
+  .hero-inner{
+    position:relative;
+    z-index:2;
+    max-width:720px;
+    margin:0 auto;
+    padding:6rem 1.5rem;
+    text-align:center;
+  }
+  .hero-eyebrow{
+    font-size:0.95rem;
+    color:var(--gold);
+    margin-bottom:1.25rem;
+    opacity:0;
+    animation:rise .8s ease forwards .15s;
+  }
+  .hero h1{
+    font-size:clamp(2.8rem, 8vw, 5.2rem);
+    line-height:1.02;
+    margin:0 0 1.25rem;
+    opacity:0;
+    animation:rise .9s ease forwards .35s;
+  }
+  .hero p{
+    font-size:1.15rem;
+    color:#d9cbe0;
+    max-width:520px;
+    margin:0 auto;
+    opacity:0;
+    animation:rise .9s ease forwards .6s;
+  }
+  @keyframes rise{
+    from{opacity:0; transform:translateY(14px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .drift{position:absolute; border-radius:50%; filter:blur(2px); opacity:.5; pointer-events:none;}
+  .drift.a{width:10px;height:10px;background:var(--gold);top:18%;left:12%;animation:float 9s ease-in-out infinite;}
+  .drift.b{width:6px;height:6px;background:var(--blush);top:65%;left:80%;animation:float 11s ease-in-out infinite 1s;}
+  .drift.c{width:14px;height:14px;background:var(--gold);top:75%;left:22%;animation:float 13s ease-in-out infinite .5s;opacity:.3;}
+  .drift.d{width:8px;height:8px;background:var(--blush);top:30%;left:85%;animation:float 10s ease-in-out infinite 2s;}
+  @keyframes float{
+    0%,100%{transform:translateY(0) translateX(0);}
+    50%{transform:translateY(-26px) translateX(10px);}
+  }
 
-    <style>
-        html, body {
-            scrollbar-width: none;
-        }
-        body {
-            background-image: url('/media/images/image.png');
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-            background-position: center;
-            text-align: center;
-        }
+  .avatar{
+    width:132px;
+    height:132px;
+    border-radius:50%;
+    margin:0 auto 1.75rem;
+    background:linear-gradient(160deg, var(--blush), var(--gold));
+    border:2px solid rgba(244,236,226,0.35);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Fraunces', serif;
+    font-size:2.4rem;
+    color:var(--plum-deep);
+    opacity:0;
+    animation:rise .9s ease forwards 0s;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    object-fit:cover;
+  }
 
-        .image {
-          max-height: 75px;
-        }
+  /* ---------- SECTIONS ---------- */
+  section{padding:5rem 1.5rem;}
+  .wrap{max-width:760px; margin:0 auto;}
+  .kicker{
+    color:var(--gold);
+    font-size:0.9rem;
+    margin-bottom:0.5rem;
+  }
+  section h2{font-size:clamp(1.8rem, 4vw, 2.4rem); margin:0 0 1.75rem;}
 
-        [data-bs-theme=dark] .image {
-            filter: invert(1);
-        }
+  /* reasons */
+  .reasons-box{
+    background:#fff;
+    border:1px solid #ece2d6;
+    border-radius:6px;
+    padding:2.5rem;
+    text-align:center;
+  }
+  #reasonText{
+    font-family:'Fraunces', serif;
+    font-size:1.4rem;
+    min-height:3.2em;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--plum);
+  }
+  button.btn-line{
+    margin-top:1.25rem;
+    background:none;
+    border:1px solid var(--plum);
+    color:var(--plum);
+    padding:0.7rem 1.6rem;
+    border-radius:3px;
+    font-family:'Work Sans', sans-serif;
+    font-size:0.95rem;
+    cursor:pointer;
+    transition:background .2s ease, color .2s ease;
+  }
+  button.btn-line:hover{background:var(--plum); color:#fff;}
 
-        .custom {
-          font-size: clamp(2rem, 4vw + 2rem, 8rem) !important;
-        }
+  /* timeline */
+  .timeline{border-left:2px solid #e4d8c9; padding-left:1.75rem; margin-left:0.25rem;}
+  .t-item{position:relative; padding-bottom:2.25rem;}
+  .t-item:last-child{padding-bottom:0;}
+  .t-item::before{
+    content:'';
+    position:absolute; left:-2.35rem; top:0.35rem;
+    width:11px; height:11px; border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 0 4px #faf7f5;
+  }
+  .t-date{font-size:0.85rem; color:#9a8a72; letter-spacing:0.02em;}
+  .t-title{font-family:'Fraunces', serif; font-size:1.2rem; margin:0.15rem 0 0.2rem;}
 
-        .backdrop {
-          filter: drop-shadow(0 0 0.75rem black);
-        }
-    </style>
-  </head>
-  <body class="h-100">
-    <div id="page" class="h-100 backdrop">
-      <main id="maintenance" class="container h-100 d-grid md:d-flex justify-content-center align-items-center my-0">
-          <h1 class="custom fw-light mt-4 mb-0">waddup twinn</h1>
+  /* traits grid */
+  .traits{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:#e4d8c9; border:1px solid #e4d8c9;}
+  .trait{background:var(--paper); padding:1.9rem;}
+  .trait h3{font-size:1.05rem; margin:0 0 0.5rem; font-family:'Work Sans',sans-serif; font-weight:500;}
+  .trait p{margin:0; font-size:0.96rem; color:#5b5062;}
+  @media (max-width:560px){.traits{grid-template-columns:1fr;}}
 
-        <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3">
-          <div class="mx-auto" style="width: fit-content;">
-              <p class="fw-light">2026 &copy; <a href="https://atproducts.xyz" aria-label="AT Products LLC Homepage">AT Products LLC</a></p>
-          </div>
-        </div>
+  /* gallery */
+  .gallery{display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem;}
+  .frame{
+    aspect-ratio:4/5;
+    width:100%;
+    min-width:90px;
+    max-width:260px;
+    min-height:115px;
+    max-height:325px;
+    border-radius:4px;
+    background:linear-gradient(160deg, var(--blush), var(--plum));
+    display:flex; align-items:center; justify-content:center;
+    color:rgba(255,255,255,.75);
+    font-size:0.8rem;
+    text-align:center;
+    object-fit:cover;
+  }
+  @media (max-width:560px){.gallery{grid-template-columns:repeat(2,1fr);}}
 
-      </main>
+  /* quote */
+  .quote{
+    background:var(--plum-deep);
+    color:#f4ece2;
+  }
+  .quote blockquote{
+    font-family:'Fraunces', serif;
+    font-size:clamp(1.4rem, 3.4vw, 1.9rem);
+    font-style:italic;
+    text-align:center;
+    max-width:640px;
+    margin:0 auto;
+    line-height:1.45;
+  }
+  .quote cite{
+    display:block;
+    text-align:center;
+    margin-top:1.25rem;
+    font-style:normal;
+    color:var(--gold);
+    font-size:0.95rem;
+  }
+
+  footer{
+    text-align:center;
+    padding:3rem 1.5rem 4rem;
+    color:#9a8a72;
+    font-size:0.9rem;
+  }
+
+  /* notes accordion */
+  .note{
+    border:1px solid #ece2d6;
+    border-radius:6px;
+    margin-bottom:0.75rem;
+    background:#fff;
+    overflow:hidden;
+  }
+  .note-head{
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    padding:1.1rem 1.4rem;
+    font-family:'Fraunces', serif;
+    font-size:1.05rem;
+    color:var(--plum);
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:1rem;
+  }
+  .note-head .mark{color:var(--gold); font-family:'Work Sans',sans-serif; font-size:1.2rem; transition:transform .2s ease;}
+  .note-head[aria-expanded="true"] .mark{transform:rotate(45deg);}
+  .note-body{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .25s ease;
+    padding:0 1.4rem;
+  }
+  .note-body p{margin:0 0 1.1rem; color:#5b5062; font-size:0.96rem;}
+
+  /* playlist */
+  .playlist{border-top:1px solid #ece2d6;}
+  .track{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:0.85rem;
+    padding:1rem 0.25rem;
+    border-bottom:1px solid #ece2d6;
+  }
+  .track-num{
+    font-family:'Fraunces', serif;
+    color:var(--gold);
+    width:1.6rem;
+    font-size:1rem;
+  }
+  .track-cover{
+    width:52px;
+    height:52px;
+    border-radius:4px;
+    flex-shrink:0;
+    background:linear-gradient(160deg, var(--blush), var(--plum));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:rgba(255,255,255,.8);
+    font-size:0.65rem;
+    text-align:center;
+    line-height:1.2;
+    object-fit: cover;
+  }
+  .track-info{flex:1; min-width:120px;}
+  .track-title{font-size:0.98rem; color:var(--ink);}
+  .track-artist{font-size:0.85rem; color:#9a8a72;}
+  .track-why{font-size:0.85rem; color:#9a8a72; max-width:220px; text-align:right;}
+  .track-links{
+    display:flex;
+    gap:0.5rem;
+    flex-shrink:0;
+  }
+  .track-links a{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;
+    height:22px;
+    transition:transform .15s ease, opacity .15s ease;
+    opacity:0.85;
+  }
+  .track-links a:hover{opacity:1; transform:translateY(-1px);}
+  .track-links svg{width:19px; height:19px;}
+
+  @media (max-width:560px){
+    .track-why{
+      max-width:none;
+      width:100%;
+      text-align:center;
+      order:5;
+      margin-left:calc(52px + 0.85rem);
+      margin-top:-0.35rem;
+    }
+    .track-links{order:4;}
+  }
+
+  /* what's next */
+  .next-list{list-style:none; margin:0; padding:0;}
+  .next-list li{
+    display:flex;
+    gap:1rem;
+    align-items:flex-start;
+    padding:1rem 0;
+    border-bottom:1px solid #ece2d6;
+  }
+  .next-list li:last-child{border-bottom:none;}
+  .next-check{
+    width:20px; height:20px;
+    border-radius:50%;
+    border:2px solid var(--plum);
+    flex-shrink:0;
+    margin-top:0.15rem;
+  }
+  .next-text strong{font-family:'Fraunces', serif; font-weight:500; display:block; margin-bottom:0.15rem;}
+  .next-text span{font-size:0.9rem; color:#5b5062;}
+
+  /* tiktok embed wrapper */
+  .tiktok-wrap{margin-top:1rem;}
+  .tiktok-wrap blockquote.tiktok-embed{margin:0;}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <span class="drift a"></span><span class="drift b"></span><span class="drift c"></span><span class="drift d"></span>
+  <div class="hero-inner">
+    <img src="/media/images/731196941_17948009121233550_6929852572002266602_n.webp" class="avatar" aria-label="Photo of Abigail placeholder" />
+    <div class="hero-eyebrow">a page for my lovely 💗</div>
+    <h1>Abigail Grady</h1>
+    <p>Some people deserve their own corner of the internet. This one's yours. 💙</p>
+  </div>
+</section>
+
+<section id="reasons">
+  <div class="wrap">
+    <div class="kicker">on repeat 💕</div>
+    <h2>Reasons, on demand</h2>
+    <div class="reasons-box">
+      <div id="reasonText">Click below for a reason I appreciate you.</div>
+      <button class="btn-line" id="reasonBtn">Give me another 🩵</button>
     </div>
+  </div>
+</section>
 
-    <Bootstrap />
+<section class="quote">
+  <blockquote>
+    "You're not just my favorite person, Abigail—you're the reason ordinary days feel extraordinary." 💗
+    <cite>— Alex Toucan</cite>
+  </blockquote>
+</section>
 
-    <script is:inline src="https://cdn.jsdelivr.net/npm/jquery@4.0.0-beta/dist/jquery.min.js"></script>
-    <script is:inline src="https://cdn.jsdelivr.net/npm/jquery-ui/dist/jquery-ui.min.js"></script>
-    <script is:inline src="/static/message.js"></script>
-  </body>
+<section>
+  <div class="wrap">
+    <div class="kicker">how we got here 💙</div>
+    <h2>A few markers</h2>
+    <div class="timeline">
+      <div class="t-item">
+        <div class="t-date">7/8/2026</div>
+        <div class="t-title">We met from a TikTok video! 💗</div>
+        <p>I saw her post about Metallica and couldn't help but reach out on her TikTok messages, we connected ever since...</p>
+        <div class="tiktok-wrap">
+          <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@ab1gail1_/photo/7658135835895663886" data-video-id="7658135835895663886" style="max-width: 322px;min-width: 280px;">
+            <section><a target="_blank" href="https://www.tiktok.com/@ab1gail1_">@ab1gail1_</a></section>
+          </blockquote>
+        </div>
+      </div>
+      <div class="t-item">
+        <div class="t-date">7/26/2026</div>
+        <div class="t-title">We started dating! 🩵</div>
+        <p>I asked her to be my girlfriend on a <a href="form" target="_blank" rel="noopener noreferrer">online form</a> I made, and she said yes!</p>
+      </div>
+      <div class="t-item">
+        <div class="t-date">8/26/2026</div>
+        <div class="t-title">Our one month anniversary! 💗</div>
+        <p>We reached our one month, and it's been the best month of our lives! We hope to continue this journey together.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">what makes her, her 💕</div>
+    <h2>A few traits</h2>
+    <div class="traits">
+      <div class="trait">
+        <h3>Your beautiful smile 💗</h3>
+        <p>Your smile can brighten even my worst days, and I love being the reason it appears.</p>
+      </div>
+      <div class="trait">
+        <h3>Your kind heart 🩵</h3>
+        <p>You care so deeply about the people you love, and your kindness makes everyone around you feel special.</p>
+      </div>
+      <div class="trait">
+        <h3>Your sense of humor 💗</h3>
+        <p>You always know how to make me laugh, and I love that we can be completely silly together.</p>
+      </div>
+      <div class="trait">
+        <h3>Your passion 🩵</h3>
+        <p>I love seeing how excited you get about the things you enjoy. Your passion makes you even more beautiful.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">things I'd otherwise forget to say 💌</div>
+    <h2>A few notes</h2>
+    <div class="note">
+      <button class="note-head" aria-expanded="false">
+        <span>We're literally twins 💗</span><span class="mark">+</span>
+      </button>
+      <div class="note-body"><p>Since I first met you, I noticed something, we are almost completely alike: we played MDickie games growing up, we watched SpongeBob SquarePants, and we have the same sense of humor. 😎😎</p></div>
+    </div>
+    <div class="note">
+      <button class="note-head" aria-expanded="false">
+        <span>You're drop-dead gorgeous 🩵</span><span class="mark">+</span>
+      </button>
+      <div class="note-body"><p>You're are SOOOO gorgeous, I'm genuinely speechless when I look at you.😍</p></div>
+    </div>
+    <div class="note">
+      <button class="note-head" aria-expanded="false">
+        <span>I love your personality 💗</span><span class="mark">+</span>
+      </button>
+      <div class="note-body"><p>You have the most beautiful smile and the kindest heart. I love how you light up any room you walk into. 🥰</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">on loop 🎧</div>
+    <h2>Songs that remind me of her</h2>
+    <div class="playlist">
+      <div class="track">
+        <div class="track-num">01</div>
+        <img class="track-cover" src="/media/images/walking.jpg" alt="Cover art for walking on a dream by empire of the sun" />
+        <div class="track-info">
+          <div class="track-title">Walking On A Dream</div>
+          <div class="track-artist">Empire of The Sun</div>
+        </div>
+        <div class="track-why"></div>
+        <div class="track-links">
+          <a href="https://open.spotify.com/track/5r5cp9IpziiIsR6b93vcnQ" target="_blank" rel="noopener noreferrer" aria-label="Listen on Spotify" title="Spotify">
+            <svg viewBox="0 0 24 24" fill="#1DB954"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.59 14.42a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.622.622 0 11-.277-1.214c3.809-.871 7.077-.496 9.712 1.115.293.18.386.564.207.856zm1.223-2.723a.78.78 0 01-1.072.257c-2.688-1.652-6.786-2.131-9.965-1.166a.78.78 0 11-.452-1.492c3.632-1.102 8.147-.568 11.232 1.328a.78.78 0 01.257 1.073zm.105-2.835C14.703 9.152 9.375 8.977 6.297 9.91a.936.936 0 11-.543-1.79c3.532-1.072 9.404-.865 13.115 1.338a.936.936 0 11-.958 1.608z"/></svg>
+          </a>
+          <a href="https://music.youtube.com/watch?v=rXsQmkz1T7A" target="_blank" rel="noopener noreferrer" aria-label="Listen on YouTube Music" title="YouTube Music">
+            <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 16a6 6 0 110-12 6 6 0 010 12zm0-10a4 4 0 100 8 4 4 0 000-8zm-1.5 2.5l4 2-4 2v-4z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="track">
+        <div class="track-num">02</div>
+        <img class="track-cover" src="/media/images/petals.jpg" alt="Cover art for big feelings by Ariana Grande" />
+        <div class="track-info">
+          <div class="track-title">big feelings</div>
+          <div class="track-artist">Ariana Grande</div>
+        </div>
+        <div class="track-why">peak album you recommended me 😎</div>
+        <div class="track-links">
+          <a href="https://open.spotify.com/track/6MFSqc8pzXlwfzXqWZEKd4" target="_blank" rel="noopener noreferrer" aria-label="Listen on Spotify" title="Spotify">
+            <svg viewBox="0 0 24 24" fill="#1DB954"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.59 14.42a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.622.622 0 11-.277-1.214c3.809-.871 7.077-.496 9.712 1.115.293.18.386.564.207.856zm1.223-2.723a.78.78 0 01-1.072.257c-2.688-1.652-6.786-2.131-9.965-1.166a.78.78 0 11-.452-1.492c3.632-1.102 8.147-.568 11.232 1.328a.78.78 0 01.257 1.073zm.105-2.835C14.703 9.152 9.375 8.977 6.297 9.91a.936.936 0 11-.543-1.79c3.532-1.072 9.404-.865 13.115 1.338a.936.936 0 11-.958 1.608z"/></svg>
+          </a>
+          <a href="https://music.youtube.com/watch?v=FXultmvqvyA" target="_blank" rel="noopener noreferrer" aria-label="Listen on YouTube Music" title="YouTube Music">
+            <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 16a6 6 0 110-12 6 6 0 010 12zm0-10a4 4 0 100 8 4 4 0 000-8zm-1.5 2.5l4 2-4 2v-4z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="track">
+        <div class="track-num">03</div>
+        <img class="track-cover" src="/media/images/black.jpg" alt="Cover art for black out days (stay away) by ian asher & phantogram" />
+        <div class="track-info">
+          <div class="track-title">Black Out Days (Stay Away)</div>
+          <div class="track-artist">Ian Asher & Phantogram</div>
+        </div>
+        <div class="track-why"></div>
+        <div class="track-links">
+          <a href="https://open.spotify.com/track/6r7b1UHvO3fBZe7wBXWTaZ" target="_blank" rel="noopener noreferrer" aria-label="Listen on Spotify" title="Spotify">
+            <svg viewBox="0 0 24 24" fill="#1DB954"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.59 14.42a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.622.622 0 11-.277-1.214c3.809-.871 7.077-.496 9.712 1.115.293.18.386.564.207.856zm1.223-2.723a.78.78 0 01-1.072.257c-2.688-1.652-6.786-2.131-9.965-1.166a.78.78 0 11-.452-1.492c3.632-1.102 8.147-.568 11.232 1.328a.78.78 0 01.257 1.073zm.105-2.835C14.703 9.152 9.375 8.977 6.297 9.91a.936.936 0 11-.543-1.79c3.532-1.072 9.404-.865 13.115 1.338a.936.936 0 11-.958 1.608z"/></svg>
+          </a>
+          <a href="https://music.youtube.com/watch?v=TkgDHsvxhlo" target="_blank" rel="noopener noreferrer" aria-label="Listen on YouTube Music" title="YouTube Music">
+            <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 16a6 6 0 110-12 6 6 0 010 12zm0-10a4 4 0 100 8 4 4 0 000-8zm-1.5 2.5l4 2-4 2v-4z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="track">
+        <div class="track-num">04</div>
+        <img class="track-cover" src="/media/images/fade.jpg" alt="Cover art for Fade Into You by Mazzy Star" />
+        <div class="track-info">
+          <div class="track-title">Fade Into You</div>
+          <div class="track-artist">Mazzy Star</div>
+        </div>
+        <div class="track-why">quite literally fading into you as my twin 😎</div>
+        <div class="track-links"> 
+          <a href="https://open.spotify.com/track/1LzNfuep1bnAUR9skqdHCK" target="_blank" rel="noopener noreferrer" aria-label="Listen on Spotify" title="Spotify">
+            <svg viewBox="0 0 24 24" fill="#1DB954"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.59 14.42a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.622.622 0 11-.277-1.214c3.809-.871 7.077-.496 9.712 1.115.293.18.386.564.207.856zm1.223-2.723a.78.78 0 01-1.072.257c-2.688-1.652-6.786-2.131-9.965-1.166a.78.78 0 11-.452-1.492c3.632-1.102 8.147-.568 11.232 1.328a.78.78 0 01.257 1.073zm.105-2.835C14.703 9.152 9.375 8.977 6.297 9.91a.936.936 0 11-.543-1.79c3.532-1.072 9.404-.865 13.115 1.338a.936.936 0 11-.958 1.608z"/></svg>
+          </a>
+          <a href="https://music.youtube.com/watch?v=avv2IIdDnnk" target="_blank" rel="noopener noreferrer" aria-label="Listen on YouTube Music" title="YouTube Music">
+            <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 16a6 6 0 110-12 6 6 0 010 12zm0-10a4 4 0 100 8 4 4 0 000-8zm-1.5 2.5l4 2-4 2v-4z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="track">
+        <div class="track-num">05</div>
+        <img class="track-cover" src="/media/images/12thman.jpg" alt="Cover art for 12th Man by Ricky Brown" />
+        <div class="track-info">
+          <div class="track-title">12th Man</div>
+          <div class="track-artist">Ricky Brown</div>
+        </div>
+        <div class="track-why">only because the seahawks are better 😎</div>
+        <div class="track-links">
+          <a href="https://music.youtube.com/watch?v=zH-BP4K8NAs" target="_blank" rel="noopener noreferrer" aria-label="Listen on YouTube Music" title="YouTube Music">
+            <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 16a6 6 0 110-12 6 6 0 010 12zm0-10a4 4 0 100 8 4 4 0 000-8zm-1.5 2.5l4 2-4 2v-4z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">looking ahead 💫</div>
+    <h2>What's next</h2>
+    <ul class="next-list">
+      <li>
+        <div class="next-check"></div>
+        <div class="next-text"><strong>Go to prom with you 💗</strong><span>I still hope to be at your prom, holding your hand as we walk down the aisle.</span></div>
+      </li>
+      <li>
+        <div class="next-check"></div>
+        <div class="next-text"><strong>Get engaged and be married with you 🩵</strong><span>One day, I want forever with you, and to be soulmates with my future wifey.</span></div>
+      </li>
+      <li>
+        <div class="next-check"></div>
+        <div class="next-text"><strong>Get a house together 💗</strong><span>Get a cozy home together where we can make our favorite memories.</span></div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">favorites 📸</div>
+    <h2>A few photos</h2>
+    <div class="gallery">
+      <img class="frame" src="/media/images/Snapchat-1681317778 (1).jpg" alt="Photo of Abigail" />
+      <img class="frame" src="/media/images/791045428_17958284937233550_9108943737055455585_n.webp" alt="Photo of Abigail" />
+      <img class="frame" src="/media/images/774513609_17955373410233550_7475641058632657603_n.webp" alt="Photo of Abigail" />
+      <img class="frame" src="/media/images/790626407_17958284940233550_3262103620342024702_n.webp" alt="Photo of Abigail" />
+      <img class="frame" src="/media/images/IMG_20260806_014022_294.jpg" alt="Photo of Abigail" />
+      <img class="frame" src="/media/images/Screenshot_20260724_132849_Gallery.jpg" alt="Photo of Abigail" />
+      <img class="frame" src="/media/images/731196941_17948009121233550_6929852572002266602_n.webp" alt="Photo of Abigail" />
+      <img class="frame" src="/media/images/780158477_17956287057233550_5256588663546268148_n.jpg" alt="Photo of Abigail" />
+      <img class="frame" src="/media/images/IMG_20260806_014216_338.jpg" alt="Photo of Abigail" />
+    </div>
+  </div>
+</section>
+
+<footer>Made with care and love. 💙💗</footer>
+
+<script async src="https://www.tiktok.com/embed.js"></script>
+<script>
+  const reasons = [
+    "Your smile makes even the ordinary moments feel special. 💗",
+    "Your kindness makes everyone around you feel loved and valued. 🩵",
+    "You always know how to make me laugh, even on difficult days. 💗",
+    "I love how passionate and genuine you are about the things you care about. 🩵",
+    "Being with you feels easy, comfortable, and completely natural. 💗",
+    "You make my life brighter simply by being yourself. 🩵"
+  ];
+  let last = -1;
+  function showReason(){
+    let i = Math.floor(Math.random() * reasons.length);
+    if(reasons.length > 1){ while(i === last){ i = Math.floor(Math.random() * reasons.length); } }
+    last = i;
+    document.getElementById('reasonText').textContent = reasons[i];
+  }
+
+  function toggleNote(btn){
+    const body = btn.nextElementSibling;
+    const isOpen = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!isOpen));
+    body.style.maxHeight = isOpen ? '0px' : body.scrollHeight + 'px';
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const reasonBtn = document.getElementById('reasonBtn');
+    if(reasonBtn){ reasonBtn.addEventListener('click', showReason); }
+
+    document.querySelectorAll('.note-head').forEach(function(btn){
+      btn.addEventListener('click', function(){ toggleNote(btn); });
+    });
+  });
+</script>
+
+</body>
 </html>
