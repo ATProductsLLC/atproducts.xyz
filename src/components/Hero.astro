@@ -45,12 +45,12 @@ const flexSize = size ? size : 'md';
                 )}
                 {buttons && (
                   buttons.map(({ href, text, type }, index) => (
-                    <a href={href} class={`btn-solid theme-${type} md:col text-wrap-auto`}>{text}</a>
+                    <a href={href} class={`btn-solid theme-${type} md:col text-wrap-auto rounded-8`}>{text}</a>
                   ))
                 )}
                 {dropdownItems && (
                   <div class="dropdown md:col">
-                    <button aria-expanded="false" data-bs-toggle="menu" data-bs-placement="bottom" type="button" class="btn-solid theme-secondary dropdown-toggle w-100">
+                    <button aria-expanded="false" data-bs-toggle="menu" data-bs-placement="bottom" type="button" class="btn-solid theme-secondary dropdown-toggle w-100 rounded-8">
                       Navigation
                       <i class="bi bi-chevron-expand ms-1"></i>
                     </button>
@@ -65,7 +65,7 @@ const flexSize = size ? size : 'md';
                 )}
               </div>
               {icons && (
-                <div class="mt-2 p-1 d-flex justify-content-center gap-4 bg-1 rounded-5" id="icons">
+                <div class="mt-2 p-1 d-flex justify-content-center gap-4 bg-1 rounded-8" id="icons">
                   {icons && icons.map(({ icon, desc, href }, index) => (
                     <a href={href} aria-label={desc} target="_blank" rel="noopener noreferrer" class="link-hero" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title={desc}>
                       <i class={`bi bi-${icon}`}></i>
