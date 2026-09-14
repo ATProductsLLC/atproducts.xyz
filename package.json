@@ -1,8 +1,8 @@
 {
   "name": "at-games",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "config": {
-    "version_short": "1.5"
+    "version_short": "1.6"
   },
   "scripts": {
     "dev": "astro dev",
