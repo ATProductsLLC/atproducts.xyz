@@ -14,7 +14,7 @@
   "dependencies": {
     "@astrojs/netlify": "^8.2.6",
     "@astrojs/react": "^7.0.0",
-    "astro": "^7.3.4",
+    "astro": "^7.3.5",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "jquery": "^4.0.0",
