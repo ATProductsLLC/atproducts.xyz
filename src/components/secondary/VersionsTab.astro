@@ -50,7 +50,7 @@ const reversedVersions = versions.reverse();
           >
             {title}
             {isLatestVersion({ links, betalinks }) && (
-              <span class="badge bg-success ms-2">Latest</span>
+              <span class="badge bg-success ms-2 align-middle">Latest</span>
             )}
           </button>
         </li>
@@ -59,7 +59,7 @@ const reversedVersions = versions.reverse();
   </aside>
 
   <!-- Content -->
-  <section class="flex-grow-1 p-4">
+  <section class="flex-grow-1 p-6">
     <div class="tab-content">
       {reversedVersions.map(({ id, title, dates, description, betalinks, links }, index) => (
         <div
@@ -78,7 +78,7 @@ const reversedVersions = versions.reverse();
                 <a href={url} class="btn-subtle theme-warning">
                   {label}
                   {label === latestLabel && (
-                    <span class="badge bg-success ms-2">Latest</span>
+                    <span class="badge bg-success ms-2 align-middle">Latest</span>
                   )}
                 </a>
               ))}
@@ -91,7 +91,7 @@ const reversedVersions = versions.reverse();
                 <a href={url} class="btn-subtle theme-primary">
                   {label}
                   {label === latestLabel && (
-                    <span class="badge bg-success ms-2">Latest</span>
+                    <span class="badge bg-success ms-2 align-middle">Latest</span>
                   )}
                 </a>
               ))}

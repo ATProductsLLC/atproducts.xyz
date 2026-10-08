@@ -21,6 +21,10 @@ body.dialog-open {
   scrollbar-gutter: initial !important;
 }
 
+.navbar {
+  min-height: initial;
+}
+
 .navbar .navbar-brand {
   --bs-navbar-brand-padding-y: .3125rem;
 }
