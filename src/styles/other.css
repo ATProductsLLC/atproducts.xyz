@@ -21,6 +21,10 @@ body.dialog-open {
   scrollbar-gutter: initial !important;
 }
 
+.navbar {
+  min-height: initial;
+}
+
 .navbar .navbar-brand {
   --bs-navbar-brand-padding-y: .3125rem;
 }
@@ -45,6 +49,10 @@ body.dialog-open {
 
 .hero-filter {
   filter: drop-shadow(2px 4px 6px black)
+}
+
+.hero-description {
+  font-size: clamp(1.25rem,1rem + .625vw,1.5rem);
 }
 
 .hero-web {
@@ -1812,10 +1820,6 @@ html.fixedtopnavimage, html.fixedtopnavimage-breadcrumb {
 [data-bs-theme=dark] img.headerimg,
 [data-bs-theme=dark] img.popover-image {
    filter: invert(1);
-}
-
-[data-bs-theme=dark] img.astro {
-  content: url("/media/images/astro.webp");
 }
 
 .btn-resource {
