@@ -1,7 +1,7 @@
 ---
-import "../styles/bootstrap.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import bootstrap from "../scripts/bootstrap.bundle.js?url";
+import bootstrap from "bootstrap/js/dist/bootstrap.bundle.min.js?url";
 
 import jquery from "jquery/dist/jquery.min.js?url";
 import jqueryui from "jquery-ui/dist/jquery-ui.min.js?url";
@@ -99,9 +99,9 @@ if (devicon) {
     </Fragment>
     <Fragment>
       <script>
-        import * as bootstrap from '../scripts/bootstrap.bundle.js';
+        import * as bootstrap from 'bootstrap';
         Object.assign(window, bootstrap);
-        window.bootstrap = bootstrap;
+        window.bootstrap = bootstrap as unknown as typeof window.bootstrap;
         window.bootstrapReady?.();
       </script>
 
