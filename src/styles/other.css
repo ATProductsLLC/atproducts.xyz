@@ -1818,10 +1818,6 @@ html.fixedtopnavimage, html.fixedtopnavimage-breadcrumb {
    filter: invert(1);
 }
 
-[data-bs-theme=dark] img.astro {
-  content: url("/media/images/astro.webp");
-}
-
 .btn-resource {
   margin-bottom: 10px;
   margin-right: 5px;
