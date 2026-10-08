@@ -8,6 +8,7 @@
     "preview": "astro preview"
   },
   "dependencies": {
+    "@netlify/blobs": "^10.7.13",
     "astro": "^7.3.7",
     "dayjs": "^1.11.20",
     "fast-glob": "^3.3.3",
