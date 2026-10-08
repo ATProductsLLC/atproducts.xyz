@@ -25,6 +25,18 @@ const { breadcrumb, breadcrumbcontent, link, pageTitle } = Astro.props;
             <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
             <li class="nav-item">
               <a class="nav-link dropdown-toggle" href="javascript:void(0)" role="button" data-bs-toggle="menu" aria-expanded="false">
+                Company
+                <i class="bi bi-sm bi-chevron-expand" aria-hidden="true"></i>
+              </a>
+              <ul class="menu">
+                <li><a class="menu-item text-wrap-auto" href="https://blog.atproducts.xyz/">Company Blog</a></li>
+                <li><a class="menu-item text-wrap-auto" href="https://beta-testing.atproducts.xyz/">Department of Beta Testing</a></li>
+                <li><a class="menu-item text-wrap-auto" href="https://portfolio.atproducts.xyz/#toucanempire">The Toucan Empire</a></li>
+                <li><a class="menu-item text-wrap-auto" href="https://portfolio.atproducts.xyz/#atpweather">ATPWeather</a></li>
+              </ul>
+            </li>
+                        <li class="nav-item">
+              <a class="nav-link dropdown-toggle" href="javascript:void(0)" role="button" data-bs-toggle="menu" aria-expanded="false">
                 Products
                 <i class="bi bi-sm bi-chevron-expand" aria-hidden="true"></i>
               </a>
@@ -54,17 +66,6 @@ const { breadcrumb, breadcrumbcontent, link, pageTitle } = Astro.props;
                     <li><a class="menu-item text-wrap-auto" href="/pynx/inferno">Inferno</a></li>
                   </ul>
                 </li>                
-              </ul>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link dropdown-toggle" href="javascript:void(0)" role="button" data-bs-toggle="menu" aria-expanded="false">
-                Departments
-                <i class="bi bi-sm bi-chevron-expand" aria-hidden="true"></i>
-              </a>
-              <ul class="menu">
-                <li><a class="menu-item text-wrap-auto" href="https://beta-testing.atproducts.xyz/">Department of Beta Testing</a></li>
-                <li><a class="menu-item text-wrap-auto" href="https://portfolio.atproducts.xyz/#toucanempire">The Toucan Empire</a></li>
-                <li><a class="menu-item text-wrap-auto" href="https://portfolio.atproducts.xyz/#atpweather">ATPWeather</a></li>
               </ul>
             </li>
             <li class="nav-item">
