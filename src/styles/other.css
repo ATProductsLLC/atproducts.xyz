@@ -17,6 +17,10 @@ html, body {
   overflow-x: hidden !important;
 }
 
+:root.dialog-open {
+  overflow: auto !important;
+}
+
 body.dialog-open {
   scrollbar-gutter: initial !important;
 }
