@@ -12,14 +12,14 @@ import BackToTop from '../../components/BackToTop.astro';
 	<div id="main-content">
 		<HeroPynx
 			title="PSON for JSON"
-			description="Made by Pynx&semi; the better way to do JSON files for languages; with languages."
-	    buttons={[
-	      { href: "#downloads", text: "Downloads", type: "primary" },
-	    ]},
-	    dropdownItems={[
-	      { navigationDesc: "General Information", navigationLink: "#general-info" },
-	      { navigationDesc: "Downloads & Installs", navigationLink: "#downloads" },
-	    ]},
+			description="Made by Pynx&semi; the better way to do JSON files for languages, with languages."
+			buttons={[
+			{ href: "#downloads", text: "Downloads", type: "primary" },
+			]},
+			dropdownItems={[
+			{ navigationDesc: "General Information", navigationLink: "#general-info" },
+			{ navigationDesc: "Downloads & Installs", navigationLink: "#downloads" },
+			]},
 	  />
 	  <main id="bxpp" class="container">
 	    <div id="general-info">
@@ -40,13 +40,13 @@ import BackToTop from '../../components/BackToTop.astro';
 	      <h2>Downloads & Installation</h2>
 	      <ul class="pt-2 nav nav-tabs pson-tabs" id="downloadTab" role="tablist">
 	        <li class="nav-item" role="presentation">
-	          <button class="nav-link active" id="python-tab" aria-label="Python Tab" data-bs-toggle="tab" data-bs-target="#python-tab-pane" type="button" role="tab" aria-controls="python-tab-pane" aria-selected="false" tabindex="-1"><img src="/media/images/python.png" alt="Python" height="45px"></button>
+	          <button class="nav-link active rounded-top-6" id="python-tab" aria-label="Python Tab" data-bs-toggle="tab" data-bs-target="#python-tab-pane" type="button" role="tab" aria-controls="python-tab-pane" aria-selected="false" tabindex="-1"><img src="/media/images/python.png" alt="Python" height="45px"></button>
 	        </li>
 	        <li class="nav-item" role="presentation">
-	          <button class="nav-link" id="dart-tab" aria-label="Dart Tab" data-bs-toggle="tab" data-bs-target="#dart-tab-pane" type="button" role="tab" aria-controls="dart-tab-pane" aria-selected="false" tabindex="-1"><img src="/media/images/dart.png" alt="Dart" height="45px"></button>
+	          <button class="nav-link rounded-top-6" id="dart-tab" aria-label="Dart Tab" data-bs-toggle="tab" data-bs-target="#dart-tab-pane" type="button" role="tab" aria-controls="dart-tab-pane" aria-selected="false" tabindex="-1"><img src="/media/images/dart.png" alt="Dart" height="45px"></button>
 	        </li>
 	      </ul>
-	      <div class="tab-content border rounded-bottom-2 p-4" id="downloadTabContent">
+	      <div class="tab-content border rounded-bottom-6 p-6" id="downloadTabContent">
 	        <div class="tab-pane fade active show" id="python-tab-pane" role="tabpanel" aria-labelledby="python-tab" tabindex="0">
 	          <h1>Python</h1>
 	          <span class="h5">Version: <span class="fw-normal">3.0</span></span>
