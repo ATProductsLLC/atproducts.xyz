@@ -2181,7 +2181,6 @@ html.fixedtopnavimage, html.fixedtopnavimage-breadcrumb {
 
   & .main-header {
     font-size: 20vw;
-    color: white;
     filter: drop-shadow(2px 4px 6px black)
   }
 
