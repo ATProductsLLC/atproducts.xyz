@@ -8,60 +8,156 @@ import DefaultBody from '../layouts/DefaultBody.astro';
   keywords="advertisements, support, AT Products LLC" 
   author="AT Products LLC"
 >
-  <div class="container pt-4">
+  <div class="container pt-6 pb-6">
     <h1 class="text-center fw-bolder">
       Advertisements from <a href="https://atproducts.xyz">AT Products LLC</a>
     </h1>
 
-    <p class="text-center mt-3 fw-semibold fs-6">
+    <p class="text-center mt-4 mb-6 fw-semibold fs-md">
       Support us by viewing advertisements on this page—we keep our other sites ad-free for your convenience.
     </p>
 
-    <!-- ========================= -->
-    <!-- 1. TOP BANNER (Adsterra) -->
-    <!-- ========================= -->
-    <div class="my-4 text-center">
-      <script src="https://www.highperformanceformat.com/158bbd11ec1f205737043f4832348e20/invoke.js"></script>
-      <div id="container-158bbd11ec1f205737043f4832348e20"></div>
+    <!--
+      Every script uses is:inline: Astro would otherwise bundle inline scripts as
+      modules, which breaks the global atOptions the ad tags depend on.
+      Layout is plain CSS (see the style block at the bottom of this file).
+    -->
+
+    <!-- TOP BANNER: 728x90 on desktop, 320x50 on smaller screens -->
+    <div class="ad-top">
+      <div class="ad-card only-desktop">
+        <span class="ad-label">Advertisement</span>
+        <div class="ad-box" style="min-width:728px;min-height:90px;">
+          <script is:inline>
+            atOptions = {
+              'key' : '1b091bc2c6b88afcf4bea9782acbc1b4',
+              'format' : 'iframe',
+              'height' : 90,
+              'width' : 728,
+              'params' : {}
+            };
+          </script>
+          <script is:inline src="https://www.highrevenueformat.com/1b091bc2c6b88afcf4bea9782acbc1b4/invoke.js"></script>
+        </div>
+      </div>
+      <div class="ad-card only-mobile">
+        <span class="ad-label">Advertisement</span>
+        <div class="ad-box" style="min-width:320px;min-height:50px;">
+          <script is:inline>
+            atOptions = {
+              'key' : 'a46fa7a655ee1b120a82fc6e9d30b1f9',
+              'format' : 'iframe',
+              'height' : 50,
+              'width' : 320,
+              'params' : {}
+            };
+          </script>
+          <script is:inline src="https://www.highrevenueformat.com/a46fa7a655ee1b120a82fc6e9d30b1f9/invoke.js"></script>
+        </div>
+      </div>
     </div>
 
-    <!-- ========================= -->
-    <!-- 2. NATIVE BANNER (Mid-page) -->
-    <!-- ========================= -->
-    <div class="my-5">
-      <script async data-cfasync="false" src="https://pl28664708.effectivegatecpm.com/946bb43adc202e0d28aa4ebab5ae1626/invoke.js"></script>
-      <div id="container-946bb43adc202e0d28aa4ebab5ae1626"></div>
+    <!-- MAIN GRID: [skyscraper] [center stack] [skyscraper] -->
+    <div class="ad-layout">
+
+      <div class="ad-col ad-col-left">
+        <div class="ad-card ">
+        <span class="ad-label">Advertisement</span>
+        <div class="ad-box" style="min-width:160px;min-height:600px;">
+          <script is:inline>
+            atOptions = {
+              'key' : 'f803b11794063cf668fc3ee91f60b82a',
+              'format' : 'iframe',
+              'height' : 600,
+              'width' : 160,
+              'params' : {}
+            };
+          </script>
+          <script is:inline src="https://www.highrevenueformat.com/f803b11794063cf668fc3ee91f60b82a/invoke.js"></script>
+        </div>
+      </div>
+      </div>
+
+      <div class="ad-col ad-col-center">
+        <div class="ad-card hide-phone">
+        <span class="ad-label">Advertisement</span>
+        <div class="ad-box" style="min-width:468px;min-height:60px;">
+          <script is:inline>
+            atOptions = {
+              'key' : 'a0b7b4741d77243ea46684cb6b27675f',
+              'format' : 'iframe',
+              'height' : 60,
+              'width' : 468,
+              'params' : {}
+            };
+          </script>
+          <script is:inline src="https://www.highrevenueformat.com/a0b7b4741d77243ea46684cb6b27675f/invoke.js"></script>
+        </div>
+      </div>
+        <div class="ad-card ">
+        <span class="ad-label">Advertisement</span>
+        <div class="ad-box" style="min-width:300px;min-height:250px;">
+          <script is:inline>
+            atOptions = {
+              'key' : '158bbd11ec1f205737043f4832348e20',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script is:inline src="https://www.highrevenueformat.com/158bbd11ec1f205737043f4832348e20/invoke.js"></script>
+        </div>
+      </div>
+
+        <div class="ad-card ad-card-native">
+          <span class="ad-label">Sponsored</span>
+          <script is:inline async data-cfasync="false" src="https://pl28664708.profitableratecpmnetwork.com/946bb43adc202e0d28aa4ebab5ae1626/invoke.js"></script>
+          <div id="container-946bb43adc202e0d28aa4ebab5ae1626"></div>
+        </div>
+      </div>
+
+      <div class="ad-col ad-col-right">
+        <div class="ad-card ">
+        <span class="ad-label">Advertisement</span>
+        <div class="ad-box" style="min-width:160px;min-height:300px;">
+          <script is:inline>
+            atOptions = {
+              'key' : 'c8742194f53ad9ec219db63988eb461f',
+              'format' : 'iframe',
+              'height' : 300,
+              'width' : 160,
+              'params' : {}
+            };
+          </script>
+          <script is:inline src="https://www.highrevenueformat.com/c8742194f53ad9ec219db63988eb461f/invoke.js"></script>
+        </div>
+      </div>
+      </div>
+
     </div>
 
-    <!-- ========================= -->
-    <!-- 3. SOCIAL BAR (Bottom area) -->
-    <!-- ========================= -->
-    <div class="my-5">
-      <script src="https://pl28664685.effectivegatecpm.com/a2/a3/c1/a2a3c16e61fc765ade1caed37a5529e9.js"></script>
-    </div>
+    <!-- Smartlink (hidden) -->
+    <a href="https://www.profitableratecpmnetwork.com/yk7i7096x0?key=b546a3d2d696f4c0b57fcc418969f9c9" style="display:none;"></a>
 
-    <!-- ========================= -->
-    <!-- 4. SMARTLINK (Hidden) -->
-    <!-- ========================= -->
-    <a href="https://www.effectivegatecpm.com/yk7i7096x0?key=b546a3d2d696f4c0b57fcc418969f9c9" style="display:none;"></a>
+    <!-- Social bar -->
+    <script is:inline src="https://pl28664685.profitableratecpmnetwork.com/a2/a3/c1/a2a3c16e61fc765ade1caed37a5529e9.js"></script>
 
-    <!-- ========================= -->
-    <!-- 5. POPUNDER (Load last) -->
-    <!-- ========================= -->
-    <script src="https://pl28664642.effectivegatecpm.com/e5/52/94/e552941806105b5e68df4c3b6ce18ee3.js"></script>
+    <!-- Popunder (load last) -->
+    <script is:inline src="https://pl28664642.profitableratecpmnetwork.com/e5/52/94/e552941806105b5e68df4c3b6ce18ee3.js"></script>
 
   </div>
 
   <!-- Bottom Buttons + Footer -->
-  <div class="d-flex position-fixed bottom-0 mb-3 justify-content-between p-3 m-3 bottom-section">
+  <div class="d-flex position-fixed bottom-0 mb-4 justify-content-between p-4 m-4 bottom-section rounded-6 bg-3">
     <div class="start-0" id="information-btn">
-      <button class="btn btn-secondary py-2 d-flex align-items-center shadow-lg" 
-              id="bd-information" 
-              type="button" 
-              data-bs-toggle="modal" 
+      <button class="btn-solid theme-secondary py-2 d-flex align-items-center shadow-lg"
+              id="bd-information"
+              type="button"
+              data-bs-toggle="dialog"
               data-bs-target="#informationModal">
         <span><i class="my-1 bi bi-info"></i></span>
-        <span class="visually-hidden" id="bd-information-text">Toggle information modal</span>
+        <span class="visually-hidden" id="bd-information-text">Toggle information dialog</span>
       </button>
     </div>
 
@@ -69,77 +165,142 @@ import DefaultBody from '../layouts/DefaultBody.astro';
       <span>2026 &reg; <a href="https://atproducts.xyz">AT Products LLC</a></span>
     </footer>
 
-    <div class="dropup end-0">
-      <button class="btn btn-secondary py-2 dropdown-toggle d-flex align-items-center" 
-              id="bd-theme" 
-              type="button" 
-              aria-expanded="false" 
-              data-bs-toggle="dropdown" 
-              data-bs-display="static">
-        <span class="theme-icon-active">
-          <i class="bi bi-sun-fill me-2"></i>
-        </span>
-        <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
-      </button>
-
-      <ul class="dropdown-menu dropdown-menu-end dropdown-menu-specific" aria-labelledby="bd-theme-text">
-        <li>
-          <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="light">
-            <i class="bi bi-sun-fill me-2"></i> Light
-          </button>
-        </li>
-        <li>
-          <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark">
-            <i class="bi bi-moon-stars-fill me-2"></i> Dark
-          </button>
-        </li>
-        <li>
-          <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto">
-            <i class="bi bi-circle-half me-2"></i> Auto
-          </button>
-        </li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal fade" id="informationModal" tabindex="-1" aria-labelledby="informationModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="informationModalLabel">Information & Credits</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-
-        <div class="modal-body">
-          <div class="hero hero-main p-md-4 rounded-2 mb-3">
-            <div class="bg-dark p-2 rounded-2 d-grid mx-auto" style="width: 217px; filter: drop-shadow(2px 4px 6px black);">
-              <span class="text-center fw-bold fs-4 text-white mb-2">Made by:</span>
-              <a class="btn btn-dark py-2" href="https://atproducts.xyz" target="_blank" rel="noopener noreferrer">
-                <img alt="AT Products LLC" src="https://atproducts.xyz/media/images/longwhite.png" width="175px">
-              </a>
-            </div>
-          </div>
-
-          <h2>Information</h2>
-          <div class="text-justify">
-            <p class="tab">
-              This page is dedicated to supporting <a href="https://atproducts.xyz"><strong>AT Products LLC</strong></a> through advertisements.
-            </p>
-            <p class="tab">
-              Your support directly contributes to the maintenance and development of our platforms.
-            </p>
-            <p class="tab">
-              If you wish to support us further, please consider visiting our <a href="https://atproducts.xyz/paid">Paid Products</a>.
-            </p>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
+    <div class="end-0">
+      <a class="d-block btn-solid theme-secondary" href="javascript:void(0)" role="button" data-bs-toggle="menu" data-bs-auto-close="outside" data-bs-placement="top-start" id="bd-theme">
+        <span class="theme-icon-active"><i class="bi bi-sun-fill me-2 lg:me-0"></i></span>
+        <i class="bi bi-sm bi-chevron-expand ms-1 lg:ms-2" aria-hidden="true"></i>
+      </a>
+      <div class="menu" data-bs-display="static" data-bs-popper="static">
+        <a class="menu-item text-wrap-auto" href="javascript:void(0)" data-bs-theme-value="light">
+          <i class="bi bi-sun-fill me-2"></i> Light
+        </a>
+        <a class="menu-item text-wrap-auto" href="javascript:void(0)" data-bs-theme-value="dark">
+          <i class="bi bi-moon-stars-fill me-2"></i> Dark
+        </a>
+        <a class="menu-item text-wrap-auto" href="javascript:void(0)" data-bs-theme-value="auto">
+          <i class="bi bi-circle-half me-2"></i> Auto
+        </a>
       </div>
     </div>
   </div>
 
+  <!-- Dialog (Bootstrap 6: native <dialog>, no .modal-dialog/.modal-content wrappers) -->
+  <dialog class="dialog" id="informationModal" aria-labelledby="informationModalLabel">
+    <div class="dialog-header">
+      <h1 class="dialog-title fs-lg" id="informationModalLabel">Information & Credits</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="dialog" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="20" height="20" fill="none">
+          <path fill="currentcolor" d="M12 0a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4zm-.646 4.646a.5.5 0 0 0-.707 0L8 7.293 5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.647a.5.5 0 1 0 .708.707L8 8.707l2.647 2.646a.5.5 0 1 0 .707-.707L8.707 8l2.646-2.646a.5.5 0 0 0 0-.708z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="dialog-body">
+      <div class="hero hero-main md:p-6 rounded-2 mb-4">
+        <div class="credit-card p-2 rounded-6 d-grid mx-auto" style="width: 217px; filter: drop-shadow(2px 4px 6px black);">
+          <span class="credit-title text-center fw-bold fs-xl mb-2">Made by:</span>
+          <a class="btn-solid theme-dark py-2" href="https://atproducts.xyz" target="_blank" rel="noopener noreferrer">
+            <img alt="AT Products LLC" src="https://atproducts.xyz/media/images/longwhite.png" width="175px">
+          </a>
+        </div>
+      </div>
+
+      <h2>Information</h2>
+      <div class="text-justify">
+        <p class="tab">
+          This page is dedicated to supporting <a href="https://atproducts.xyz"><strong>AT Products LLC</strong></a> through advertisements.
+        </p>
+        <p class="tab">
+          Your support directly contributes to the maintenance and development of our platforms.
+        </p>
+        <p class="tab">
+          If you wish to support us further, please consider visiting our <a href="https://atproducts.xyz/paid">Paid Products</a>.
+        </p>
+      </div>
+    </div>
+
+    <div class="dialog-footer">
+      <button type="button" class="btn-solid theme-secondary" data-bs-dismiss="dialog">Close</button>
+    </div>
+  </dialog>
+
 </DefaultBody>
+
+<style>
+  /* ---------- Card ---------- */
+  .ad-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.6rem 0.75rem 0.75rem;
+    border: 1px solid rgba(128, 128, 128, 0.28);
+    border-radius: 0.6rem;
+    background: rgba(128, 128, 128, 0.07);
+  }
+  .ad-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.55;
+  }
+  /* Reserves the unit's size so nothing jumps while ads load */
+  .ad-box { max-width: 100%; overflow: hidden; }
+  .ad-card-native { width: 100%; }
+  .ad-card-native > div { width: 100%; }
+
+  /* ---------- Top banner ---------- */
+  .ad-top {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ---------- Main grid (mobile first) ---------- */
+  .ad-layout {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    justify-content: center;
+    align-items: start;
+    gap: 1.5rem 1rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .ad-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    min-width: 0;
+  }
+  .ad-col-center { grid-column: 1 / -1; order: -1; width: 100%; }
+
+  /* ---------- Visibility by screen size ---------- */
+  .only-desktop { display: none; }
+  @media (max-width: 575.98px) { .hide-phone { display: none; } }
+
+  /* ---------- Desktop: three columns ---------- */
+  @media (min-width: 992px) {
+    .only-desktop { display: flex; }
+    .only-mobile { display: none; }
+    .ad-layout {
+      grid-template-columns: 200px minmax(0, 1fr) 200px;
+      gap: 1.5rem;
+    }
+    .ad-col-center { grid-column: auto; order: 0; width: auto; }
+  }
+
+  /* ---------- Credits badge in the dialog ---------- */
+  .credit-card { background-color: #212529; }
+  .credit-title { color: #fff; }
+
+  /* ---------- Closed dialog must not add page height ---------- */
+  /* Bootstrap 6's .dialog sets display:flex, which overrides the browser's
+     "closed dialog = display:none". The closed dialog then sits in the page as an
+     invisible absolutely-positioned box and stretches the scroll height.
+     Fixed positioning takes it out of the scrollable area; open dialogs are
+     unaffected (they render in the top layer). */
+  .dialog:not([open]) { position: fixed; }
+</style>

@@ -1,12 +1,14 @@
 ---
 const { highlight, title, heroid, icon, color, bulletin, description, keywords, author, additionalContent, fourofour, index, modal, accordion, scrollspy } = Astro.props;
+
+import bootstrap from "https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/js/bootstrap.bundle.min.js?url";
 ---
 
 <!DOCTYPE html>
 <html lang="en">
   <head>
       <title>{title}</title> 
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css">
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
       {highlight && (
         <link rel="stylesheet" href="/static/highlight.css">
@@ -54,6 +56,10 @@ const { highlight, title, heroid, icon, color, bulletin, description, keywords, 
           display: flex;
           justify-content: center;
           align-items: center;
+        }
+
+        :root.dialog-open {
+          overflow: auto !important;
         }
       </style>
       <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css">
@@ -115,80 +121,94 @@ const { highlight, title, heroid, icon, color, bulletin, description, keywords, 
       )}
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <Fragment set:html={additionalContent}>
-      <script type="text/javascript">
-        (() => {
-          'use strict'
 
-          const storedTheme = localStorage.getItem('theme')
+      <!-- FIX 1: self-closing. With children inside, set:html replaces them and the theme script below could be dropped. -->
+      <Fragment set:html={additionalContent} />
 
-          const getPreferredTheme = () => {
-            if (storedTheme) {
-              return storedTheme
-            }
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-          }
+      <script is:inline type="text/javascript">
+(() => {
+  'use strict'
 
-          const setTheme = (theme) => {
-            if (theme === 'auto') {
-              document.documentElement.setAttribute(
-                'data-bs-theme',
-                window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-              )
-            } else {
-              document.documentElement.setAttribute('data-bs-theme', theme)
-            }
-          }
+  const getPreferredTheme = () => {
+    const stored = localStorage.getItem('theme')
+    if (stored) return stored
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  }
 
-          setTheme(getPreferredTheme())
+  const setTheme = theme => {
+    if (theme === 'auto') {
+      const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      document.documentElement.setAttribute('data-bs-theme', system)
+    } else {
+      document.documentElement.setAttribute('data-bs-theme', theme)
+    }
+  }
 
-          const showActiveTheme = (theme, focus = false) => {
-            const themeSwitcher = document.querySelector('#bd-theme')
-            if (!themeSwitcher) return
+  setTheme(getPreferredTheme())
 
-            const themeSwitcherText = document.querySelector('#bd-theme-text')
-            const activeThemeIcon = document.querySelector('.theme-icon-active i')
-            const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+  const swapIcon = (activeIcon, sourceIcon) => {
+    const newIconClass = [...sourceIcon.classList].find(cls => cls.startsWith('bi-'))
+    if (!newIconClass) return
 
-            if (!btnToActive) return // prevent null errors
+    activeIcon.classList.forEach(cls => {
+      if (cls.startsWith('bi-')) activeIcon.classList.remove(cls)
+    })
 
-            const svgOfActiveBtn = btnToActive.querySelector('i').getAttribute('class')
+    activeIcon.classList.add(newIconClass)
+  }
 
-            for (const element of document.querySelectorAll('[data-bs-theme-value]')) {
-              element.classList.remove('active')
-              element.setAttribute('aria-pressed', 'false')
-            }
+  const showActiveTheme = (theme, focus = false) => {
+    const themeSwitcher = document.querySelector('#bd-theme')
+    if (!themeSwitcher) return
 
-            btnToActive.classList.add('active')
-            btnToActive.setAttribute('aria-pressed', 'true')
-            activeThemeIcon.setAttribute('class', svgOfActiveBtn)
+    const themeSwitcherText = document.querySelector('#bd-theme-text')
+    const activeThemeIcon = document.querySelector('.theme-icon-active i')
+    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+    if (!btnToActive) return
 
-            const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`
-            themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
+    const btnIcon = btnToActive.querySelector('i')
+    if (activeThemeIcon && btnIcon) swapIcon(activeThemeIcon, btnIcon)
 
-            if (focus) themeSwitcher.focus()
-          }
+    for (const el of document.querySelectorAll('[data-bs-theme-value]')) {
+      el.classList.remove('active')
+      el.setAttribute('aria-pressed', 'false')
+    }
 
-          window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-            if (storedTheme !== 'light' && storedTheme !== 'dark') {
-              setTheme(getPreferredTheme())
-              showActiveTheme(getPreferredTheme())
-            }
-          })
+    btnToActive.classList.add('active')
+    btnToActive.setAttribute('aria-pressed', 'true')
 
-          window.addEventListener('load', () => {
-            showActiveTheme(getPreferredTheme())
+    // FIX 2: #bd-theme-text no longer exists in the v6 markup. Reading .textContent
+    // on null threw a TypeError here, which stopped the click listeners from ever
+    // being attached. Fall back to a plain label instead.
+    const baseLabel = themeSwitcherText ? themeSwitcherText.textContent : 'Toggle theme'
+    themeSwitcher.setAttribute('aria-label', `${baseLabel} (${btnToActive.dataset.bsThemeValue})`)
 
-            for (const toggle of document.querySelectorAll('[data-bs-theme-value]')) {
-              toggle.addEventListener('click', () => {
-                const theme = toggle.getAttribute('data-bs-theme-value')
-                localStorage.setItem('theme', theme)
-                setTheme(theme)
-                showActiveTheme(theme, true)
-              })
-            }
-          })
-        })()
+    if (focus) themeSwitcher.focus()
+  }
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    const stored = localStorage.getItem('theme')
+    if (stored !== 'light' && stored !== 'dark') {
+      setTheme(getPreferredTheme())
+    }
+  })
+
+  // FIX 3: DOMContentLoaded instead of load. "load" waits for every ad iframe and
+  // image, so on this page the switch stayed dead for seconds.
+  document.addEventListener('DOMContentLoaded', () => {
+    // Attach listeners first so a problem updating the UI can never block them.
+    for (const toggle of document.querySelectorAll('[data-bs-theme-value]')) {
+      toggle.addEventListener('click', () => {
+        const theme = toggle.getAttribute('data-bs-theme-value')
+        localStorage.setItem('theme', theme)
+        setTheme(theme)
+        showActiveTheme(theme, true)
+      })
+    }
+
+    showActiveTheme(getPreferredTheme())
+  })
+})()
       </script>
   </head>
   <body>
@@ -196,7 +216,12 @@ const { highlight, title, heroid, icon, color, bulletin, description, keywords, 
       <slot/>
     </Fragment>
     <Fragment>
-      <script is:inline src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js" integrity="sha384-YUe2LzesAfftltw+PEaao2tjU/QATaW/rOitAq67e0CT0Zi2VVRL0oC4+gAaeBKu" crossorigin="anonymous"></script>
+      <script>
+        import * as bootstrap from 'https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/js/bootstrap.bundle.min.js?url';
+        Object.assign(window, bootstrap);
+        window.bootstrap = bootstrap as unknown as typeof window.bootstrap;
+        window.bootstrapReady?.();
+      </script>
       <script is:inline src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
       <script is:inline src="https://cdn.jsdelivr.net/npm/jquery-ui/dist/jquery-ui.min.js"></script>
       <script is:inline>
