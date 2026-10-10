@@ -39,24 +39,58 @@ body.dialog-open {
   z-index: 1000;
   background-size: cover !important;
   background-position: center center !important;
-  background-repeat: no-repeat !important;   
-  color: lab(95.359 -0.243577 -0.684373) !important;
+  background-repeat: no-repeat !important;
+  color: var(--bs-body-color);
 }
 
-.hero-back {
-  background-color: rgba(0, 0, 0, 0.6);
-}
-
-.hero-border {
-  border-bottom: solid 1px #dee2e6;
-}
-
-.hero-filter {
-  filter: drop-shadow(2px 4px 6px black)
+[data-bs-theme=dark] .hero {
+  color: lab(95.359 -0.243577 -0.684373);
 }
 
 .hero-description {
-  font-size: clamp(1.25rem,1rem + .625vw,1.5rem);
+  font-size: clamp(1.25rem, 1rem + .625vw, 1.5rem);
+  color: oklch(0.216 0.0072 245);
+}
+
+[data-bs-theme=dark] .hero-description {
+  --bs-fg: var(--bs-fg-2);
+  color: var(--bs-fg);
+}
+
+.hero-border {
+  border-bottom: solid 1px rgb(198, 203, 207);
+}
+
+[data-bs-theme=dark] .hero-border {
+  border-bottom: solid 1px #dee2e6;
+}
+
+.hero-back {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+[data-bs-theme=dark] .hero-back {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.hero-filter {
+  filter: drop-shadow(1px 3px 5px rgba(0, 0, 0, 0.15));
+}
+
+[data-bs-theme=dark] .hero-filter {
+  filter: drop-shadow(2px 4px 6px black);
+}
+
+.hero-noodle .hero-back, .hero-flash .hero-back, .hero-mdickie .hero-back, .hero-sms .hero-back {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.hero-main {
+  background-image: url('/media/images/hero-main-light.webp');
+}
+
+[data-bs-theme=dark] .hero-main {
+  background-image: url('/media/images/hero-main.webp');
 }
 
 .hero-web {
@@ -71,16 +105,16 @@ body.dialog-open {
   background: url('/media/images/hero-flash.webp');
 }
 
-.hero-main {
-	background: url('/media/images/hero.webp');
-}
-
 .hero-codinghome  {
 	background: url('/media/images/hero-codinghome.webp');
 }
 
 .hero-ehs {
-	background: url('/media/images/hero-ehs.webp');
+	background: url('/media/images/hero-ehs-light.webp');
+}
+
+[data-bs-theme=dark] .hero-ehs {
+  background: url('/media/images/hero-ehs.webp');
 }
 
 .hero-script {
@@ -113,6 +147,14 @@ body.dialog-open {
 
 .hero-minefalls {
   background: url('/media/images/Mine Falls/Mine Falls/Screenshot 2025-08-04 173219.png');
+}
+
+[data-bs-theme=dark] .mdickie-img {
+  content: url(/media/images/mdickiepro.webp) !important;
+}
+
+[data-bs-theme=dark] .flash-img {
+  content: url(/media/images/flashdoc.webp) !important;
 }
 
 .accordion-body p:last-child {
@@ -454,23 +496,23 @@ a {
   font-size: 1.75rem!important;
 }
 
-.link-hero, [data-bs-theme=dark] .link-carousel {
+[data-bs-theme=dark] .link-hero, [data-bs-theme=dark] .link-footer {
   color: #adb5bd !important;
   -webkit-text-decoration-color: RGBA(var(--bs-dark-rgb), var(--bs-link-underline-opacity, 1));
   text-decoration-color: RGBA(var(--bs-dark-rgb), var(--bs-link-underline-opacity, 1));
 }
-.link-hero:hover, .link-hero:focus, [data-bs-theme=dark] .link-carousel:hover, [data-bs-theme=dark] .link-carousel:focus, [data-bs-theme=dark] .link-footer:hover, [data-bs-theme=dark] .link-footer:focus  {
+[data-bs-theme=dark] .link-hero:hover, [data-bs-theme=dark] .link-hero:focus, [data-bs-theme=dark] .link-footer:hover, [data-bs-theme=dark] .link-footer:focus  {
   color: #d6dade !important;
   -webkit-text-decoration-color: RGBA(26, 30, 33, var(--bs-link-underline-opacity, 1));
   text-decoration-color: RGBA(26, 30, 33, var(--bs-link-underline-opacity, 1));
 }
 
-.link-footer, .link-carousel {
+.link-hero, .link-footer, .link-carousel {
   color: RGBA(var(--bs-dark-rgb, var(--bs-link-opacity, 1)));
   -webkit-text-decoration-color: RGBA(var(--bs-dark-rgb), var(--bs-link-underline-opacity, 1));
   text-decoration-color: RGBA(var(--bs-dark-rgb), var(--bs-link-underline-opacity, 1));
 }
-.link-footer:hover, .link-footer:focus, .link-carousel:hover, .link-carousel:focus {
+.link-hero, .link-footer:hover, .link-footer:focus, .link-carousel:hover, .link-carousel:focus {
   color: RGBA(26, 30, 33, var(--bs-link-opacity, 1));
   -webkit-text-decoration-color: RGBA(26, 30, 33, var(--bs-link-underline-opacity, 1));
   text-decoration-color: RGBA(26, 30, 33, var(--bs-link-underline-opacity, 1));
@@ -2139,7 +2181,6 @@ html.fixedtopnavimage, html.fixedtopnavimage-breadcrumb {
 
   & .main-header {
     font-size: 20vw;
-    color: white;
     filter: drop-shadow(2px 4px 6px black)
   }
 
