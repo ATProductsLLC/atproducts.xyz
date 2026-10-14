@@ -1,6 +1,7 @@
 ---
 import fs from "node:fs";
 import path from "node:path";
+import { filesize } from "filesize";
 
 export async function getStaticPaths() {
   const root = path.join(process.cwd(), "public/media");
@@ -65,6 +66,14 @@ function parseSizeToBytes(size) {
 
   return Math.round(value * mult);
 }
+
+// Recursive file list written by generate-indexes.mjs, used for "Download all".
+let manifest = [];
+const manifestFile = path.join(dir, "index.all.json");
+if (fs.existsSync(manifestFile)) {
+  manifest = JSON.parse(fs.readFileSync(manifestFile, "utf8"));
+}
+const manifestBytes = manifest.reduce((n, f) => n + f.bytes, 0);
 
 const parent = reqPath.split("/").slice(0, -1).join("/");
 const parentUrl = parent ? `/media/${parent}` : `/media`;
@@ -139,6 +148,40 @@ const parentUrl = parent ? `/media/${parent}` : `/media`;
       th.sortable.active .arrow {
         opacity: 1;
       }
+      .dl-all {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0 0 1rem;
+      }
+      .dl-all [hidden] {
+        display: none !important;
+      }
+      .dl-all button {
+        font: inherit;
+        color: #4da3ff;
+        background: transparent;
+        border: 1px solid #333;
+        border-radius: 4px;
+        padding: 0.4rem 0.8rem;
+        cursor: pointer;
+      }
+      .dl-all button:hover:not(:disabled) {
+        background: #1a1a1a;
+        border-color: #4da3ff;
+      }
+      .dl-all button:disabled {
+        color: #777;
+        cursor: progress;
+      }
+      .dl-all .dim {
+        color: #888;
+      }
+      .dl-all progress {
+        width: 12rem;
+        accent-color: #4da3ff;
+      }
       .copyright {
         margin-top: 2rem;
         font-size: 1.17em;
@@ -154,6 +197,19 @@ const parentUrl = parent ? `/media/${parent}` : `/media`;
       <p>
         <a href={parentUrl}>⬅ Parent Directory</a>
       </p>
+    )}
+
+    {manifest.length > 0 && (
+      <div id="dlAll" class="dl-all" data-folder={reqPath}>
+        <button type="button" id="dlAllBtn">
+          ⬇ Download all{" "}
+          <span class="dim">({manifest.length} {manifest.length === 1 ? "file" : "files"}, {filesize(manifestBytes)})</span>
+        </button>
+        <button type="button" id="dlAllZip" hidden>📦 Download as .zip</button>
+        <button type="button" id="dlAllCancel" hidden>✕ Cancel</button>
+        <progress id="dlAllBar" hidden value="0" max="1"></progress>
+        <span id="dlAllStatus" role="status" aria-live="polite"></span>
+      </div>
     )}
 
     <table id="indexTable">
@@ -246,6 +302,104 @@ const parentUrl = parent ? `/media/${parent}` : `/media`;
           updateArrows(th);
         });
       });
+    </script>
+
+    <script>
+      import {
+        buildZip,
+        formatBytes,
+        loadManifest,
+        rootName,
+        saveBlob,
+        saveToDirectory,
+        saveZipToFile,
+        ZIP_MEMORY_LIMIT,
+      } from "../../scripts/download-all.js";
+
+      const box = document.getElementById("dlAll");
+
+      if (box) {
+        const folder = box.dataset.folder ?? "";
+        const btn = document.getElementById("dlAllBtn");
+        const zipBtn = document.getElementById("dlAllZip");
+        const cancel = document.getElementById("dlAllCancel");
+        const bar = document.getElementById("dlAllBar");
+        const status = document.getElementById("dlAllStatus");
+        let controller = null;
+
+        // Chromium desktop can write to disk directly: offer both a folder and a
+        // .zip. Everywhere else the one button already produces a .zip.
+        const canSaveToDisk = "showDirectoryPicker" in window && "showSaveFilePicker" in window;
+        zipBtn.hidden = !canSaveToDisk;
+        if (canSaveToDisk) btn.title = "Save the files into a folder you choose";
+
+        const say = (msg) => (status.textContent = msg);
+        const setBusy = (busy) => {
+          btn.disabled = busy;
+          zipBtn.disabled = busy;
+          cancel.hidden = !busy;
+          bar.hidden = !busy;
+        };
+        const onProgress = ({ doneBytes, totalBytes, doneFiles, totalFiles }) => {
+          bar.max = totalBytes || 1;
+          bar.value = doneBytes;
+          say(`${doneFiles}/${totalFiles} files · ${formatBytes(doneBytes)} / ${formatBytes(totalBytes)}`);
+        };
+
+        async function run(mode) {
+          controller = new AbortController();
+          const { signal } = controller;
+          setBusy(true);
+          bar.value = 0;
+
+          try {
+            // The pickers need the click's user activation, so they go first.
+            const dirHandle = mode === "folder" && canSaveToDisk
+              ? await window.showDirectoryPicker({ mode: "readwrite" })
+              : null;
+            const fileHandle = mode === "zip" && canSaveToDisk
+              ? await window.showSaveFilePicker({
+                  suggestedName: `${rootName(folder)}.zip`,
+                  types: [{ description: "ZIP archive", accept: { "application/zip": [".zip"] } }],
+                })
+              : null;
+
+            say("Reading file list…");
+            const files = await loadManifest(folder, signal);
+            if (!files.length) return say("Nothing to download.");
+            const totalBytes = files.reduce((n, f) => n + f.bytes, 0);
+
+            if (dirHandle) {
+              await saveToDirectory(dirHandle, folder, files, { onProgress, signal });
+              say(`Saved ${files.length} files into "${rootName(folder)}".`);
+            } else if (fileHandle) {
+              await saveZipToFile(fileHandle, folder, files, { onProgress, signal });
+              say(`Saved ${fileHandle.name} (${files.length} files).`);
+            } else if (totalBytes > ZIP_MEMORY_LIMIT) {
+              say(`This folder is ${formatBytes(totalBytes)}, too big to zip in this browser. Use Chrome or Edge, or download files one at a time.`);
+            } else {
+              const blob = await buildZip(folder, files, { onProgress, signal });
+              saveBlob(blob, `${rootName(folder)}.zip`);
+              say(`Downloaded ${rootName(folder)}.zip (${files.length} files).`);
+            }
+          } catch (err) {
+            say(err?.name === "AbortError" ? "Cancelled." : `Failed: ${err.message}`);
+          } finally {
+            controller = null;
+            setBusy(false);
+          }
+        }
+
+        btn.addEventListener("click", () => run("folder"));
+        zipBtn.addEventListener("click", () => run("zip"));
+
+        cancel.addEventListener("click", () => controller?.abort());
+
+        // don't lose a half-finished download to an accidental tab close
+        window.addEventListener("beforeunload", (e) => {
+          if (controller) e.preventDefault();
+        });
+      }
     </script>
   </body>
 </html>

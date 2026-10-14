@@ -3,16 +3,17 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "node src/scripts/generate-indexes.mjs && astro dev",
     "build": "node src/scripts/generate-indexes.mjs && astro build",
     "preview": "astro preview"
   },
   "dependencies": {
-    "@netlify/blobs": "^10.7.13",
-    "astro": "^7.3.7",
+    "@netlify/blobs": "^11.1.4",
+    "astro": "^7.3.8",
+    "client-zip": "^2.5.1",
     "dayjs": "^1.11.20",
     "fast-glob": "^3.3.3",
-    "filesize": "^11.0.17",
+    "filesize": "^11.0.26",
     "mime-types": "^3.0.2"
   },
   "allowScripts": {
