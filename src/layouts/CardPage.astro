@@ -13,7 +13,7 @@ const { id, title, description, cardLinks, size } = Astro.props;
       </div>
       <div class={`${size}:d-flex flex-wrap mx-2`}>
         {cardLinks && cardLinks.map(({ cardTitle, cardDescription, cardImage, cardWidth, cardHref, secondaryHref, additionalImageClasses }, index) => (
-          <div class="md:col mt-1 mb-3 m-1">
+          <div class="md:col mt-1 mb-5 m-1">
             <section class="card text-center permcard mx-auto shadow-sm h-100">
               {cardImage && (
                 <div class="bg-white card-img-top">
