@@ -1,0 +1,27 @@
+
+<html>
+    <body>
+        <div id="root"></div>
+        <script>
+            function PingServer(thePrefix)
+            {
+                var host = 'wss://'+thePrefix+'.soccerbros.io:443';
+                var socket = new WebSocket(host);
+                socket.onopen = function(e)
+                {
+                    socket.send("ping");
+                }
+                socket.onmessage = function(e) {
+                    document.getElementById('root').innerHTML += thePrefix+": " + e.data + "<br/>";
+                };
+            }
+
+            PingServer('io');
+            PingServer('va');
+            PingServer('or');
+            PingServer('am');
+
+            
+        </script>
+    </body>
+    </html>
