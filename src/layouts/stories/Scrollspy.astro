@@ -26,8 +26,9 @@ const { id, scrollcontent } = Astro.props;
         </div>
         <div class="drawer-body">
           <div id={`${id}-list`} class="list-group story-buttons w-100">
-            <div class="md:p-5 md:pb-0 rounded-4">
-              {scrollcontent.map(({ name, href, additionalClasses }, index) => (
+            <div class="md:px-4 md:pt-4">
+              <p class="story-toc-title d-none md:d-block">On this page</p>
+              {scrollcontent.map(({ name, href, additionalClasses = "" }, index) => (
                 <a class={`list-group-item list-group-item-action ${additionalClasses}`} href={href} key={index}>
                   {name}
                 </a>
@@ -44,7 +45,7 @@ const { id, scrollcontent } = Astro.props;
       </div>
     )}
   </div>
-  <div class="md:col-9 p-5" tabindex="0" data-bs-smooth-scroll="true" data-bs-target={`${id}-list`} data-bs-spy="scroll">
+  <div class="md:col-9 p-5" tabindex="0" data-bs-smooth-scroll="true" data-bs-target={`#${id}-list`} data-bs-spy="scroll">
     <div class="lg:mx-auto text-justify container-story">
       <slot name="scrollspy-content" />
     </div>
@@ -52,7 +53,6 @@ const { id, scrollcontent } = Astro.props;
 </main>
 
 <script>
-  // On mobile the section list lives in a bottom drawer; close it when a section is chosen.
   document.addEventListener('click', (event) => {
     const link = (event.target as Element | null)?.closest('.story-toc-drawer a.list-group-item');
     if (!link) return;
@@ -60,5 +60,11 @@ const { id, scrollcontent } = Astro.props;
     if (drawer?.open) {
       (window as any).bootstrap?.Drawer?.getInstance(drawer)?.hide();
     }
+  });
+  
+  document.addEventListener('shown.bs.drawer', (event) => {
+    const drawer = event.target as Element | null;
+    if (!drawer?.classList.contains('story-toc-drawer')) return;
+    drawer.querySelector('.list-group-item.active')?.scrollIntoView({ block: 'center' });
   });
 </script>
