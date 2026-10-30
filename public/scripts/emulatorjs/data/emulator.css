@@ -384,7 +384,7 @@
     align-items: flex-start;
     background: rgba(0, 0, 0, .9);
     padding: 10px;
-    z-index: 9999;
+    z-index: 900;
     left: 50%;
     bottom: 0;
     color: #fff;
@@ -563,7 +563,7 @@
     position: absolute;
     right: 0;
     transition: opacity .4s ease-in-out, transform .4s ease-in-out;
-    z-index: 9999;
+    z-index: 900;
     align-items: center;
     display: flex;
     justify-content: flex-start;
@@ -586,7 +586,7 @@
 .ejs_popup_container {
     background: rgba(0, 0, 0, 0.8);
     text-align: center;
-    z-index: 9999;
+    z-index: 900;
     height: 100%;
     overflow: hidden;
     position: absolute;
@@ -905,7 +905,7 @@
     position: absolute;
     text-align: left;
     white-space: nowrap;
-    z-index: 9999;
+    z-index: 900;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
