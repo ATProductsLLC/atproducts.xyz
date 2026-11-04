@@ -2,6 +2,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { filesize } from "filesize";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 export async function getStaticPaths() {
   const root = path.join(process.cwd(), "public/media");
@@ -75,25 +77,76 @@ if (fs.existsSync(manifestFile)) {
 }
 const manifestBytes = manifest.reduce((n, f) => n + f.bytes, 0);
 
+// Thumbnails come from the file itself. Anything bigger than these limits, or any
+// type a browser can't draw, gets a Bootstrap icon instead.
+const PREVIEW_MAX = { image: 12 * 1024 ** 2, video: 40 * 1024 ** 2 };
+
+const ICON_BY_EXT = {
+  "bi-file-earmark-binary": ["exe", "msi", "apk", "bat", "dmg", "mcworld", "jar", "bin", "iso"],
+  "bi-file-earmark-zip": ["zip", "rar", "7z", "tar", "gz", "tgz"],
+  "bi-file-earmark-pdf": ["pdf"],
+  "bi-file-earmark-code": ["py", "js", "mjs", "ts", "cs", "html", "htm", "css", "json", "xml", "java", "c", "cpp", "h", "sh", "astro"],
+  "bi-file-earmark-text": ["txt", "md", "log", "rtf"],
+  "bi-file-earmark-word": ["doc", "docx"],
+  "bi-file-earmark-excel": ["xls", "xlsx", "csv"],
+  "bi-file-earmark-ppt": ["ppt", "pptx"],
+  "bi-file-earmark-font": ["ttf", "otf", "woff", "woff2"],
+};
+
+const extOf = (name) => (name.includes(".") ? name.split(".").pop().toLowerCase() : "");
+
+function iconFor(item) {
+  if (item.type === "directory") return "bi-folder-fill";
+  const ext = extOf(item.name);
+  for (const [icon, exts] of Object.entries(ICON_BY_EXT)) {
+    if (exts.includes(ext)) return icon;
+  }
+  const mime = item.mime || "";
+  if (mime.startsWith("image/")) return "bi-file-earmark-image";
+  if (mime.startsWith("video/")) return "bi-file-earmark-play";
+  if (mime.startsWith("audio/")) return "bi-file-earmark-music";
+  return "bi-file-earmark";
+}
+
+function previewFor(item) {
+  if (item.type === "directory") return null;
+  const mime = item.mime || "";
+  const bytes = item.bytes ?? 0;
+  if (mime.startsWith("image/") && bytes <= PREVIEW_MAX.image) return "image";
+  if (mime.startsWith("video/") && bytes <= PREVIEW_MAX.video) return "video";
+  return null;
+}
+
+function typeLabel(item) {
+  if (item.type === "directory") return "Folder";
+  const ext = extOf(item.name);
+  return ext ? `${ext.toUpperCase()} file` : "File";
+}
+
+const rows = items.map((item) => {
+  const sizeBytes = parseSizeToBytes(item.size);
+  return {
+    name: item.name,
+    url: `/media/${item.path}`,
+    type: item.type,
+    size: item.size ?? null,
+    sizeBytes,
+    mtime: item.mtime ?? "",
+    mtimeValue: item.mtime ? new Date(item.mtime).getTime() || 0 : 0,
+    icon: iconFor(item),
+    preview: previewFor(item),
+    typeLabel: typeLabel(item),
+  };
+});
+
 const parent = reqPath.split("/").slice(0, -1).join("/");
 const parentUrl = parent ? `/media/${parent}` : `/media`;
 ---
 
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <title>Index of /media/{reqPath}</title>
-    <link rel="shortcut icon" type="image/png" href="/media/favicon/favicon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/media/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" href="/media/favicon/favicon.png">
-    <link rel="icon" type="image/png" href="/media/favicon/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/media/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/media/favicon/favicon-16x16.png">
-    <link rel="mask-icon" href="/media/favicon/safari-pinned-tab.svg" color="#5bbad5">
-    <meta property="og:image" content="/media/favicon/iconembed.png">
-    <meta name="twitter:image" content="/media/favicon/iconembed.png">
-    <link rel="manifest" href="/media/favicon/site.webmanifest">
-    <meta charset="UTF-8">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="title" content={`Index of /media/${reqPath}`}>
     <meta name="description" content={`Index of /media/${reqPath}`}>
@@ -107,7 +160,32 @@ const parentUrl = parent ? `/media/${parent}` : `/media`;
     <meta property="og:description" content={`Index of /media/${reqPath}`}>
     <meta property="og:site_name" content="AT Products LLC">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" type="image/png" href="/media/favicon/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/media/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/media/favicon/favicon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/media/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/media/favicon/favicon-16x16.png">
+    <link rel="mask-icon" href="/media/favicon/safari-pinned-tab.svg" color="#5bbad5">
+    <meta property="og:image" content="/media/favicon/iconembed.png">
+    <meta name="twitter:image" content="/media/favicon/iconembed.png">
+    <link rel="manifest" href="/media/favicon/site.webmanifest">
     <style>
+      /* Bootstrap's base styles would make the text 16px with a 1.5 line height. These
+         put the original monospace typography and spacing back. */
+      body {
+        margin: 8px;
+        font-size: 13px;
+        line-height: normal;
+      }
+      h1 {
+        font-size: 2em;
+        line-height: normal;
+        font-weight: bold;
+        margin: 0.67em 0;
+      }
+      p {
+        margin: 1em 0;
+      }
       body {
         background: #111;
         color: #ddd;
@@ -148,6 +226,12 @@ const parentUrl = parent ? `/media/${parent}` : `/media`;
       th.sortable.active .arrow {
         opacity: 1;
       }
+      .file-table .bi {
+        color: #4da3ff;
+      }
+      .file-table tr[data-type="1"] .bi {
+        color: #f0c419;
+      }
       .dl-all {
         display: flex;
         flex-wrap: wrap;
@@ -182,6 +266,172 @@ const parentUrl = parent ? `/media/${parent}` : `/media`;
         width: 12rem;
         accent-color: #4da3ff;
       }
+
+      /* ---- Views: large / small icons, list, tiles (details is the table) ---- */
+      .file-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0;
+        padding: 0;
+      }
+      .file-grid[hidden] {
+        display: none !important;
+      }
+      .file-item {
+        list-style: none;
+      }
+      .file-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 9.5rem;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        color: #ddd;
+        border: 1px solid transparent;
+      }
+      .file-link:hover {
+        background: #1a1a1a;
+        border-color: #333;
+        text-decoration: none;
+      }
+      .file-thumb {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        width: 100%;
+        height: 6.5rem;
+        overflow: hidden;
+        border-radius: 0.25rem;
+      }
+      .file-icon {
+        font-size: 4rem;
+        color: #4da3ff;
+      }
+      .file-item[data-type="1"] .file-icon {
+        color: #f0c419;
+      }
+      .file-preview {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: #0b0b0b;
+      }
+      .file-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 0;
+        max-width: 100%;
+        margin-top: 0.4rem;
+      }
+      .file-name {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: center;
+      }
+      .file-meta {
+        display: none;
+        font-size: 0.8rem;
+        color: #888;
+      }
+
+      .view-small .file-link {
+        flex-direction: row;
+        width: 16rem;
+        padding: 0.25rem 0.5rem;
+      }
+      .view-small .file-thumb {
+        width: 1.75rem;
+        height: 1.75rem;
+      }
+      .view-small .file-icon {
+        font-size: 1.25rem;
+      }
+      .view-small .file-text {
+        flex: 1;
+        align-items: flex-start;
+        margin: 0 0 0 0.5rem;
+      }
+      .view-small .file-name {
+        text-align: left;
+      }
+
+      .view-list {
+        display: block;
+        column-width: 17rem;
+        column-gap: 1rem;
+      }
+      .view-list .file-item {
+        break-inside: avoid;
+      }
+      .view-list .file-link {
+        flex-direction: row;
+        width: auto;
+        padding: 0.2rem 0.5rem;
+      }
+      .view-list .file-thumb {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+      .view-list .file-icon {
+        font-size: 1rem;
+      }
+      .view-list .file-preview {
+        display: none;
+      }
+      .view-list .file-text {
+        flex: 1;
+        align-items: flex-start;
+        margin: 0 0 0 0.5rem;
+      }
+      .view-list .file-name {
+        text-align: left;
+      }
+
+      .view-tiles {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+        gap: 0.5rem;
+      }
+      .view-tiles .file-item {
+        min-width: 0;
+      }
+      .view-tiles .file-link {
+        flex-direction: row;
+        width: 100%;
+        padding: 0.6rem;
+      }
+      .view-tiles .file-thumb {
+        width: 3rem;
+        height: 3rem;
+      }
+      .view-tiles .file-icon {
+        font-size: 2rem;
+      }
+      .view-tiles .file-preview {
+        display: none;
+      }
+      .view-tiles .file-text {
+        flex: 1;
+        align-items: flex-start;
+        margin: 0 0 0 0.75rem;
+      }
+      .view-tiles .file-name {
+        text-align: left;
+      }
+      .view-tiles .file-meta {
+        display: block;
+      }
+
       .copyright {
         margin-top: 2rem;
         font-size: 1.17em;
@@ -212,96 +462,183 @@ const parentUrl = parent ? `/media/${parent}` : `/media`;
       </div>
     )}
 
-    <table id="indexTable">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3" role="toolbar" aria-label="View and sort">
+      <div class="btn-group btn-group-sm" role="group" aria-label="View">
+        <button type="button" class="btn btn-outline-secondary" data-view="large" title="Large icons" aria-pressed="false">
+          <i class="bi bi-grid-fill" aria-hidden="true"></i><span class="visually-hidden">Large icons</span>
+        </button>
+        <button type="button" class="btn btn-outline-secondary" data-view="small" title="Small icons" aria-pressed="false">
+          <i class="bi bi-grid-3x3-gap" aria-hidden="true"></i><span class="visually-hidden">Small icons</span>
+        </button>
+        <button type="button" class="btn btn-outline-secondary" data-view="list" title="List" aria-pressed="false">
+          <i class="bi bi-list-ul" aria-hidden="true"></i><span class="visually-hidden">List</span>
+        </button>
+        <button type="button" class="btn btn-outline-secondary" data-view="details" title="Details" aria-pressed="false">
+          <i class="bi bi-table" aria-hidden="true"></i><span class="visually-hidden">Details</span>
+        </button>
+        <button type="button" class="btn btn-outline-secondary" data-view="tiles" title="Tiles" aria-pressed="false">
+          <i class="bi bi-layout-three-columns" aria-hidden="true"></i><span class="visually-hidden">Tiles</span>
+        </button>
+      </div>
+
+      <div class="ms-auto d-flex align-items-center gap-2 small">
+        <label for="sortSelect" class="mb-0">Sort by</label>
+        <select id="sortSelect" class="form-select form-select-sm w-auto">
+          <option value="name">Name</option>
+          <option value="kind">Type</option>
+          <option value="size">Size</option>
+          <option value="mtime">Modified</option>
+        </select>
+        <button type="button" id="sortDir" class="btn btn-outline-secondary btn-sm" title="Reverse order" aria-label="Reverse order">
+          <i class="bi bi-arrow-down-up" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <table id="indexTable" class="file-table">
       <thead>
         <tr>
           <th class="sortable" data-key="name" data-type="string">Name <span class="arrow"></span></th>
+          <th class="sortable" data-key="kind" data-type="string">Type <span class="arrow"></span></th>
           <th class="sortable" data-key="size" data-type="number">Size <span class="arrow"></span></th>
           <th class="sortable" data-key="mtime" data-type="date">Modified <span class="arrow"></span></th>
         </tr>
       </thead>
       <tbody>
-        {items.map(item => {
-          const url = `/media/${item.path}`;
-          const sizeBytes = parseSizeToBytes(item.size);
-          const mtimeValue = item.mtime ? new Date(item.mtime).getTime() || 0 : 0;
-          return (
-            <tr
-              data-type={item.type === "directory" ? "1" : "0"}
-              data-name={item.name}
-              data-size={sizeBytes}
-              data-mtime={mtimeValue}
-            >
-              <td>
-                <a href={url}>
-                  {item.type === "directory" ? "📁" : "📄"} {item.name}
-                </a>
-              </td>
-              <td>{item.size ?? "-"}</td>
-              <td>{item.mtime}</td>
-            </tr>
-          );
-        })}
+        {rows.map((r) => (
+          <tr data-type={r.type === "directory" ? "1" : "0"} data-name={r.name} data-kind={r.typeLabel} data-size={r.sizeBytes} data-mtime={r.mtimeValue}>
+            <td>
+              <a href={r.url}>
+                <i class={`bi ${r.icon} me-2`} aria-hidden="true"></i>{r.name}
+              </a>
+            </td>
+            <td>{r.typeLabel}</td>
+            <td>{r.size ?? "-"}</td>
+            <td>{r.mtime}</td>
+          </tr>
+        ))}
       </tbody>
     </table>
+
+    <ul id="fileGrid" class="file-grid list-unstyled view-large" hidden>
+      {rows.map((r) => (
+        <li class="file-item" data-type={r.type === "directory" ? "1" : "0"} data-name={r.name} data-kind={r.typeLabel} data-size={r.sizeBytes} data-mtime={r.mtimeValue}>
+          <a class="file-link" href={r.url} title={r.name}>
+            <span class="file-thumb">
+              <i class={`bi ${r.icon} file-icon`} aria-hidden="true"></i>
+              {r.preview === "image" && <img class="file-preview" src={r.url} alt="" loading="lazy" decoding="async" data-preview />}
+              {r.preview === "video" && <video class="file-preview" src={`${r.url}#t=0.5`} preload="metadata" muted playsinline data-preview></video>}
+            </span>
+            <span class="file-text">
+              <span class="file-name text-truncate">{r.name}</span>
+              <span class="file-meta">{[r.typeLabel, r.size, r.mtime].filter(Boolean).join(" · ")}</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    {rows.length === 0 && <p class="text-secondary">Nothing here yet.</p>}
+
     <div class="copyright">&copy;&nbsp;{new Date().getFullYear()}&nbsp;<a href="https://atproducts.xyz">AT Products LLC</a></div>
 
     <script>
+      const VIEWS = ["large", "small", "list", "details", "tiles"];
       const table = document.getElementById("indexTable");
       const tbody = table.querySelector("tbody");
       const headers = table.querySelectorAll("th.sortable");
+      const grid = document.getElementById("fileGrid");
+      const viewButtons = document.querySelectorAll("[data-view]");
+      const sortSelect = document.getElementById("sortSelect");
+      const sortDirBtn = document.getElementById("sortDir");
 
-      let currentKey = "name";
-      let currentDir = 1;
+      let sortKey = "name";
+      let sortDir = 1;
 
-      function sortRows(type, dir) {
-        const rows = Array.from(tbody.querySelectorAll("tr"));
+      // Table rows and grid items carry the same data-* attributes, so one sort serves both.
+      function sortAll() {
+        for (const container of [tbody, grid]) {
+          const els = Array.from(container.children);
+          els.sort((a, b) => {
+            const aIsDir = a.dataset.type === "1";
+            const bIsDir = b.dataset.type === "1";
+            if (aIsDir !== bIsDir) return aIsDir ? -1 : 1;
 
-        rows.sort((a, b) => {
-          const aIsDir = a.dataset.type === "1";
-          const bIsDir = b.dataset.type === "1";
-          if (aIsDir !== bIsDir) return aIsDir ? -1 : 1;
+            let cmp = 0;
+            if (sortKey === "name") cmp = a.dataset.name.localeCompare(b.dataset.name);
+            else if (sortKey === "kind") cmp = a.dataset.kind.localeCompare(b.dataset.kind);
+            else if (sortKey === "size") cmp = Number(a.dataset.size) - Number(b.dataset.size);
+            else if (sortKey === "mtime") cmp = Number(a.dataset.mtime) - Number(b.dataset.mtime);
+            return cmp * sortDir;
+          });
+          els.forEach((el) => container.appendChild(el));
+        }
 
-          let cmp = 0;
-          if (type === "string") {
-            cmp = a.dataset.name.localeCompare(b.dataset.name);
-          } else if (type === "number") {
-            cmp = Number(a.dataset.size) - Number(b.dataset.size);
-          } else if (type === "date") {
-            cmp = Number(a.dataset.mtime) - Number(b.dataset.mtime);
-          }
-
-          return cmp * dir;
+        headers.forEach((th) => {
+          const active = th.dataset.key === sortKey;
+          th.classList.toggle("active", active);
+          th.querySelector(".arrow").textContent = active ? (sortDir === 1 ? "▲" : "▼") : "";
         });
-
-        rows.forEach(row => tbody.appendChild(row));
+        sortSelect.value = sortKey;
       }
 
-      function updateArrows(activeTh) {
-        headers.forEach(th => {
-          th.classList.remove("active");
-          th.querySelector(".arrow").textContent = "";
-        });
-        activeTh.classList.add("active");
-        activeTh.querySelector(".arrow").textContent = currentDir === 1 ? "▲" : "▼";
-      }
-
-      headers.forEach(th => {
+      headers.forEach((th) => {
         th.addEventListener("click", () => {
-          const key = th.dataset.key;
-          const type = th.dataset.type;
-
-          if (currentKey === key) {
-            currentDir *= -1;
-          } else {
-            currentKey = key;
-            currentDir = 1;
+          if (sortKey === th.dataset.key) sortDir *= -1;
+          else {
+            sortKey = th.dataset.key;
+            sortDir = 1;
           }
-
-          sortRows(type, currentDir);
-          updateArrows(th);
+          sortAll();
         });
       });
+
+      sortSelect.addEventListener("change", () => {
+        sortKey = sortSelect.value;
+        sortDir = 1;
+        sortAll();
+      });
+
+      sortDirBtn.addEventListener("click", () => {
+        sortDir *= -1;
+        sortAll();
+      });
+
+      function setView(view) {
+        if (!VIEWS.includes(view)) view = "details";
+        grid.className = `file-grid list-unstyled view-${view}`;
+        grid.hidden = view === "details";
+        table.hidden = view !== "details";
+        viewButtons.forEach((btn) => {
+          const on = btn.dataset.view === view;
+          btn.classList.toggle("active", on);
+          btn.setAttribute("aria-pressed", String(on));
+        });
+        try {
+          localStorage.setItem("mediaView", view);
+        } catch {}
+      }
+
+      viewButtons.forEach((btn) => {
+        btn.addEventListener("click", () => setView(btn.dataset.view));
+      });
+
+      // A preview that fails to load leaves its Bootstrap icon showing underneath.
+      document.addEventListener(
+        "error",
+        (event) => {
+          const el = event.target;
+          if (el instanceof HTMLElement && el.hasAttribute("data-preview")) el.remove();
+        },
+        true
+      );
+
+      let saved = "details";
+      try {
+        saved = localStorage.getItem("mediaView") || "details";
+      } catch {}
+      setView(saved);
+      sortAll();
     </script>
 
     <script>
