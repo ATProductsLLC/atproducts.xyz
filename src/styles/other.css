@@ -1916,6 +1916,28 @@ html.fixedtopnavimage, html.fixedtopnavimage-breadcrumb {
 	}
 }
 
+.story-toc-toggle {
+  position: fixed;
+  right: 0;
+  bottom: 60px;
+  left: 0;
+  z-index: 1030;
+  margin-inline: auto;
+  pointer-events: none;
+}
+
+.story-toc-toggle > .btn-solid {
+  pointer-events: auto;
+  box-shadow: 0 0 0 3px var(--bs-bg-body), 0 0.5rem 1.25rem rgb(0 0 0 / 0.55);
+}
+
+@media (max-width:767.98px) {
+  .story-toc-drawer {
+    height: auto;
+    max-height: 80dvh;
+  }
+}
+
 @media (min-width: 645.98px) {
   .container-story, .story-buttons {
     max-width: 65ch;

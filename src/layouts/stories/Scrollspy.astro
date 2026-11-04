@@ -3,26 +3,75 @@ const { id, scrollcontent } = Astro.props;
 ---
 
 <main id={id}>
-  <div class="bd-toc md:col-3 story-top-buttons">
-    <div id={`${id}-list`} class="list-group story-buttons">
-      {scrollcontent ? (
-        <div class="p-5 pb-0 rounded-4">
-        {scrollcontent.map(({ name, href, additionalClasses }, index) => (
-          <a class={`list-group-item list-group-item-action ${additionalClasses}`} href={href} key={index}>
-            {name}
-          </a>
-        ))}
-        </div>
-      ) : (
-        <div class="md:p-5 pb-0">
-          <strong class="d-none md:d-block">There are no sections to scroll to in this story/article.</strong>
-        </div>
-      )}      
+  {scrollcontent && (
+    <div class="md:d-none d-flex justify-content-center story-toc-toggle">
+      <button
+        class="btn-lg btn-solid theme-primary rounded-pill px-5 fw-semibold"
+        type="button"
+        data-bs-toggle="drawer"
+        data-bs-target={`#${id}-drawer`}
+        aria-controls={`${id}-drawer`}
+      >
+        <i class="bi bi-list" aria-hidden="true"></i>
+        On this page…
+      </button>
     </div>
+  )}
+  <div class="bd-toc md:col-3 story-top-buttons">
+    {scrollcontent ? (
+      <dialog class="md:drawer drawer-bottom story-toc-drawer" tabindex="-1" id={`${id}-drawer`} aria-labelledby={`${id}-drawer-label`}>
+        <div class="drawer-header border-bottom">
+          <h5 class="drawer-title" id={`${id}-drawer-label`}>On this page</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Close"></button>
+        </div>
+        <div class="drawer-body">
+          <nav id={`${id}-list`} class="nav flex-column story-buttons pb-5 md:mt-5 gap-3" aria-label="On this page">
+            <p class="text-uppercase fw-semibold fg-2 px-3 mb-2 d-none md:d-block fs-md">On this page</p>
+            {scrollcontent.map(({ name, href, additionalClasses = "" }) => (
+              <a class={`d-block text-decoration-none border-start border-2 fg-2 px-3 py-2 md:py-1 fs-md ${additionalClasses}`} href={href}>
+                {name}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </dialog>
+    ) : (
+      <nav id={`${id}-list`} class="nav flex-column story-buttons">
+        <p class="px-3 small fg-2 mb-0">There are no sections to scroll to in this story/article.</p>
+      </nav>
+    )}
   </div>
-  <div class="md:col-9 p-5" tabindex="0" data-bs-smooth-scroll="true" data-bs-target={`${id}-list`} data-bs-spy="scroll">
+  <div class="md:col-9 p-5" tabindex="0" data-bs-smooth-scroll="true" data-bs-target={`#${id}-list`} data-bs-spy="scroll">
     <div class="lg:mx-auto text-justify container-story">
       <slot name="scrollspy-content" />
     </div>
   </div>
 </main>
+
+<script>
+  document.addEventListener('activate.bs.scrollspy', (event: any) => {
+    const active = event.relatedTarget as HTMLElement | null;
+    document.querySelectorAll<HTMLElement>('.story-buttons > a').forEach((link) => {
+      const on = link === active;
+      link.classList.toggle('border-primary', on);
+      link.classList.toggle('fg-primary', on);
+      link.classList.toggle('fw-semibold', on);
+      link.classList.toggle('fg-2', !on);
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    const link = (event.target as Element | null)?.closest('.story-toc-drawer .story-buttons > a');
+    if (!link) return;
+    const drawer = link.closest('dialog');
+    if (drawer?.open) {
+      (window as any).bootstrap?.Drawer?.getInstance(drawer)?.hide();
+    }
+  });
+
+  document.addEventListener('shown.bs.drawer', (event) => {
+    const drawer = event.target as Element | null;
+    if (!drawer?.classList.contains('story-toc-drawer')) return;
+    drawer.querySelector('.story-buttons > a.active')?.scrollIntoView({ block: 'center' });
+  });
+</script>
