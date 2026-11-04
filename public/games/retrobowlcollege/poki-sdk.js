@@ -1,1 +1,65 @@
-(()=>{var e=function(e){var t=RegExp("[?&]".concat(e,"=([^&]*)")).exec(window.location.search);return t&&decodeURIComponent(t[1].replace(/\+/g," "))},t="kids"===e("tag"),n=!!window.adBridge,o="yes"===e("hoist")||"yes"===e("gdhoist"),i=new(function(){function e(){var e=this;this.queue=[],this.init=function(t,n){return void 0===t&&(t={}),void 0===n&&(n={}),new Promise((function(o,i){e.enqueue("init",[t,n],o,i)}))},this.rewardedBreak=function(){return new Promise((function(e){e(!1)}))},this.commercialBreak=function(t){return new Promise((function(n,o){e.enqueue("commercialBreak",[t],n,o)}))},this.displayAd=function(e,t,n,o){o&&o(!0),n&&n()},this.withArguments=function(t){return function(){for(var n=[],o=0;o<arguments.length;o++)n[o]=arguments[o];e.enqueue(t,n)}},this.handleAutoResolvePromise=function(){return new Promise((function(e){e()}))},this.throwNotLoaded=function(){console.debug("PokiSDK is not loaded yet. Not all methods are available.")},this.doNothing=function(){}}return e.prototype.enqueue=function(e,n,o,i){var r={fn:e,args:n||[],resolveFn:o,rejectFn:i};t?o&&o(!0):this.queue.push(r)},e.prototype.dequeue=function(){for(var e=this,t=function(){var t,o,i=n.queue.shift(),r=i,a=r.fn,u=r.args;if("function"==typeof window.PokiSDK[a])if((null==i?void 0:i.resolveFn)||(null==i?void 0:i.rejectFn)){var c="init"===a;if((t=window.PokiSDK)[a].apply(t,u).catch((function(){for(var t=[],n=0;n<arguments.length;n++)t[n]=arguments[n];"function"==typeof i.rejectFn&&i.rejectFn.apply(i,t),c&&setTimeout((function(){e.dequeue()}),0)})).then((function(){for(var t=[],n=0;n<arguments.length;n++)t[n]=arguments[n];"function"==typeof i.resolveFn&&i.resolveFn.apply(i,t),c&&setTimeout((function(){e.dequeue()}),0)})),c)return"break"}else(o=window.PokiSDK)[a].apply(o,u);else console.error("Cannot execute ".concat(a))},n=this;this.queue.length>0;){if("break"===t())break}},e}());window.PokiSDK={init:i.init,initWithVideoHB:i.init,commercialBreak:i.commercialBreak,rewardedBreak:i.rewardedBreak,displayAd:i.displayAd,destroyAd:i.doNothing,getLeaderboard:i.handleAutoResolvePromise,shareableURL:function(){return new Promise((function(e,t){return t()}))},getURLParam:function(t){return e("gd".concat(t))||e(t)||""},getLanguage:function(){return navigator.language.toLowerCase().split("-")[0]},isAdBlocked:function(){}},["captureError","customEvent","gameInteractive","gameLoadingFinished","gameLoadingProgress","gameLoadingStart","gameplayStart","gameplayStop","happyTime","logError","muteAd","roundEnd","roundStart","sendHighscore","setDebug","setDebugTouchOverlayController","setLogging","setPlayerAge","setPlaytestCanvas","enableEventTracking","playtestSetCanvas","playtestCaptureHtmlOnce"].forEach((function(e){window.PokiSDK[e]=i.withArguments(e)}));var r=function(){var i=window.pokiSDKVersion||e("ab")||"5443f10e0bfac1bb0eb31054b8513ef81e6cc7c1",r="poki-sdk-core-".concat(i,".js");t&&(r="poki-sdk-kids-".concat(i,".js")),n&&(r="poki-sdk-playground-".concat(i,".js")),o&&(r="poki-sdk-hoist-".concat(i,".js"));new URL(document.currentScript.src);return"scripts/".concat(i,"/").concat(r)}(),a=document.createElement("script");a.setAttribute("src",r),a.setAttribute("type","text/javascript"),a.setAttribute("crossOrigin","anonymous"),a.onload=function(){return i.dequeue()},document.head.appendChild(a)})();
+// Poki SDK loader for games.atproducts.xyz.
+//
+// This version does not download the Poki core SDK, so it makes no requests to
+// Poki, Google, Amazon or Prebid. That keeps the site CSP from blocking anything,
+// which removes the console errors and stops the game waiting on an ad.
+// Every call resolves immediately.
+(function () {
+  function getParam(name) {
+    var m = RegExp("[?&]" + name + "=([^&]*)").exec(window.location.search);
+    return m && decodeURIComponent(m[1].replace(/\+/g, " "));
+  }
+
+  var noop = function () {};
+
+  // Lets uph_poki.js know the SDK is available and not blocked.
+  window.PokiSDK_OK = true;
+
+  window.PokiSDK = {
+    init: function () {
+      return Promise.resolve();
+    },
+    initWithVideoHB: function () {
+      return Promise.resolve();
+    },
+    // No ads, so a commercial break ends straight away.
+    commercialBreak: function () {
+      return Promise.resolve();
+    },
+    // No ad is shown, so no reward is granted. The game treats false as "no ad".
+    rewardedBreak: function () {
+      return Promise.resolve(false);
+    },
+    displayAd: function (a, b, beforeAd, adFinished) {
+      if (adFinished) adFinished(true);
+      if (beforeAd) beforeAd();
+    },
+    destroyAd: noop,
+    getLeaderboard: function () {
+      return Promise.resolve();
+    },
+    shareableURL: function () {
+      return Promise.reject();
+    },
+    getURLParam: function (name) {
+      return getParam("gd" + name) || getParam(name) || "";
+    },
+    getLanguage: function () {
+      return navigator.language.toLowerCase().split("-")[0];
+    },
+    isAdBlocked: function () {
+      return false;
+    },
+  };
+
+  [
+    "captureError", "customEvent", "gameInteractive", "gameLoadingFinished",
+    "gameLoadingProgress", "gameLoadingStart", "gameplayStart", "gameplayStop",
+    "happyTime", "logError", "muteAd", "roundEnd", "roundStart", "sendHighscore",
+    "setDebug", "setDebugTouchOverlayController", "setLogging", "setPlayerAge",
+    "setPlaytestCanvas", "enableEventTracking", "playtestSetCanvas",
+    "playtestCaptureHtmlOnce",
+  ].forEach(function (name) {
+    window.PokiSDK[name] = noop;
+  });
+})();

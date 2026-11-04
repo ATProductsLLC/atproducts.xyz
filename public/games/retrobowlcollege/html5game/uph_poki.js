@@ -33,14 +33,15 @@ function poki_happy_time(magnitude) {
 ///~
 function poki_commercial_break_raw(fn) {
     if (PokiSDK) {
-        PokiSDK.commercialBreak().then(function() { fn(true); });
+        // Second handler: if the break is rejected, still call back so the game never hangs.
+        PokiSDK.commercialBreak().then(function() { fn(true); }, function() { fn(false); });
     } else setTimeout(function() { fn(false); }, 0);
 }
 
 ///~
 function poki_rewarded_break_raw(fn) {
     if (PokiSDK) {
-        PokiSDK.rewardedBreak().then(fn);
+        PokiSDK.rewardedBreak().then(fn, function() { fn(false); });
     } else setTimeout(function() { fn(false); }, 0);
 }
 
