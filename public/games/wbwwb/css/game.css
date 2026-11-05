@@ -8,52 +8,68 @@
 html, body{
 	width: 100%;
 	height: 100%;
+	overflow: hidden;
 }
+
 body{
 	font-family: 'Poppins';
 	margin: 0;
 	background: #222;
-	position:relative;
+	position: relative;
 }
+
+#stage, #modal_shade{
+	width: min(100vw, calc(100vh * 16 / 9));
+	height: min(100vh, calc(100vw * 9 / 16));
+	position: absolute;
+	margin: auto;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
 #stage{
 	background: #000;
-	width:960px; height:540px;
-	position:absolute;
-	margin:auto;
-	top:0; left:0; right:0; bottom:0;
 	cursor: none;
 }
+
+#stage > canvas{
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
 .overlay{
-
 	display: none;
-
 	text-align: center;
 	color: #fff;
 	letter-spacing: 1px;
-
-	width:500px; height:170px;
-
-	position:absolute;
-	margin:auto;
-	top:0; left:0; right:0; bottom:0;
-
+	width: min(500px, 100vw);
+	height: 170px;
+	position: absolute;
+	margin: auto;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }
+
 .overlay > div:nth-child(1){
-	font-size: 100px;
-	line-height: 100px;
+	font-size: clamp(32px, 10vw, 100px);
+	line-height: 1;
 }
+
 .overlay > div:nth-child(2){
-	font-size: 20px;
+	font-size: clamp(12px, 3vw, 20px);
 }
+
 #modal_shade{
 	display: none;
-	background: rgba(0,0,0,0.8);
-	width:960px; height:540px;
-	position:absolute;
-	margin:auto;
-	top:0; left:0; right:0; bottom:0;
+	background: rgba(0, 0, 0, 0.8);
 	cursor: pointer;
 }
+
 #paused{
 	cursor: pointer;
 }
