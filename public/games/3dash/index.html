@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
+  <title>3Dash</title>
+
+  <!-- Favicon + Styles used by your loader UI -->
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+
+  <!-- UNITY_BUILD from your current index.html so hashed paths are available to both modes -->
+  <script>
+    window.UNITY_BUILD = {
+      companyName: "3Dash",
+      productName: "3Dash",
+      productVersion: "2.0",
+      buildUrl: "Build",
+      loaderUrl: "Build/86719c70f5fff6f7a2b5f83d5909dfc3.loader.js",
+      dataUrl: "Build/80070b02fe4968dbd38d1bff1778f96b.data",
+      frameworkUrl: "Build/3319949dd31fc3703ac61c72261995b0.framework.js.unityweb",
+      codeUrl: "Build/e99e9b4560686ffdda8f49de1bed1e88.wasm.unityweb",
+    };
+  </script>
+
+  <!-- Your working orientation engine (used on MOBILE only) -->
+  <script src="webglScreen.js"></script>
+<!-- Mobile-only audio mute/unmute helper (safe no-op on desktop) -->
+    <script>
+    (function () {
+      // match your existing UA test
+      var isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent)
+                     || (window.matchMedia && matchMedia("(pointer:coarse)").matches);
+
+      function hookMobileAudio(gi) {
+        if (!isMobile) return; // ⬅️ only on mobile
+        var muted = false, t = 0;
+
+      }
+
+      // expose for callers
+      window.__hookMobileAudio = hookMobileAudio;
+    })();
+    </script>
+
+  <style>
+    html, body { margin:0; height:100%; overflow:hidden; background:#000; }
+    /* Containers: only one is visible at a time */
+    #mobile-wrap, #desktop-wrap { position:fixed; inset:0; }
+    #mobile-wrap { display:none; }   /* shown on mobile */
+    #desktop-wrap { display:none; }  /* shown on desktop */
+
+    /* Desktop canvas container uses same IDs/classes as your game.html */
+    #unity-container { position: fixed; inset: 0; }
+    #unity-canvas { display:block; outline:none; background:#000; }
+
+    /* (Optional) harden overlay z-index to stay above canvas during load */
+    #unity-loading-bar { z-index: 9999; }
+  </style>
+</head>
+<body>
+  <!-- MOBILE MODE (uses your exact iframe + RotScreen flow) -->
+  <div id="mobile-wrap">
+    <iframe id="Frame"
+            src="about:blank"
+            allow="autoplay; fullscreen; gamepad; xr-spatial-tracking"
+            style="border:0; position:fixed; inset:0; width:100%; height:100%;"></iframe>
+  </div>
+
+  <!-- DESKTOP MODE (runs Unity directly on this page, no iframe) -->
+  <div id="desktop-wrap">
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" width="960" height="600" tabindex="-1"></canvas>
+
+      <div id="unity-loading-bar">
+        <div id="unity-logo">
+          <div id="unity-text-progress"></div>
+        </div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
+
+      <div id="unity-warning"></div>
+    </div>
+  </div>
+
+  <script>
+    const desktopWrap = document.getElementById('desktop-wrap');
+
+    {
+      // ===== DESKTOP: run Unity directly on this page (no iframe) =====
+      desktopWrap.style.display = 'block';
+
+      // Pull UB from this page (no parent iframe)
+      var UB = window.UNITY_BUILD;
+      if (!UB) { alert("UNITY_BUILD not found"); }
+
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var textProgress = document.querySelector("#unity-text-progress");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
+      var warningBanner = document.querySelector("#unity-warning");
+
+      function unityShowBanner(msg, type) {
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type === 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type === 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function () {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+      if (UB && UB.productName) document.title = UB.productName;
+
+      // Desktop sizing (full window)
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      window.addEventListener('resize', function(){
+        // minor debounce so Unity doesn't thrash
+        setTimeout(function(){
+          canvas.style.width = window.innerWidth + 'px';
+          canvas.style.height = window.innerHeight + 'px';
+        }, 250);
+      }, false);
+
+      // Build config from UB (only include optional fields if present to avoid #if macros)
+      var config = {
+        dataUrl: UB.dataUrl,
+        frameworkUrl: UB.frameworkUrl,
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: UB.companyName,
+        productName: UB.productName,
+        productVersion: UB.productVersion,
+        showBanner: unityShowBanner
+      };
+      if (UB.codeUrl)    config.codeUrl = UB.codeUrl;
+      if (UB.memoryUrl)  config.memoryUrl = UB.memoryUrl;
+      if (UB.symbolsUrl) config.symbolsUrl = UB.symbolsUrl;
+
+      loadingBar.style.display = "block";
+      var showLoadingBar = false;
+      if (!showLoadingBar) progressBarEmpty.style.display = "none";
+
+      const rootPath = 'TemplateData';
+      var script = document.createElement("script");
+      script.src = UB.loaderUrl;              // unhashed loader provided by UNITY_BUILD
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          if (progress >= 0.9 && progress < 1) {
+            textProgress.innerHTML =
+              'Opening ' + UB.productName + '…<br>' +
+              '<img src="' + rootPath + '/gears.gif" class="spinner" width="90" height="90" />';
+            progressBarEmpty.style.display = "none";
+          } else {
+            textProgress.innerHTML =
+              'Loading ' + UB.productName + ' - ' + Math.floor(progress * 100) + '%<br>' +
+              '<img src="' + rootPath + '/gears.gif" class="spinner" width="90" height="90" />';
+          }
+          if (showLoadingBar) {
+            progressBarFull.style.width = (progress * 100) + "%";
+          }
+        }).then((unityInstance) => {
+          loadingBar.style.display = "none";
+            // call is harmless on desktop (helper early-returns)
+              if (window.__hookMobileAudio) { window.__hookMobileAudio(unityInstance); }
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+      document.body.appendChild(script);
+    }
+  </script>
+   <!-- Mobile-only keep-awake (inline, no external file) -->
+<script>
+(function(){
+  var isMobile = /Android|iPhone|iPad|iPod|IEMobile|Windows Phone|BlackBerry|Opera Mini/i.test(navigator.userAgent);
+  if (!isMobile) return;
+
+  (function(global){
+    var sentinel = null;
+    var active = false;
+
+    async function requestWakeLock(){
+      if ('wakeLock' in navigator && navigator.wakeLock && typeof navigator.wakeLock.request === 'function'){
+        try{
+          sentinel = await navigator.wakeLock.request('screen');
+          active = true;
+          if (sentinel && typeof sentinel.addEventListener === 'function'){
+            sentinel.addEventListener('release', function(){
+              if (document.visibilityState === 'visible'){
+                requestWakeLock().catch(function(){});
+              }
+            });
+          }
+          return true;
+        }catch(e){}
+      }
+      return false;
+    }
+
+    function onGesture(){
+      document.removeEventListener('pointerdown', onGesture, true);
+      document.removeEventListener('touchend', onGesture, true);
+      requestWakeLock().catch(function(){});
+    }
+
+    document.addEventListener('pointerdown', onGesture, true);
+    document.addEventListener('touchend', onGesture, true);
+
+    document.addEventListener('visibilitychange', function(){
+      if (document.visibilityState === 'visible' && active && sentinel == null){
+        requestWakeLock().catch(function(){});
+      }
+    }, false);
+  })(window);
+})();
+</script>
+</body>
+</html>
