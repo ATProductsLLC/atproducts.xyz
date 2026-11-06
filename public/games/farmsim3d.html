@@ -7,14 +7,14 @@
 @media (prefers-color-scheme:dark){:root{--bg:#0b1030;--hud:rgba(0,0,0,.7)}}
 html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);font-family:system-ui,-apple-system,sans-serif;color:var(--fg);touch-action:none;user-select:none}
 canvas{display:block;position:fixed;inset:0;width:100%;height:100%}
-#top{position:fixed;left:8px;right:8px;top:calc(env(safe-area-inset-top,0px) + 8px);display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+#top{position:fixed;left:8px;right:8px;top:calc(env(safe-area-inset-top,0px) + 8px);display:flex;justify-content:space-between;gap:4px;pointer-events:none}
 .chip{background:var(--hud);padding:6px 12px;border-radius:14px;font-weight:600;font-size:15px}
 #bar{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:0 8px}#bar button{flex:0 0 auto;white-space:nowrap}@media (max-width:700px){#help{display:none}}
 button{background:var(--hud);color:var(--fg);border:2px solid transparent;border-radius:12px;padding:8px 10px;font-size:14px;font-weight:600}
 button.on{border-color:var(--on)}
 #pad{position:fixed;left:10px;bottom:calc(env(safe-area-inset-bottom,0px) + var(--bh,62px) + 8px);display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,46px);gap:4px}
 #pad button{padding:0;font-size:18px}
-#toast{position:fixed;left:50%;top:50px;transform:translateX(-50%);background:var(--hud);padding:6px 14px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast{position:fixed;left:50%;top:15%;transform:translateX(-50%);background:var(--hud);padding:6px 14px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .3s;pointer-events:none}
 #help{position:fixed;right:8px;top:100px;font-size:12px;background:var(--hud);padding:6px 10px;border-radius:10px;max-width:190px;pointer-events:none}
 body.cutting #top,body.cutting #help,body.cutting #stats,body.cutting #pad,body.cutting #bar,body.cutting #toast,body.cutting #shb,body.cutting #vig{display:none!important}
 #top{flex-wrap:wrap}@media (max-width:520px){.chip{font-size:12px;padding:4px 8px}#top{gap:4px}}
@@ -317,7 +317,7 @@ let fRows=0,pLv=0,yLv=0;
 function expand(k){if(k==="field"){if(fRows>=2)return toast("Not possible - field fully expanded");const c=80+40*fRows;if(money<c)return toast("Not enough money - need $"+c);money-=c;fRows++;const z=-11.35-2.1*fRows;for(let i=0;i<8;i++)mkTile((i-3.5)*2.1,z);fN-=2.1;buildFence("field",fieldF);toast("🌱 Field expanded!")}
 else if(k==="pasture"){if(pLv>=2)return toast("Not possible - pasture fully expanded");const c=100+50*pLv;if(money<c)return toast("Not enough money - need $"+c);money-=c;pLv++;pE+=4;buildFence("pasture",pastF);toast("🐄 Pasture expanded!")}
 else{if(yLv>=2)return toast("Not possible - yard fully expanded");const c=60+40*yLv;if(money<c)return toast("Not enough money - need $"+c);money-=c;yLv++;zS+=3;buildFence("yard",yardF);toast("🐔 Chicken yard expanded!")}sfx("plant")}
-const bp=document.createElement("div");bp.style.cssText="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--hud);padding:12px;border-radius:14px;display:none;flex-direction:column;gap:8px;z-index:20";document.body.appendChild(bp);
+const bp=document.createElement("div");bp.style.cssText="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--hud);padding:12px;border-radius:14px;display:none;flex-direction:column;gap:4px;z-index:20";document.body.appendChild(bp);
 const bb=document.createElement("button");bb.textContent="🔨 Build";bar.appendChild(bb);
 function bpRefresh(){bp.innerHTML="";[["field","🌱 Expand field (+1 row)",()=>fRows>=2?null:80+40*fRows],["pasture","🐄 Expand pasture (+4)",()=>pLv>=2?null:100+50*pLv],["yard","🐔 Expand chicken yard (+3)",()=>yLv>=2?null:60+40*yLv]].forEach(([k,l,cf])=>{const b=document.createElement("button"),c=cf();b.textContent=l+(c===null?" - MAX":" - $"+c);b.onclick=()=>{expand(k);bpRefresh()};bp.appendChild(b)});const x=document.createElement("button");x.textContent="Close";x.onclick=()=>bp.style.display="none";bp.appendChild(x)}
 bb.onclick=()=>{bpRefresh();bp.style.display=bp.style.display==="flex"?"none":"flex"};
