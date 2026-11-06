@@ -16,13 +16,25 @@ button.on{border-color:var(--on)}
 #pad button{padding:0;font-size:18px}
 #toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:var(--hud);padding:6px 14px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .3s;pointer-events:none}
 #help{position:fixed;right:8px;top:100px;font-size:12px;background:var(--hud);padding:6px 10px;border-radius:10px;max-width:190px;pointer-events:none}
+body.cutting #top,body.cutting #help,body.cutting #stats,body.cutting #pad,body.cutting #bar,body.cutting #toast,body.cutting #shb,body.cutting #vig{display:none!important}
+#top{flex-wrap:wrap}@media (max-width:520px){.chip{font-size:12px;padding:4px 8px}#top{gap:4px}}
+body.paused #pz{position:relative;z-index:101}
+body.cutting #fxp{display:none!important}
 </style></head><body>
-<div id="top"><div class="chip" id="money"></div><div class="chip" id="clock"></div><span style="pointer-events:auto;display:flex;gap:6px"><button id="ar">▭ 16:9</button><button id="mu">🔊</button></span></div>
+<div id="top"><div class="chip" id="money"></div><div class="chip" id="clock"></div><span style="pointer-events:auto;display:flex;gap:6px"><button id="ar">▭ 16:9</button><button id="mu">🔊</button><button id="sv">💾</button><button id="pz" title="Pause (P)" onclick="togglePause()">⏸</button></span></div>
 <div id="help">WASD / D-pad: move<br>Drag / right-drag: rotate camera (Q/E)<br>Scroll: zoom<br>Tap tile/animal/hay: use tool (1-9)<br>Hay is in the barn<br>F: tractor  G: gun on/off  R: reload  H: help</div>
 <div id="stats" class="chip" style="position:fixed;left:8px;top:calc(env(safe-area-inset-top,0px) + 50px);font-size:13px;pointer-events:none"></div>
 <div id="vig" style="position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(circle,transparent 25%,#000 105%)"></div>
 <div id="blk" style="position:fixed;inset:0;pointer-events:none;opacity:0;background:#000;transition:opacity .8s"></div>
-<div id='over' style='position:fixed;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,0,.85);text-align:center;padding:20px'><h1 style='margin:0'>GAME OVER</h1><p style='margin:0'>You have no livestock left. The farm falls silent...</p><button onclick='location.reload()'>Restart</button></div>
+<div id='over' style='position:fixed;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,0,.88);text-align:center;padding:20px'><h1 id='ot' style='margin:0'>GAME OVER</h1><p id='om' style='margin:0;max-width:420px'></p><div style='display:flex;gap:10px'><button id='okeep' style='display:none' onclick='keepGoing()'>▶ Keep going</button><button onclick='location.reload()'>Restart</button><button onclick='svOpen()'>📂 Load a save</button></div></div>
+<div id='cut' style='position:fixed;inset:0;z-index:55;display:none'>
+<div style='position:absolute;left:0;right:0;top:0;height:11vh;background:#000'></div>
+<div style='position:absolute;left:0;right:0;bottom:0;height:20vh;background:#000;display:flex;align-items:center;justify-content:center;padding:0 20px;text-align:center'><div id='ccap' style='font-size:clamp(16px,3.2vw,26px);font-weight:600;color:#fff;max-width:900px'></div></div>
+<div id='cfx' style='position:absolute;inset:0;pointer-events:none'></div>
+<div id='cstamp' style='position:absolute;left:50%;top:45%;transform:translate(-50%,-50%) rotate(-12deg) scale(1.7);opacity:0;transition:opacity .3s,transform .3s;border:8px solid #d22;color:#d22;font:900 clamp(36px,9vw,80px) system-ui,sans-serif;padding:8px 24px;border-radius:12px;pointer-events:none'>FORECLOSED</div>
+<div id='cfade' style='position:absolute;inset:0;background:#000;opacity:0;transition:opacity 1s;pointer-events:none'></div>
+<button id='cskip' style='position:absolute;right:12px;top:calc(env(safe-area-inset-top,0px) + 8px)'>Skip ▶</button></div>
+<div id="pauseov" style="position:fixed;inset:0;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(0,0,0,.6);text-align:center;touch-action:auto"><h1 style="margin:0;font-size:clamp(32px,8vw,64px)">PAUSED</h1><button style="font-size:18px;padding:12px 28px" onclick="togglePause()">▶ Resume</button><div style="font-size:13px;opacity:.8">Press P or Esc to resume</div></div>
 <div id="toast"></div>
 <div id="pad">
 <span></span><button data-k="w">▲</button><span></span>
@@ -30,6 +42,46 @@ button.on{border-color:var(--on)}
 <span></span><button data-k="s">▼</button><span></span></div>
 <div id="bar"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ---- PAUSE: freezes sim, timers, audio and input ---- */
+let gamePaused=false;
+(function(){
+const nst=window.setTimeout.bind(window),nct=window.clearTimeout.bind(window),timers=new Map();let nid=1e6;
+window.setTimeout=function(fn,ms,...a){
+  if(typeof fn!=="function")return nst(fn,ms,...a);
+  const id=nid++,t={ms:+ms||0,start:performance.now(),h:0};
+  t.fn=()=>{timers.delete(id);fn(...a)};
+  t.h=gamePaused?0:nst(t.fn,t.ms);
+  timers.set(id,t);return id};
+window.clearTimeout=function(id){const t=timers.get(id);if(t){nct(t.h);timers.delete(id)}else nct(id)};
+function setPaused(p){
+  if(p===gamePaused)return;
+  const now=performance.now();gamePaused=p;
+  if(p){
+    timers.forEach(t=>{nct(t.h);t.ms=Math.max(0,t.ms-(now-t.start))});
+    try{for(const k in keys)keys[k]=0}catch(e){}
+    try{if(AC&&AC.state==="running")AC.suspend()}catch(e){}
+  }else{
+    timers.forEach(t=>{t.start=now;t.h=nst(t.fn,t.ms)});
+    try{if(AC&&AC.state==="suspended")AC.resume()}catch(e){}
+  }
+  document.body.classList.toggle("paused",p);
+  const o=document.getElementById("pauseov"),b=document.getElementById("pz");
+  if(o)o.style.display=p?"flex":"none";
+  if(b)b.textContent=p?"\u25B6":"\u23F8";
+}
+window.togglePause=()=>setPaused(!gamePaused);
+addEventListener("keydown",e=>{
+  const k=e.key;
+  if(k==="p"||k==="P"||k==="Escape"){
+    if(e.repeat){e.stopImmediatePropagation();e.preventDefault();return}
+    if(k==="Escape"&&!gamePaused)return;          /* Esc only resumes */
+    e.stopImmediatePropagation();e.preventDefault();togglePause();return}
+  if(gamePaused){e.stopImmediatePropagation();e.preventDefault()}
+},true);
+addEventListener("blur",()=>{try{if(!window.noAP&&!gamePaused&&document.getElementById("over").style.display!=="flex")setPaused(true)}catch(e){}});
+})();
+</script>
 <script>
 const N=8,T=2.1,CROPS={wheat:{t:25,cost:3,sell:9,c:0xe8c040,ic:"🌾"},carrot:{t:40,cost:8,sell:22,c:0xf08020,ic:"🥕"},pumpkin:{t:65,cost:20,sell:60,c:0xe86a10,ic:"🎃"}};
 const TOOLS=[["hoe","⛏️ Hoe"],["water","💧 Water"],["harvest","✂️ Harvest"],["wheat","🌾 3"],["carrot","🥕 8"],["pumpkin","🎃 20"],["feed","🌿 Feed"],["milk","🥛 Milk"],["collect","🥚 Eggs/Clean"],["fish","🎣 Fish"],["gun","🔫 Gun"]];
@@ -94,7 +146,7 @@ buildFence("yard",yardF);
 add(new THREE.BoxGeometry(3,2,2.4),M(0xc9a36a),-21.5,1,-4.5);const cr=add(new THREE.ConeGeometry(2.4,1.2,4),M(0x7a2a1a),-21.5,2.6,-4.5);cr.rotation.y=Math.PI/4;wall(-23,-5.7,-20,-3.3);
 const roof=gable(-16,-12,8.8,7,5,2.6,0x5a2a1a);
 
-for(let k=0;k<26;k++){const a=Math.random()*6.28,r=22+Math.random()*30,x=Math.cos(a)*r,z=Math.sin(a)*r-4;if(zone(x,z)||Math.hypot(x+16,z-20)<9)continue;
+for(let k=0;k<26;k++){const a=Math.random()*6.28,r=22+Math.random()*30,x=Math.cos(a)*r,z=Math.sin(a)*r-4;if(zone(x,z)||Math.hypot(x+16,z-20)<9||(z>15&&z<25&&x>-10))continue;
  add(new THREE.CylinderGeometry(.35,.45,2.4,6),M(0x6b4a2a),x,1.2,z);add(new THREE.ConeGeometry(2,4.5,7),M(0x2d7a35),x,4.4,z);wall(x-.5,z-.5,x+.5,z+.5)}
 buildFence("field",fieldF);
 const chick=[];for(let k=0;k<5;k++){const g=new THREE.Group(),b=new THREE.Mesh(new THREE.BoxGeometry(.5,.4,.7),M(0xfafafa)),h=new THREE.Mesh(new THREE.BoxGeometry(.25,.3,.25),M(0xe03030));
@@ -114,14 +166,14 @@ function mkCrop(type,t){
  g.children.forEach(c=>c.castShadow=true);g.position.set(t.x,.2,t.z);S.add(g);return g}
 const green=new THREE.Color(0x4a9a3a);
 function grow(t,dt){if(!t.crop||t.wet<=0)return;const d=CROPS[t.crop.userData.type];t.g=Math.min(1,t.g+dt*GM()/d.t)}
-function showCrop(t){if(!t.crop)return;const g=t.crop,d=CROPS[g.userData.type];g.scale.set(.5+.5*t.g,.25+.75*t.g,.5+.5*t.g);g.userData.mat.color.lerpColors(green,new THREE.Color(d.c),Math.max(0,(t.g-.6)/.4))}
+function showCrop(t){if(!t.crop)return;const g=t.crop,d=CROPS[g.userData.type];g.scale.set(.5+.5*t.g,.25+.75*t.g,.5+.5*t.g);g.userData.mat.color.lerpColors(green,new THREE.Color(d.c),Math.max(0,(t.g-.6)/.4));if(t.giant)g.scale.multiplyScalar(1.8)}
 
 // actions
 function act(t){
  if(Math.hypot(t.x-P.position.x,t.z-P.position.z)>7)return toast("Too far - walk closer");
  if(tool==="hoe"){if(t.crop)return toast("Crop is growing here");if(t.s)return toast("Already tilled");t.s=1;tcol(t);sfx("dig")}
  else if(tool==="water"){if(!t.s)return toast("Till the soil first");t.wet=30;tcol(t);sfx("water")}
- else if(tool==="harvest"){if(!t.crop)return toast("Nothing to harvest");if(t.g<1)return toast("Not ripe yet");const d=CROPS[t.crop.userData.type];money+=v;toast("Sold for $"+v+" "+d.ic);S.remove(t.crop);t.crop=null;t.g=0}
+ else if(tool==="harvest"){if(!t.crop)return toast("Nothing to harvest");if(t.g<1)return toast("Not ripe yet");const d=CROPS[t.crop.userData.type],gi=t.giant,v=Math.round(d.sell*PM()*(gi?3:1));money+=v;toast("Sold for $"+v+" "+d.ic+(gi?" (giant!)":""));S.remove(t.crop);t.crop=null;t.g=0;t.giant=0;if(gi&&!won.fair){won.fair=1;startCut("fair")}}
  else if(CROPS[tool]){const d=CROPS[tool];if(!t.s)return toast("Till the soil first");if(t.crop)return toast("Occupied");if(money<d.cost)return toast("Not enough money");money-=d.cost;t.crop=mkCrop(tool,t);t.g=0;showCrop(t);sfx("plant")}
 }
 const ray=new THREE.Raycaster(),mv=new THREE.Vector2();
@@ -129,7 +181,7 @@ let dn=null;const cv=R.domElement;
 cv.addEventListener("pointerdown",e=>{dn={x:e.clientX,y:e.clientY,t:performance.now(),px:e.clientX,py:e.clientY,b:e.button}});
 cv.addEventListener("pointermove",e=>{if(dn){camA-=(e.clientX-dn.px)*.006;dn.px=e.clientX;if(e.buttons&2)camP=Math.max(.2,Math.min(2,camP+(e.clientY-dn.py)*.006));dn.py=e.clientY}});
 cv.addEventListener("pointerup",e=>{if(dn&&dn.b!==2&&Math.hypot(e.clientX-dn.x,e.clientY-dn.y)<10&&performance.now()-dn.t<500){
- mv.set((e.clientX-vl)/vw*2-1,-((e.clientY-vt)/vh)*2+1);ray.setFromCamera(mv,C);if(tool==="gun"){shoot();dn=null;return}const hs=ray.intersectObjects(houseObjs)[0],hy=ray.intersectObjects(hayObjs)[0],hn=ray.intersectObjects(henObjs,true)[0],hc=ray.intersectObjects(cowObjs,true)[0],hp=ray.intersectObjects([pond])[0],hq=ray.intersectObjects(penObjs,true)[0],hb=ray.intersectObjects(brk)[0];if(hb)repair(hb.object);else if(hs)useHouse(hs.object);else if(hy)grabHay(hy.object);else if(hp&&tool==="fish")fish();else if(hq&&(tool==="feed"||tool==="collect")){let o=hq.object;while(!o.userData.pa)o=o.parent;actPen(o.userData.pa)}else if(hn&&(tool==="feed"||tool==="collect")){let o=hn.object;while(!o.userData.hen)o=o.parent;actHen(o.userData.hen)}else if(hc&&(tool==="feed"||tool==="milk")){let o=hc.object;while(!o.userData.cow)o=o.parent;actCow(o.userData.cow)}else{const h=ray.intersectObjects(tm)[0];if(h)act(h.object.userData.t)}}dn=null});
+ mv.set((e.clientX-vl)/vw*2-1,-((e.clientY-vt)/vh)*2+1);ray.setFromCamera(mv,C);if(tool==="gun"){shoot();dn=null;return}const hs=ray.intersectObjects(houseObjs)[0],hy=ray.intersectObjects(hayObjs)[0],hn=ray.intersectObjects(henObjs,true)[0],hc=ray.intersectObjects(cowObjs,true)[0],hp=ray.intersectObjects([pond])[0],hq=ray.intersectObjects(penObjs,true)[0],hb=ray.intersectObjects(brk)[0],hf=ray.intersectObjects(fireObjs)[0];if(hf)dousing(hf.object);else if(hb)repair(hb.object);else if(hs)useHouse(hs.object);else if(hy)grabHay(hy.object);else if(hp&&tool==="fish")fish();else if(hq&&(tool==="feed"||tool==="collect")){let o=hq.object;while(!o.userData.pa)o=o.parent;actPen(o.userData.pa)}else if(hn&&(tool==="feed"||tool==="collect")){let o=hn.object;while(!o.userData.hen)o=o.parent;actHen(o.userData.hen)}else if(hc&&(tool==="feed"||tool==="milk")){let o=hc.object;while(!o.userData.cow)o=o.parent;actCow(o.userData.cow)}else{const h=ray.intersectObjects(tm)[0];if(h)act(h.object.userData.t)}}dn=null});
 addEventListener("keydown",e=>{const k=e.key.toLowerCase();keys[k]=1;if(k>="1"&&k<="9")sel(TOOLS[k-1][0]);if(k==="f")toggleDrive();if(k==="g")sel(tool==="gun"?pt:"gun");if(k==="r")reload()});
 addEventListener("keyup",e=>keys[e.key.toLowerCase()]=0);
 addEventListener("wheel",e=>{e.preventDefault();camZ=Math.max(.4,Math.min(2.2,camZ*(e.deltaY>0?1.1:.9)))},{passive:false});
@@ -160,7 +212,7 @@ const dx=c.tx-g.position.x,dz=c.tz-g.position.z,d=Math.hypot(dx,dz);if(d>.3){g.p
 if(c.fed>0){c.fed-=dt;if(c.fed<=0&&!c.baby)c.milk=1}c.bub.visible=c.milk>0;c.bub.position.y=2.6+Math.sin(performance.now()/300)*.1})}
 function actCow(c){if(Math.hypot(c.g.position.x-P.position.x,c.g.position.z-P.position.z)>7)return toast("Too far - walk closer");
 if(tool==="feed"){if(c.fed>0||c.milk)return toast("Not hungry");if(hay<1)return toast("Not enough hay - grab some in the barn");hay--;c.fed=15;c.love=40;toast("🌿 Munching... milk ready in 15s")}
-else{if(!c.milk)return toast(c.fed>0?"Still eating":"Feed her first");c.prog++;toast("🥛 Milking "+c.prog+"/4 - keep tapping!");if(c.prog>=4){c.prog=0;c.milk=0;money+=18;toast("🥛 Milk sold +$18")}}}
+else{if(!c.milk)return toast(c.fed>0?"Still eating":"Feed her first");c.prog++;toast("🥛 Milking "+c.prog+"/4 - keep tapping!");if(c.prog>=4){c.prog=0;c.milk=0;money+=10;toast("🥛 Milk sold +$10")}}}
 // audio (all synthesized, no files)
 let AC,mG,eo,eg,mute=false,stT=0,aT=2,mT=3;
 function initAudio(){if(AC)return;try{AC=new(window.AudioContext||window.webkitAudioContext)();mG=AC.createGain();mG.connect(AC.destination);mG.gain.value=mute?0:1;
@@ -176,8 +228,8 @@ else if(n==="plant"){tone(300,.12,"sine",.15,600)}
 else if(n==="coin"){tone(880,.1,"square",.07);tone(1320,.18,"square",.07,0,0,.09)}
 else if(n==="no"){tone(170,.18,"sawtooth",.07,110)}
 else if(n==="moo"){tone(150,.9,"sawtooth",.1,85,500)}
-else if(n==="squirt"){noise(.07,.3,"highpass",1800);noise(.07,.3,"highpass",1800,.1)}else if(n==="bang"){noise(.3,.7,"lowpass",1500);tone(110,.15,"sawtooth",.15,40)}else if(n==="howl"){tone(450,.5,"sine",.09,700);tone(700,.8,"sine",.09,420,0,.5)}else if(n==="drink"){noise(.12,.25,"bandpass",900);noise(.12,.25,"bandpass",1200,.15)}else if(n==="eat"){noise(.06,.3,"lowpass",900);noise(.06,.3,"lowpass",900,.12)}}
-function sfxMsg(s){if(!AC)return;if(/\+\$|Sold/.test(s))sfx("coin");else if(/Munching/.test(s))sfx("moo");else if(/Milking/.test(s))sfx("squirt");else if(/^(Too far|Not|Till|Occ|Already|Nothing|Crop is|Feed her|Still|Walk to)/.test(s))sfx("no")}
+else if(n==="squirt"){noise(.07,.3,"highpass",1800);noise(.07,.3,"highpass",1800,.1)}else if(n==="bang"){noise(.3,.7,"lowpass",1500);tone(110,.15,"sawtooth",.15,40)}else if(n==="howl"){tone(450,.5,"sine",.09,700);tone(700,.8,"sine",.09,420,0,.5)}else if(n==="drink"){noise(.12,.25,"bandpass",900);noise(.12,.25,"bandpass",1200,.15)}else if(n==="eat"){noise(.06,.3,"lowpass",900);noise(.06,.3,"lowpass",900,.12)}else if(n==="alarm"){tone(880,.12,"square",.07);tone(660,.12,"square",.07,0,0,.14);tone(880,.12,"square",.07,0,0,.28)}}
+function sfxMsg(s){if(!AC)return;if(/\+\$|Sold/.test(s))sfx("coin");else if(/Munching/.test(s))sfx("moo");else if(/Milking/.test(s))sfx("squirt");else if(/dying|freezing|Deep water|You are broke|started a fire|Several fences|wants his money/.test(s))sfx("alarm");else if(/^(Too far|Not|Till|Occ|Already|Nothing|Crop is|Feed her|Still|Walk to)/.test(s))sfx("no")}
 function sound(dt){if(!AC)return;if(AC.state==="suspended")AC.resume();
 const mvg=keys.w||keys.a||keys.s||keys.d||keys.arrowup||keys.arrowdown||keys.arrowleft||keys.arrowright;
 eg.gain.setTargetAtTime(drv?(mvg?.09:.05):0,AC.currentTime,.1);eo.frequency.setTargetAtTime(mvg?80:55,AC.currentTime,.2);
@@ -191,7 +243,7 @@ const piles=[];let pT=25;
 function actHen(h){if(Math.hypot(h.g.position.x-P.position.x,h.g.position.z-P.position.z)>7)return toast("Too far - walk closer");
 if(h.pile){if(tool!=="collect")return toast("Not the right tool - pick Eggs/Clean");S.remove(h.g);piles.splice(piles.indexOf(h.g),1);henObjs.splice(henObjs.indexOf(h.g),1);money+=2;return toast("🧹 Coop cleaned +$2")}
 if(tool==="feed"){if(h.fed>0||h.egg)return toast("Not hungry");if(hay<1)return toast("Not enough hay - grab some in the barn");hay--;h.fed=10;h.love=40;toast("🌾 Pecking... egg in 10s");sfx("plant")}
-else{if(!h.egg)return toast(h.fed>0?"Still eating":"Feed her first");if(piles.length>=3)return toast("Not collectable - coop too dirty, clean it first");h.egg=0;money+=7;toast("🥚 Egg sold +$7")}}
+else{if(!h.egg)return toast(h.fed>0?"Still eating":"Feed her first");if(piles.length>=3)return toast("Not collectable - coop too dirty, clean it first");h.egg=0;money+=4;toast("🥚 Egg sold +$4")}}
 function coop(dt){pT-=dt;if(pT<0){pT=25+Math.random()*20;if(piles.length<4){const p=new THREE.Mesh(new THREE.CylinderGeometry(.3,.4,.15,8),M(0x5a3b1e));p.position.set(-19+Math.random()*5,.08,-5+Math.random()*6);p.userData.hen={pile:true,g:p};S.add(p);piles.push(p);henObjs.push(p);toast("The coop needs cleaning!")}}
 const inB=P.position.x>-20&&P.position.x<-12&&P.position.z>-15&&P.position.z<-9;roof.visible=!inB;WM.opacity=inB?.3:1}
 // farmhouse: water, food, bed
@@ -214,6 +266,7 @@ setTimeout(()=>{const hr=(7+time/150*24)%24;let d=(7-hr+24)%24;if(d<4)d+=24;time
 const gunM=new THREE.Mesh(new THREE.BoxGeometry(.1,.1,.9),M(0x222222));gunM.position.set(.4,1.1,.5);P.add(gunM);
 function vitals(dt){const inH=P.position.x>15&&P.position.x<23&&P.position.z>7&&P.position.z<13;hroof.visible=!inH;HM.opacity=inH?.3:1;gunM.visible=tool==="gun";
 if(!sleeping){if(!god){th=Math.max(0,th-dt*.4);hu=Math.max(0,hu-dt*.3);en=Math.max(0,en-dt*.3)}
+if(!god){const z=(v,k)=>{if(v<=0){zt[k]+=dt;if(zt[k]>=25)startCut("death",k)}else zt[k]=0};z(th,"th");z(hu,"hu");z(en,"en");if(th<=0||hu<=0||en<=0){dyT-=dt;if(dyT<=0){dyT=6;toast("💀 You are dying! "+(th<=0?"Drink water":hu<=0?"Eat food":"Sleep")+" now!")}}}
 spdMul=en<25||th<10||hu<10?.65:en<50?.85:1;
 if(ms>0)ms-=dt;else if(en<12){mT2-=dt;if(mT2<0){mT2=12+Math.random()*10;ms=1.5;toast("😴 You nodded off...")}}
 $("blk").style.opacity=ms>0?.92:0}
@@ -227,28 +280,28 @@ function mkCoy(){const g=new THREE.Group(),a=Math.random()*6.28;parts(g,[[.5,.5,
 const e={g,st:"in",t:0,o:0,k:"coy"};g.userData.an=e;g.position.set(-18+Math.cos(a)*34,0,-2+Math.sin(a)*34);S.add(g);coys.push(e);coyObjs.push(g)}
 function mkDeer(){const g=new THREE.Group();parts(g,[[.7,.7,1.5,0x8a5a30,0,1.2,0],[.3,.8,.3,0x8a5a30,0,1.7,.8],[.3,.3,.5,0x8a5a30,0,2.2,1],[.15,.2,.1,0xffffff,0,1.3,-.8],[.12,.9,.12,0x6a4a28,-.25,.45,.5],[.12,.9,.12,0x6a4a28,.25,.45,.5],[.12,.9,.12,0x6a4a28,-.25,.45,-.5],[.12,.9,.12,0x6a4a28,.25,.45,-.5]]);
 const e={g,tx:0,tz:0,k:"deer"};g.userData.an=e;g.position.set(-15+Math.random()*30,0,-28+Math.random()*7);e.tx=g.position.x;e.tz=g.position.z;S.add(g);deer.push(e);deerObjs.push(g)}
-for(let i=0;i<3;i++)mkDeer();
+for(let i=0;i<2;i++)mkDeer();
 function reload(){if(rl>0)return toast("Reloading...");if(ammo>=MAG())return toast("Not needed - gun is full");rl=1.6;ammo=MAG();toast("🔫 Reloading...")}
 function wallBlk(p){const x0=P.position.x,z0=P.position.z,n=Math.ceil(Math.hypot(p.x-x0,p.z-z0)/.15);for(let i=1;i<=n;i++){const x=x0+(p.x-x0)*i/n,z=z0+(p.z-z0)*i/n;if(!noclip&&colls.some(c=>!c.tag&&x>c.x1&&x<c.x2&&z>c.z1&&z<c.z2))return true}return false}
 function shoot(){if(rl>0)return toast("Reloading...");ammo--;sfx("bang");fl.position.set(P.position.x,2,P.position.z);fl.intensity=3;setTimeout(()=>fl.intensity=0,70);if(ammo<=0){rl=1.6;ammo=MAG();toast("🔫 Reloading...")}
-const a=ray.intersectObjects(coyObjs,true)[0],b=ray.intersectObjects(deerObjs,true)[0],lv=ray.intersectObjects(cowObjs.concat(chick),true)[0],hit=!a?b:!b?a:(a.distance<b.distance?a:b);if(lv&&(!hit||lv.distance<hit.distance)){if(wallBlk(lv.point))return toast("Not a clear shot - a wall is in the way");shootLive(lv.object);return}if(!hit)return;if(wallBlk(hit.point))return toast("Not a clear shot - a wall is in the way");
+const a=ray.intersectObjects(coyObjs,true)[0],b=ray.intersectObjects(deerObjs,true)[0],lv=ray.intersectObjects(cowObjs.concat(chick,fmr.map(f=>f.g),dog?[dog]:[]),true)[0],hit=!a?b:!b?a:(a.distance<b.distance?a:b);if(lv&&(!hit||lv.distance<hit.distance)){if(wallBlk(lv.point))return toast("Not a clear shot - a wall is in the way");shootLive(lv.object);return}if(!hit)return;if(wallBlk(hit.point))return toast("Not a clear shot - a wall is in the way");
 let u=hit.object;while(!u.userData.an)u=u.parent;const an=u.userData.an;if(Math.hypot(u.position.x-P.position.x,u.position.z-P.position.z)>30)return toast("Out of range");
-if(an.k==="coy"){if(an.st==="out")return;an.st="out";an.o=0;money+=8;toast("🐺 Coyote scared off +$8")}
-else{S.remove(u);deer.splice(deer.indexOf(an),1);deerObjs.splice(deerObjs.indexOf(u),1);money+=40;meat++;dsT=20;toast("🦌 Nice shot! +$40 and venison")}}
+if(an.k==="coy"){if(an.st==="out")return;an.st="out";an.o=0;money+=4;raids=0;toast("🐺 Coyote scared off +$4")}
+else{S.remove(u);deer.splice(deer.indexOf(an),1);deerObjs.splice(deerObjs.indexOf(u),1);money+=15;meat++;dsT=60;toast("🦌 Nice shot! +$15 and venison");if(!deer.length)startCut("poach")}}
 function cmove(p,dx,dz,sp,dt){const d=Math.hypot(dx,dz)||1,mx=dx/d*sp*dt,mz=dz/d*sp*dt;if(blocked(p.x,p.z,.4)){p.x+=mx;p.z+=mz;return}let m=0;if(!blocked(p.x+mx,p.z,.4)){p.x+=mx;m=1}if(!blocked(p.x,p.z+mz,.4)){p.z+=mz;m=1}if(!m){const sx=-mz,sz=mx;if(!blocked(p.x+sx,p.z+sz,.4)){p.x+=sx;p.z+=sz}else if(!blocked(p.x-sx,p.z-sz,.4)){p.x-=sx;p.z-=sz}}}
 function critters(dt){if(rl>0){rl-=dt;if(rl<=0)toast("🔫 Reloaded")}
 if(sun.intensity<.5&&coys.length<2){cyT-=dt;if(cyT<=0){cyT=18+Math.random()*15;mkCoy();toast("🐺 A coyote is sneaking toward the coop - press G for the gun!");sfx("howl")}}
 coys.slice().forEach(c=>{const g=c.g,p=g.position;
-if(c.st==="in"){const dx=-18.5-p.x,dz=-2-p.z,d=Math.hypot(dx,dz);if(d>8.5){cmove(p,dx,dz,3.5,dt);g.rotation.y=Math.atan2(dx,dz)}else{c.t+=dt;if(c.t>7){if(Math.random()<.5)breakFence();money=Math.max(0,money-15);chick.forEach(h=>{h.userData.hen.egg=0;h.userData.hen.fed=0});toast("🐺 Coyote raided the coop! -$15");c.st="out"}}}
+if(c.st==="in"){const dx=-18.5-p.x,dz=-2-p.z,d=Math.hypot(dx,dz);if(d>8.5){cmove(p,dx,dz,3.5,dt);g.rotation.y=Math.atan2(dx,dz)}else{c.t+=dt;if(c.t>7){if(Math.random()<.5)breakFence();money=Math.max(0,money-15);raids++;if(raids>=3)startCut("raid");chick.forEach(h=>{h.userData.hen.egg=0;h.userData.hen.fed=0});toast("🐺 Coyote raided the coop! -$15 (raid "+raids+"/3 - scare one off to reset)");c.st="out"}}}
 else{c.o+=dt;const dx=p.x+18.5,dz=p.z+2,d=Math.hypot(dx,dz)||1;cmove(p,dx,dz,9,dt);g.rotation.y=Math.atan2(dx,dz);if(c.o>3){S.remove(g);coys.splice(coys.indexOf(c),1);coyObjs.splice(coyObjs.indexOf(g),1)}}});
 deer.forEach(e=>{const g=e.g,p=g.position,pd=Math.hypot(p.x-P.position.x,p.z-P.position.z);let sp=.7;
 if(pd<14){e.tx=p.x+(p.x-P.position.x);e.tz=p.z+(p.z-P.position.z);sp=5.5}else if(Math.random()<.01){e.tx=-18+Math.random()*36;e.tz=-29+Math.random()*9}
 e.tx=Math.max(-28,Math.min(28,e.tx));e.tz=Math.max(-30,Math.min(-19,e.tz));const dx=e.tx-p.x,dz=e.tz-p.z,d=Math.hypot(dx,dz);if(d>.3){p.x+=dx/d*sp*dt;p.z+=dz/d*sp*dt;g.rotation.y=Math.atan2(dx,dz)}});
-if(deer.length<3){dsT-=dt;if(dsT<=0){dsT=25;mkDeer()}}}
+if(deer.length<2){dsT-=dt;if(dsT<=0){dsT=60;mkDeer()}}}
 // no context menu, game over, breeding, expansion
 document.addEventListener("contextmenu",e=>e.preventDefault());
-function gameOver(){ms=1e9;try{localStorage.removeItem("fs_save")}catch(e){}$("over").style.display="flex"}
-function shootLive(o){let u=o;while(!u.userData.cow&&!u.userData.hen)u=u.parent;if(u.userData.cow){cows.splice(cows.indexOf(u.userData.cow),1);cowObjs.splice(cowObjs.indexOf(u),1);toast("💔 You shot your own cow!")}else{chick.splice(chick.indexOf(u),1);henObjs.splice(henObjs.indexOf(u),1);toast("💔 You shot your own hen!")}S.remove(u);if(!cows.length&&!chick.length)gameOver()}
+function gameOver(title,msg,test,good){ms=1e9;sirenOn(false);$("okeep").style.display=good?"":"none";if(!test&&!good){try{localStorage.removeItem("fs_save")}catch(e){}}$("ot").textContent=title||"GAME OVER";$("om").textContent=msg||"The farm is no more.";$("over").style.display="flex"}
+function shootLive(o){let u=o;while(u&&!u.userData.cow&&!u.userData.hen&&!fmr.some(f=>f.g===u)&&u!==dog)u=u.parent;if(u===dog)return startCut("dog");const fm=fmr.find(f=>f.g===u);if(fm)return startCut("murder",fm);if(u.userData.cow){cows.splice(cows.indexOf(u.userData.cow),1);cowObjs.splice(cowObjs.indexOf(u),1);toast("💔 You shot your own cow!")}else{chick.splice(chick.indexOf(u),1);henObjs.splice(henObjs.indexOf(u),1);toast("💔 You shot your own hen!")}S.remove(u);if(!cows.length&&!chick.length)startCut("herd")}
 function mkCow(x,z){const g=new THREE.Group(),w=0xf4f4f4;parts(g,[[1.1,.9,1.9,w,0,1.1,0],[1.12,.4,.6,0x222222,0,1.25,.2],[.6,.6,.7,w,0,1.45,1.2],[.4,.25,.2,0xf0a0a0,0,1.3,1.6],[.2,.7,.2,0xdddddd,-.4,.35,-.7],[.2,.7,.2,0xdddddd,.4,.35,-.7],[.2,.7,.2,0xdddddd,-.4,.35,.7],[.2,.7,.2,0xdddddd,.4,.35,.7]]);
 const bub=new THREE.Mesh(new THREE.SphereGeometry(.3,10,8),M(0x8ad0ff));bub.position.y=2.6;bub.visible=false;g.add(bub);
 const c={g,fed:0,milk:0,prog:0,bub,tx:x,tz:z};g.userData.cow=c;g.position.set(x,0,z);S.add(g);cowObjs.push(g);cows.push(c);return c}
@@ -275,11 +328,11 @@ const TUT=[
 ["Tractor","Walk near the 🚜 and tap Drive (F). Drive over ripe crops to harvest them automatically - chained harvests build a combo bonus up to 2x. Enter the crop field through the wide gate in its south fence. The tractor will not fit through the barn door."],
 ["Barn and hay","The barn is open - walk in and tap the hay bales for +3 hay (max 15, upgradable in the Shop). Hay feeds your cows and chickens."],
 ["Cows","🌿 Feed a cow (1 hay), wait 15s for the blue bubble, then use 🥛 Milk and tap her 4 times to sell the milk."],
-["Chickens","🌿 Feed hens (1 hay). After 10s they lay an egg - collect it with 🥚 Eggs/Clean for $7. Use the same tool on manure piles to clean the coop; with 3 or more piles you cannot collect eggs."],
+["Chickens","🌿 Feed hens (1 hay). After 10s they lay an egg - collect it with 🥚 Eggs/Clean for $4. Use the same tool on manure piles to clean the coop; with 3 or more piles you cannot collect eggs."],
 ["Breeding","Feed two cows (or two hens) and they will walk together and breed. Babies take about 40s to grow up. Animals are capped - expand with 🔨 Build."],
-["Survival","The farmhouse has a sink 💧 (free drink), a fridge 🍞 ($5 meal, free with venison) and a bed 😴 (needs energy below 75). Low energy causes vignette, blur, camera sway, slowness and microsleeps."],
-["Coyotes and hunting","At night coyotes sneak toward the coop and raid it after about 7s. Press G (or tap 🔫) for the gun and tap them to scare them off ($8); press G again to put it away, and R to reload. Deer in the northern meadow pay $40 and give venison. Walls, hay bales and trees block shots, and a 🐕 guard dog from the Shop will chase coyotes for you. Do not shoot your own animals - losing them all is game over."],
-["Building","🔨 Build expands the field, pasture and chicken yard for money. Fences rebuild automatically."],["Shop, weather and saving","🛒 Shop: bigger magazine, hay storage, sprinklers (auto-water) and a guard dog that chases coyotes. 🌧️ The gold Shop button is at the top right of the screen, under the clock. Rain comes and goes and waters tilled soil for free. Prices: magazine $60+, hay storage $50+, sprinklers $150, dog $120. The game autosaves every 10 seconds and when you leave the tab; the Shop has a reset button."],["Sheep, pigs and goats","Buy them in the Shop (max 4 each). The first one builds a pen south of the field. Feed them hay, wait for the yellow bubble, then use Eggs/Clean on them to collect wool, truffles or goat milk."],["Fishing","Pick the Fish tool near the pond (south-west) and tap the water to cast. When you see Bite, tap again quickly. Tapping too early scares the fish."],["Seasons and night","Every 4 days the season changes: spring grows crops faster, winter is slow but sells for much more. Lanterns light up the farm at night."],["Fences and farmers","Storms and coyote raids can break fences. Tap the red plank to repair it ($10) or animals wander off. Hire farmers in the Shop: they harvest, water, feed and collect for you."]];
+["Survival","The farmhouse has a sink 💧 (free drink), a fridge 🍞 ($5 meal, free with venison) and a bed 😴 (needs energy below 75). Low energy causes vignette, blur, camera sway, slowness and microsleeps. Hunger, thirst or energy stuck at 0 for about 25 seconds is fatal."],
+["Coyotes and hunting","At night coyotes sneak toward the coop and raid it after about 7s. Press G (or tap 🔫) for the gun and tap them to scare them off ($4); press G again to put it away, and R to reload. Deer in the northern meadow pay $15 and give venison (only 2 roam at a time and they return slowly). Walls, hay bales and trees block shots, and a 🐕 guard dog from the Shop will chase coyotes for you. Do not shoot your own animals - losing them all is game over."],
+["Building","🔨 Build expands the field, pasture and chicken yard for money. Fences rebuild automatically."],["Shop, weather and saving","🛒 Shop: bigger magazine, hay storage, sprinklers (auto-water) and a guard dog that chases coyotes. 🌧️ The gold Shop button is at the top right of the screen, under the clock. Rain comes and goes and waters tilled soil for free. Prices: magazine $60+, hay storage $50+, sprinklers $150, dog $120. The game autosaves every 10 seconds and when you leave the tab; the Shop has a reset button."],["Sheep, pigs and goats","Buy them in the Shop (max 4 each). The first one builds a pen south of the field. Feed them hay, wait for the yellow bubble, then use Eggs/Clean on them to collect wool, truffles or goat milk."],["Fishing","Pick the Fish tool near the pond (south-west) and tap the water to cast. When you see Bite, tap again quickly. Tapping too early scares the fish."],["Seasons and night","Every 4 days the season changes: spring grows crops faster, winter is slow but sells for much more. Lanterns light up the farm at night."],["Fences and farmers","Storms and coyote raids can break fences. Tap the red plank to repair it ($10) or animals wander off. Hire farmers in the Shop (they are expensive, $600+): they harvest, water, feed and collect for you. Never shoot a farmer - that is murder."],["Game over and saving","You lose if: you have no cows or hens left; you stay at $0 for 6 seconds; hunger, thirst or energy sit at 0 for about 25 seconds; or you shoot a farmer you hired. Each ending has its own cutscene. 💾 (top right) opens 5 save slots - Save, Load, or ✕ delete. Slots survive game over; the autosave does not."],["Hazards","Winter nights are deadly outdoors - shelter in the farmhouse or barn. The pond is deep. A full hay store plus the barn lantern can start a night fire: douse the flames with the 💧 Water tool. Two broken fences for too long is a storm disaster, and three coyote raids in a row wipes out your coop (scaring one off resets the count). Hunting both deer in a row draws a game warden. Do not shoot your dog or your farmers."],["Loans and milestones","🦈 The Shop has a loan: borrow $200, repay $300 within 3 days or the shark takes the farm. Good endings (you can keep going after each): reach $3,000, survive a full year (16 days), grow a giant pumpkin (leave a ripe, watered pumpkin for a minute, then harvest it), or max out the whole farm."]];
 let tpg=0;const tw=document.createElement("div");tw.style.cssText="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(340px,88vw);background:var(--hud);padding:14px;border-radius:16px;display:none;flex-direction:column;gap:10px;z-index:30;font-size:14px;line-height:1.4";document.body.appendChild(tw);
 function tutShow(i){tpg=(i+TUT.length)%TUT.length;tw.innerHTML="";const h=document.createElement("div");h.innerHTML="<b style='font-size:16px'>"+TUT[tpg][0]+"</b> <span style='opacity:.6'>("+(tpg+1)+"/"+TUT.length+")</span><div style='margin-top:6px'>"+TUT[tpg][1]+"</div>";tw.appendChild(h);
 const r=document.createElement("div");r.style.cssText="display:flex;gap:6px;justify-content:space-between";
@@ -296,7 +349,7 @@ const DBG=[["💰 +$1000",()=>{money+=1000}],["❤️ Refill needs",()=>{th=hu=e
 ["🌅 Dawn",()=>setHr(7)],["☀️ Noon",()=>setHr(12)],["🌆 Dusk",()=>setHr(19)],["🌙 Midnight",()=>setHr(0)],
 ["⏩ Time speed",()=>{tScale=tScale===1?10:1},()=>"x"+tScale],["👻 Noclip",()=>{noclip=!noclip},()=>noclip?"ON":"OFF"],["🛡️ Needs do not drain",()=>{god=!god},()=>god?"ON":"OFF"],
 ["🐺 Spawn coyote",()=>mkCoy()],["🦌 Spawn deer",()=>mkDeer()],["🐮 Spawn cow",()=>mkCow(14+Math.random()*8,-8+Math.random()*8)],["🐔 Spawn hen",()=>mkHen(-19+Math.random()*5,-4+Math.random()*4)],
-["📍 Farmhouse",()=>tpTo(13,10)],["📍 Barn",()=>tpTo(-16,-7)],["📍 Pasture",()=>tpTo(15,4)],["📍 Chicken yard",()=>tpTo(-17,4)],["📍 Meadow",()=>tpTo(0,-22)],["💀 Test game over",()=>gameOver()]];
+["📍 Farmhouse",()=>tpTo(13,10)],["📍 Barn",()=>tpTo(-16,-7)],["📍 Pasture",()=>tpTo(15,4)],["📍 Chicken yard",()=>tpTo(-17,4)],["📍 Meadow",()=>tpTo(0,-22)],["🎬 Cutscene: murder",()=>{if(!fmr.length)mkFarmer();startCut("murder",fmr[0],1)}],["🎬 Cutscene: no livestock",()=>startCut("herd",0,1)],["🎬 Cutscene: bankrupt",()=>startCut("bank",0,1)],["🎬 Cutscene: death (thirst)",()=>startCut("death","th",1)],["🎬 Cutscene: death (hunger)",()=>startCut("death","hu",1)],["🎬 Cutscene: death (exhaustion)",()=>startCut("death","en",1)],["🎬 Death: cold",()=>startCut("death","cold",1)],["🎬 Death: drown",()=>startCut("death","drown",1)],["🎬 Poacher",()=>startCut("poach",0,1)],["🎬 Barn fire",()=>startCut("fire",0,1)],["🎬 Shot dog",()=>{if(!dog)mkDog();startCut("dog",0,1)}],["🎬 Coyote raids",()=>startCut("raid",0,1)],["🎬 Storm",()=>startCut("storm",0,1)],["🎬 Loan shark",()=>startCut("shark",0,1)],["🎬 Good: retired",()=>startCut("mil",0,1)],["🎬 Good: one year",()=>startCut("year",0,1)],["🎬 Good: county fair",()=>startCut("fair",0,1)],["🎬 Good: legacy",()=>startCut("legacy",0,1)],["❄️ Force winter",()=>{time=1800+time%150}],["🔥 Start barn fire",()=>{hay=HMAX();fireOn=false;time=Math.floor(time/150)*150+130}]];
 function dbgRefresh(){dbg.innerHTML="<b>DEBUG</b>";DBG.forEach(([l,f,s])=>{const b=document.createElement("button");b.textContent=l+(s?" ["+s()+"]":"");b.onclick=()=>{f();dbgRefresh()};dbg.appendChild(b)});const x=document.createElement("button");x.textContent="Close";x.onclick=()=>dbg.style.display="none";dbg.appendChild(x)}
 addEventListener("keydown",e=>{if(e.key.length!==1)return;const n=performance.now();if(n-dbT>1500)dbBuf="";dbT=n;if(!dbBuf)dbTool=tool;dbBuf=(dbBuf+e.key.toUpperCase()).slice(-5);
 if(dbBuf==="DEBUG"){dbBuf="";if(dbTool)sel(dbTool);if(dbg.style.display==="flex")dbg.style.display="none";else{dbgRefresh();dbg.style.display="flex"}}});
@@ -310,18 +363,20 @@ function mkDog(){if(dog)return;const g=new THREE.Group();parts(g,[[.4,.4,.9,0x6b
 function extras(dt){wxT-=dt;if(wxT<=0){rain=!rain;if(rain&&Math.random()<.4)breakFence();wxT=rain?25+Math.random()*25:60+Math.random()*60;toast(rain?"🌧️ Rain - your crops are watered":"☀️ The rain stopped")}
 rainM.visible=rain;if(rain){rainM.position.set(P.position.x,0,P.position.z);const a=rg.attributes.position.array;for(let i=0;i<RN;i++){const k=i*6;a[k+1]-=30*dt;a[k+4]-=30*dt;if(a[k+1]<0){a[k+1]=20;a[k+4]=19.2}}rg.attributes.position.needsUpdate=true;tiles.forEach(t=>{if(t.s&&t.wet<25){t.wet=30;tcol(t)}})}
 if(up.spr){spT-=dt;if(spT<0){spT=45;tiles.forEach(t=>{if(t.s&&t.wet<20){t.wet=30;tcol(t)}})}}
-if(dog){const p=dog.position,c=coys.find(e=>e.st==="in"),tn=performance.now()/2500,tx=c?c.g.position.x:-18+Math.sin(tn)*3,tz=c?c.g.position.z:-1+Math.cos(tn)*2,dx=tx-p.x,dz=tz-p.z,d=Math.hypot(dx,dz);if(d>.4){p.x+=dx/d*8*dt;p.z+=dz/d*8*dt;dog.rotation.y=Math.atan2(dx,dz)}if(c&&d<2){c.st="out";c.o=0;money+=5;toast("🐕 Your dog chased off a coyote +$5")}}
+if(dog){const p=dog.position,c=coys.find(e=>e.st==="in"),tn=performance.now()/2500,tx=c?c.g.position.x:-18+Math.sin(tn)*3,tz=c?c.g.position.z:-1+Math.cos(tn)*2,dx=tx-p.x,dz=tz-p.z,d=Math.hypot(dx,dz);if(d>.4){p.x+=dx/d*8*dt;p.z+=dz/d*8*dt;dog.rotation.y=Math.atan2(dx,dz)}if(c&&d<2){c.st="out";c.o=0;money+=3;raids=0;toast("🐕 Your dog chased off a coyote +$3")}}
 svT-=dt;if(svT<0){svT=10;saveGame()}extras2(dt)}
 const MAG=()=>6+2*up.mag,HMAX=()=>15+10*up.hay;
 const shp=document.createElement("div");shp.style.cssText=bp.style.cssText;shp.style.maxHeight="80vh";shp.style.overflow="auto";shp.style.display="none";document.body.appendChild(shp);
-const ITEMS=[["mag","🔫 Bigger magazine (+2)",3,l=>60+40*l],["hay","🌾 Hay storage (+10)",3,l=>50+50*l],["fm","👨‍🌾 Hire farmer (auto-work)",3,l=>200+150*l],["sh","🐑 Sheep (pen)",4,l=>150+50*l],["pg","🐖 Pig (pen)",4,l=>200+60*l],["gt","🐐 Goat (pen)",4,l=>180+50*l],["spr","💦 Sprinklers (auto-water)",1,()=>150],["dog","🐕 Guard dog",1,()=>120]];
+const ITEMS=[["mag","🔫 Bigger magazine (+2)",3,l=>60+40*l],["hay","🌾 Hay storage (+10)",3,l=>50+50*l],["fm","👨‍🌾 Hire farmer (auto-work)",3,l=>600+400*l],["sh","🐑 Sheep (pen)",4,l=>150+50*l],["pg","🐖 Pig (pen)",4,l=>200+60*l],["gt","🐐 Goat (pen)",4,l=>180+50*l],["spr","💦 Sprinklers (auto-water)",1,()=>150],["dog","🐕 Guard dog",1,()=>120]];
 function shRefresh(){shp.innerHTML="";ITEMS.forEach(([k,l,mx,cf])=>{const b=document.createElement("button"),mxd=up[k]>=mx;b.textContent=l+(mxd?" - MAX":" - $"+cf(up[k]));b.onclick=()=>{if(mxd)return toast("Not possible - already maxed");const c=cf(up[k]);if(money<c)return toast("Not enough money - need $"+c);money-=c;up[k]++;if(k==="dog")mkDog();if(k==="mag")ammo=MAG();if(k==="fm")mkFarmer();if(k==="sh"||k==="pg"||k==="gt"){if(up.sh+up.pg+up.gt===1)buildFence("pen",penF);mkPA(k)}sfx("coin");shRefresh()};shp.appendChild(b)});
+const ln=document.createElement("button");ln.textContent=owed?"🦈 Repay loan - $"+owed:"🦈 Borrow $200 (repay $300 within 3 days)";ln.onclick=()=>{if(owed){if(money<owed)return toast("Not enough money - need $"+owed);money-=owed;owed=0;toast("🦈 Loan repaid")}else{money+=200;owed=300;due=time+450;toast("🦈 Borrowed $200 - repay $300 before Day "+(Math.floor(due/150)+1)+" ends")}shRefresh()};shp.appendChild(ln);
 const r=document.createElement("button");r.textContent="🗑️ Reset save";r.onclick=()=>{if(confirm("Delete your saved farm and restart?")){try{localStorage.removeItem("fs_save")}catch(e){}ms=1e9;location.reload()}};shp.appendChild(r);
 const x=document.createElement("button");x.textContent="Close";x.onclick=()=>shp.style.display="none";shp.appendChild(x)}
-const sb=document.createElement("button");sb.textContent="🛒 Shop";sb.onclick=()=>{shRefresh();shp.style.display=shp.style.display==="flex"?"none":"flex"};document.body.appendChild(sb);sb.style.cssText="position:fixed;right:8px;top:calc(env(safe-area-inset-top,0px) + 50px);background:#f4c430;color:#222;border-color:#fff;padding:6px 14px";
-function saveGame(){if(ms>1e8||sleeping)return;try{localStorage.setItem("fs_save",JSON.stringify({money,hay,time,meat,up,fRows,pLv,yLv,cw:cows.length,hn:chick.length,tl:tiles.map(t=>[t.s,t.crop?t.crop.userData.type:0,+t.g.toFixed(2),+t.wet.toFixed(0)])}))}catch(e){}}
+const sb=document.createElement("button");sb.textContent="🛒 Shop";sb.onclick=()=>{shRefresh();shp.style.display=shp.style.display==="flex"?"none":"flex"};sb.id="shb";document.body.appendChild(sb);sb.style.cssText="position:fixed;right:8px;top:calc(env(safe-area-inset-top,0px) + 50px);background:#f4c430;color:#222;border-color:#fff;padding:6px 14px";
+function snap(){return {money,hay,time,meat,th,hu,en,up,won,owed,due,fRows,pLv,yLv,cw:cows.length,hn:chick.length,tl:tiles.map(t=>[t.s,t.crop?t.crop.userData.type:0,+t.g.toFixed(2),+t.wet.toFixed(0)])}}
+function saveGame(){if(ms>1e8||sleeping)return;try{localStorage.setItem("fs_save",JSON.stringify(snap()))}catch(e){}}
 function loadGame(){let d;try{d=JSON.parse(localStorage.getItem("fs_save"))}catch(e){}if(!d)return;
-money=d.money;hay=d.hay;time=d.time;meat=d.meat||0;Object.assign(up,d.up);
+money=d.money;hay=d.hay;time=d.time;meat=d.meat||0;Object.assign(up,d.up);if(d.th!=null){th=d.th;hu=d.hu;en=d.en}if(d.won)Object.assign(won,d.won);owed=d.owed||0;due=d.due||0;
 for(let r=1;r<=d.fRows;r++){fRows=r;for(let i=0;i<8;i++)mkTile((i-3.5)*2.1,-11.35-2.1*r);fN-=2.1}
 pLv=d.pLv;pE+=4*pLv;yLv=d.yLv;zS+=3*yLv;buildFence("field",fieldF);buildFence("pasture",pastF);buildFence("yard",yardF);
 d.tl.forEach(([s,c,g,w],i)=>{const t=tiles[i];if(!t)return;t.s=s;t.wet=w;if(c){t.crop=mkCrop(c,t);t.g=g;showCrop(t)}tcol(t)});
@@ -334,22 +389,22 @@ if(up.dog)mkDog();restock()}
 const SEAS=["🌸 Spring","☀️ Summer","🍂 Autumn","❄️ Winter"],SG=[1.25,1,1,.5],SP=[1,1,1.2,1.5],SC=[0x4f9a3a,0x5aa23a,0x9a8a3a,0xe6eef2];
 function seas(){return Math.floor(time/150/4)%4}
 const GM=()=>SG[seas()],PM=()=>SP[seas()];
-const AN={sh:{n:"Sheep",c:0xf2f2f2,t:12,v:14,ic:"🐑"},pg:{n:"Pig",c:0xf0a0b0,t:14,v:20,ic:"🐖"},gt:{n:"Goat",c:0xb8a890,t:13,v:16,ic:"🐐"}},pa=[],penObjs=[],brk=[],fmr=[];
+const AN={sh:{n:"Sheep",c:0xf2f2f2,t:12,v:8,ic:"🐑"},pg:{n:"Pig",c:0xf0a0b0,t:14,v:12,ic:"🐖"},gt:{n:"Goat",c:0xb8a890,t:13,v:10,ic:"🐐"}},pa=[],penObjs=[],brk=[],fmr=[];
 function penF(){fenceLine(-4,11,9,11,2,2);fenceLine(9,11,9,17);fenceLine(9,17,-4,17);fenceLine(-4,17,-4,11)}
 function mkPA(k){const d=AN[k],g=new THREE.Group();parts(g,[[.7,.6,1.1,d.c,0,.6,0],[.4,.4,.45,d.c,0,.8,.7],[.1,.4,.1,0x555555,-.2,.2,.35],[.1,.4,.1,0x555555,.2,.2,.35],[.1,.4,.1,0x555555,-.2,.2,-.35],[.1,.4,.1,0x555555,.2,.2,-.35]]);
 const b=new THREE.Mesh(new THREE.SphereGeometry(.25,8,6),M(0xffe070));b.position.y=1.8;b.visible=false;g.add(b);const a={g,k,fed:0,prod:0,b,tx:2,tz:14};g.userData.pa=a;g.position.set(-2+Math.random()*9,0,12+Math.random()*4);S.add(g);pa.push(a);penObjs.push(g)}
 function actPen(a){if(Math.hypot(a.g.position.x-P.position.x,a.g.position.z-P.position.z)>7)return toast("Too far - walk closer");const d=AN[a.k];
 if(tool==="feed"){if(a.fed>0||a.prod)return toast("Not hungry");if(hay<1)return toast("Not enough hay - grab some in the barn");hay--;a.fed=d.t;toast("🌿 "+d.n+" is eating...")}
 else{if(!a.prod)return toast(a.fed>0?"Still eating":"Feed it first");a.prod=0;const v=Math.round(d.v*PM());money+=v;toast(d.ic+" Collected +$"+v)}}
-const PX=-16,PZ=20,pond=add(new THREE.CylinderGeometry(5,5,.12,28),new THREE.MeshLambertMaterial({color:0x2a7ab8}),PX,.06,PZ,false);wall(PX-4.2,PZ-4.2,PX+4.2,PZ+4.2);
-function fish(){if(Math.hypot(PX-P.position.x,PZ-P.position.z)>10)return toast("Too far - walk closer");if(fs.st===2){fs.st=0;const v=Math.round((10+Math.random()*20)*PM());money+=v;toast("🎣 Caught a fish! +$"+v)}else if(fs.st===1){fs.st=0;toast("Too early - the fish got scared")}else{fs.st=1;fs.t=2+Math.random()*4;sfx("water");toast("🎣 Line cast... wait for a bite")}}
+const PX=-16,PZ=20,pond=add(new THREE.CylinderGeometry(5,5,.12,28),new THREE.MeshLambertMaterial({color:0x2a7ab8}),PX,.06,PZ,false);
+function fish(){if(Math.hypot(PX-P.position.x,PZ-P.position.z)>10)return toast("Too far - walk closer");if(fs.st===2){fs.st=0;const v=Math.round((4+Math.random()*6)*PM());money+=v;toast("🎣 Caught a fish! +$"+v)}else if(fs.st===1){fs.st=0;toast("Too early - the fish got scared")}else{fs.st=1;fs.t=2+Math.random()*4;sfx("water");toast("🎣 Line cast... wait for a bite")}}
 const LN=[[-5.2,7.2],[-22.8,-1.8],[14.2,6.4],[-5,10.2],[PX+6,PZ-2]],lns=[],lts=[];
 LN.forEach(([x,z],i)=>{add(new THREE.CylinderGeometry(.06,.06,2.2,6),FM,x,1.1,z);const b=add(new THREE.SphereGeometry(.2,8,6),new THREE.MeshBasicMaterial({color:0xffd070}),x,2.3,z,false);b.visible=false;lns.push(b);if(i<4){const l=new THREE.PointLight(0xffc870,0,13);l.position.set(x,2.5,z);S.add(l);lts.push(l)}});
 function breakFence(){const tags=["yard","pasture"];if(pa.length)tags.push("pen");const tag=tags[Math.random()*tags.length|0];if(brk.some(m=>m.userData.tag===tag))return;const ps={yard:[-24,zS/2-3],pasture:[pE,-4],pen:[9,14]}[tag],m=add(new THREE.BoxGeometry(.25,1.4,.25),M(0xc03030),ps[0],.7,ps[1]);m.rotation.z=.5;m.userData.tag=tag;brk.push(m);toast("⚠️ A fence broke! Tap the red plank to repair ($10)")}
 function repair(m){if(Math.hypot(m.position.x-P.position.x,m.position.z-P.position.z)>7)return toast("Too far - walk closer");if(money<10)return toast("Not enough money - need $10");money-=10;S.remove(m);brk.splice(brk.indexOf(m),1);toast("🔧 Fence repaired -$10")}
 function mkFarmer(){const g=new THREE.Group();parts(g,[[.6,.8,.4,0x7a4a2a,0,.9,0],[.5,.5,.5,0xf0c8a0,0,1.5,0],[.9,.06,.9,0xe8c860,0,1.85,0],[.3,.15,.3,0xe8c860,0,1.95,0]]);g.position.set(5+fmr.length*1.5,0,8);S.add(g);fmr.push({g,j:null,w:0})}
 function jobs(){const L=[];tiles.forEach(t=>{if(t.crop&&t.g>=1)L.push([t.x,t.z,t,()=>{if(!t.crop)return;const d=CROPS[t.crop.userData.type];money+=Math.round(d.sell*PM());S.remove(t.crop);t.crop=null;t.g=0}]);else if(t.crop&&t.wet<6)L.push([t.x,t.z,t,()=>{t.wet=30;tcol(t)}])});
-[...cows.map(c=>[c,"milk",15,18]),...chick.map(g=>[g.userData.hen,"egg",10,7]),...pa.map(a=>[a,"prod",AN[a.k].t,Math.round(AN[a.k].v*PM())])].forEach(([o,k,ft,v])=>{const p=o.g.position;if(o[k])L.push([p.x,p.z,o,()=>{if(k==="egg"&&piles.length>=3)return;o[k]=0;money+=v}]);else if(!o.fed&&!o.baby&&hay>0)L.push([p.x,p.z,o,()=>{if(hay>0&&!o.fed){hay--;o.fed=ft}}])});
+[...cows.map(c=>[c,"milk",15,10]),...chick.map(g=>[g.userData.hen,"egg",10,4]),...pa.map(a=>[a,"prod",AN[a.k].t,Math.round(AN[a.k].v*PM())])].forEach(([o,k,ft,v])=>{const p=o.g.position;if(o[k])L.push([p.x,p.z,o,()=>{if(k==="egg"&&piles.length>=3)return;o[k]=0;money+=v}]);else if(!o.fed&&!o.baby&&hay>0)L.push([p.x,p.z,o,()=>{if(hay>0&&!o.fed){hay--;o.fed=ft}}])});
 piles.forEach(p=>L.push([p.position.x,p.position.z,p,()=>{if(piles.indexOf(p)<0)return;S.remove(p);piles.splice(piles.indexOf(p),1);henObjs.splice(henObjs.indexOf(p),1);money+=2}]));return L}
 function restock(){if(up.sh+up.pg+up.gt>0)buildFence("pen",penF);["sh","pg","gt"].forEach(k=>{for(let i=0;i<up[k];i++)mkPA(k)});for(let i=0;i<up.fm;i++)mkFarmer()}
 function extras2(dt){ground.material.color.setHex(SC[seas()]);yellUpd(dt);
@@ -362,6 +417,119 @@ else if(bt==="pasture"&&cows.length>1){const c=cows.pop();S.remove(c.g);cowObjs.
 else if(bt==="pen"&&pa.length){const a=pa.pop();S.remove(a.g);penObjs.splice(penObjs.indexOf(a.g),1);up[a.k]--;toast("🐑 An animal escaped the pen!")}}}
 fmr.forEach(f=>{f.w-=dt;const p=f.g.position;if(!f.j){if(f.w>0)return;const cl=fmr.map(o=>o.j&&o.j[2]);let b=null,bd=1e9;jobs().filter(j=>!cl.includes(j[2])).forEach(j=>{const d=Math.hypot(j[0]-p.x,j[1]-p.z);if(d<bd){bd=d;b=j}});if(!b){f.w=1.5;return}f.j=b}
 const j=f.j,dx=j[0]-p.x,dz=j[1]-p.z,d=Math.hypot(dx,dz);if(d>1.3){p.x+=dx/d*4.5*dt;p.z+=dz/d*4.5*dt;f.g.rotation.y=Math.atan2(dx,dz)}else{j[3]();f.j=null;f.w=.5}})}
+// ===== CUTSCENES, GAME-OVER CONDITIONS, SAVE SLOTS =====
+let cut=null,bkr=0,dyT=0;const zt={th:0,hu:0,en:0};
+function mkCar(c1=0xf2f2f2,c2=0x222222){const g=new THREE.Group();parts(g,[[2,.8,4.4,c1,0,.7,0],[1.7,.7,2,c2,0,1.4,-.3],[.5,.2,.4,0xdd2222,-.4,1.85,-.3],[.5,.2,.4,0x2244dd,.4,1.85,-.3]]);[[-1,1.6],[1,1.6],[-1,-1.6],[1,-1.6]].forEach(([x,z])=>{const w=new THREE.Mesh(new THREE.CylinderGeometry(.4,.4,.3,12),M(0x111111));w.rotation.z=Math.PI/2;w.position.set(x,.4,z);g.add(w)});S.add(g);return g}
+const tomb=new THREE.Group();parts(tomb,[[1.2,.2,.8,0x777777,0,.1,0],[.9,1.2,.25,0x999999,0,.8,0]]);tomb.visible=false;S.add(tomb);
+const KH=[[0,30,6,-3,18,1,-5],[4,24,5,-2,16,1,-6],[6,-8,6,8,-18,1,-2],[9,-6,5,4,-18,1.5,-2],[11,0,24,28,0,0,-2]];
+function kf(a,t){let i=0;while(i<a.length-2&&t>a[i+1][0])i++;const A=a[i],B=a[i+1],u=Math.max(0,Math.min(1,(t-A[0])/(B[0]-A[0]))),q=u*u*(3-2*u),L=j=>A[j]+(B[j]-A[j])*q;C.position.set(L(1),L(2),L(3));C.lookAt(L(4),L(5),L(6))}
+const DC={th:["You went too long without water...","You collapsed in the dirt.","YOU DIED","You died of thirst."],hu:["You went too long without food...","Your strength finally gave out.","YOU DIED","You starved."],en:["You went too long without sleep...","Your eyes closed for the last time.","YOU DIED","You died of exhaustion."],cold:["The winter night was far too cold...","You froze where you stood.","YOU DIED","You froze to death."],drown:["The pond was deeper than it looked...","You slipped beneath the water.","YOU DIED","You drowned in the pond."]};
+const GOOD=["mil","year","fair","legacy"],sets={},KY=[[0,-8,5,6,-18,1,-2],[6,-12,4,0,-18,1,-2],[12,-10,9,6,-18,0,-2]];
+function startCut(k,x,test){if(cut)return;ms=1e9;if(drv){drv=false;P.visible=true}if(AC&&eg)eg.gain.value=0;
+ R.domElement.style.filter="none";["vig","blk"].forEach(i=>$(i).style.opacity=0);[bp,shp,tw,dbg,svp].forEach(e=>e.style.display="none");
+ document.body.classList.add("cutting");$("cut").style.display="block";$("cfade").style.opacity=0;$("cstamp").style.opacity=0;$("cstamp").style.transform="translate(-50%,-50%) rotate(-12deg) scale(1.7)";$("cfx").style.background="none";$("ccap").textContent="";
+ const gd=GOOD.includes(k);sun.intensity=gd?.9:.35;amb.intensity=gd?.7:.4;sky.setHex(gd?0xffb070:k==="murder"?0x6a7a9a:0x2a2f48);S.fog.color.copy(sky);rainM.visible=false;
+ const c={k,t:0,cap:-1,test,good:GOOD.includes(k)};cut=c;
+ if(k==="murder"){const fp=x.g.position,dx=fp.x-P.position.x,dz=fp.z-P.position.z,d=Math.hypot(dx,dz)||1,ux=dx/d,uz=dz/d,a0=Math.atan2(P.position.x-fp.x,P.position.z-fp.z),pc=mkCar(),lr=new THREE.PointLight(0xff2020,0,18),lb=new THREE.PointLight(0x3050ff,0,18);
+  pc.add(lr,lb);lr.position.set(-1,2.5,0);lb.position.set(1,2.5,0);pc.position.set(46,0,20);pc.rotation.y=-Math.PI/2;pc.visible=false;P.rotation.y=Math.atan2(dx,dz);gunM.visible=true;
+  c.dur=14;c.steps=[[0,"You raise your gun at the farmhand you hired..."],[2.6,"BANG."],[4,"A hired hand lies still in the dirt."],[7.5,"A neighbor heard the shot. Sirens wail in the distance..."],[11,"You were arrested for murder."]];c.end=["ARRESTED","You murdered your own farmhand. The farm is now a crime scene."];
+  c.f=t=>{if(t<2.6){C.position.set(P.position.x-ux*3-uz*1.3,2.3,P.position.z-uz*3+ux*1.3);C.lookAt(fp.x,1.3,fp.z)}else if(t<7.5){const a=a0+(t-2.6)*.3;C.position.set(fp.x+Math.sin(a)*6,3,fp.z+Math.cos(a)*6);C.lookAt(fp.x,.5,fp.z)}else{C.position.set(30,4,28);C.lookAt(Math.max(pc.position.x,14),1,20)}
+   if(t>=2.6&&!c.sh){c.sh=1;sfx("bang");fl.position.set(P.position.x,2,P.position.z);fl.intensity=3;setTimeout(()=>fl.intensity=0,90)}
+   if(t>=2.7){const u=Math.min(1,(t-2.7)/.9);x.g.rotation.z=u*Math.PI/2;x.g.position.y=u*.3}
+   if(t>=7.5){pc.visible=true;const q=Math.min(1,(t-7.5)/4.5);pc.position.x=46-32*(1-(1-q)*(1-q));const f2=Math.floor(t*4)%2;lr.intensity=f2?3:0;lb.intensity=f2?0:3;$("cfx").style.background=f2?"rgba(255,30,30,.25)":"rgba(40,80,255,.25)"}}}
+ else if(k==="herd"){c.dur=12;c.steps=[[0,"The pasture is empty."],[3.5,"The coop is silent."],[6.5,"A farm without animals is no farm at all."],[9.5,"The farm falls silent..."]];c.end=["GAME OVER","You have no livestock left. The farm falls silent..."];c.f=t=>kf(KH,t)}
+ else if(k==="bank"){c.dur=12;c.steps=[[0,"Your pockets are empty."],[3.5,"The bank has seen enough."],[7,"Your farm has been foreclosed."]];c.end=["BANKRUPT","You ran out of money and the bank took the farm."];
+  c.f=t=>{const a=t*.14;C.position.set(Math.sin(a)*38,14+t*.6,Math.cos(a)*38-2);C.lookAt(0,0,-2);if(t>=7.5){const e=$("cstamp");e.style.opacity=.95;e.style.transform="translate(-50%,-50%) rotate(-12deg) scale(1)"}}}
+ else if(k==="poach"){const pc=mkCar(0x2f6a3a),lg=new THREE.PointLight(0x40ff60,0,16);pc.add(lg);lg.position.set(0,2.5,0);pc.position.set(46,0,20);pc.visible=false;pc.rotation.y=-Math.PI/2;gunM.visible=true;c.dur=13;c.steps=[[0,"The meadow is quiet. Too quiet."],[3,"A truck rolls up. A game warden steps out."],[7,"The warden says you hunted this land bare."],[10,"Fined. Gun confiscated."]];c.end=["POACHER","You hunted the deer into nothing. The warden took your gun and your farm license."];
+  c.f=t=>{const q=t<3?0:Math.min(1,(t-3)/5);pc.position.x=46-32*(1-(1-q)*(1-q));pc.visible=t>=3;if(t>=3&&t<10){C.position.set(30,4,28);C.lookAt(Math.max(pc.position.x,14),1,20)}else{C.position.set(P.position.x-6,2.5+t*.1,P.position.z-6);C.lookAt(P.position.x+4,1,P.position.z)}lg.intensity=t>=3&&Math.floor(t*4)%2?3:0;if(t>=10)gunM.visible=false}}
+ else if(k==="fire"){const fm=[...Array(10)].map((_,i)=>add(new THREE.ConeGeometry(.9,2.6,6),new THREE.MeshBasicMaterial({color:i%2?0xff7a1a:0xffc030}),-19+Math.random()*6,1.5,-15+Math.random()*6,false)),pc=mkCar(0xcc1111,0xdddddd),f3=new THREE.PointLight(0xff8030,2,25);f3.position.set(-16,3,-12);S.add(f3);pc.position.set(-7,0,25);pc.rotation.y=Math.PI;
+  c.dur=13;c.steps=[[0,"The lantern fell among the hay."],[3,"The whole barn went up in flames."],[7,"The fire truck came too late."],[10,"By morning, nothing was left."]];c.end=["🔥 BURNED DOWN","Your barn burned to the ground, and the farm went with it."];
+  c.f=t=>{const a=t*.12;C.position.set(-16+Math.sin(a)*15,5,-9+Math.cos(a)*15);C.lookAt(-16,2,-12);fm.forEach((m,i)=>{m.scale.set(1+t*.08,1+Math.sin(t*9+i)*.4+t*.15,1+t*.08);m.position.y=1+m.scale.y*1.1});pc.position.z=25-Math.min(1,t/7)*10;roof.visible=t<5}}
+ else if(k==="dog"){const dp=dog.position;c.dur=11;c.steps=[[0,"Your loyal guard dog trotted over to you..."],[3,"BANG."],[5,"It was only a dog. It trusted you."],[8,"The farm has never felt so quiet."]];c.end=["GAME OVER","You shot your own guard dog. Some things cannot be undone."];
+  c.f=t=>{C.position.set(dp.x+Math.sin(camA)*5,1.8+t*.08,dp.z+Math.cos(camA)*5);C.lookAt(dp.x,.4,dp.z);if(t>=3&&!c.sh){c.sh=1;sfx("bang");fl.position.set(P.position.x,2,P.position.z);fl.intensity=3;setTimeout(()=>fl.intensity=0,90)}if(t>=3.1){dog.rotation.z=Math.min(1,(t-3.1)/.8)*Math.PI/2;dog.position.y=.2}}}
+ else if(k==="raid"){const cy=[0,1,2].map(()=>{mkCoy();const e=coys[coys.length-1];e.st="x";return e});c.dur=12;c.steps=[[0,"The coyotes came back. Again."],[3.5,"And again."],[7,"The coop is gone. So are the hens."],[9.5,"A farm cannot survive that."]];c.end=["GAME OVER","Raid after raid wiped out your coop."];
+  c.f=t=>{cy.forEach((e,i)=>{const a=t*.5+i*2.1;e.g.position.set(-18.5+Math.cos(a)*5,0,-2+Math.sin(a)*4);e.g.rotation.y=-a});kf(KY,t);if(t>2&&!c.h){c.h=1;sfx("howl");chick.forEach(g=>g.visible=false)}if(t>6&&!c.h2){c.h2=1;sfx("howl")}}}
+ else if(k==="storm"){rainM.visible=true;const an=cows.map(q=>q.g).concat(chick),dr=an.map(()=>[Math.random()*2-1,Math.random()*2-1]);c.dur=12;c.steps=[[0,"The storm tore through your fences."],[3.5,"Your animals scattered into the night."],[7,"By morning, they were gone."]];c.end=["GAME OVER","The storm broke your fences and your herd scattered for good."];
+  c.f=t=>{kf(KH,t);rainM.position.set(C.position.x,0,C.position.z);const a=rg.attributes.position.array;for(let i=0;i<RN;i++){const q=i*6;a[q+1]-=.5;a[q+4]-=.5;if(a[q+1]<0){a[q+1]=20;a[q+4]=19.2}}rg.attributes.position.needsUpdate=true;an.forEach((g,i)=>{g.position.x+=dr[i][0]*.1*Math.min(1,t/2);g.position.z+=dr[i][1]*.1*Math.min(1,t/2)})}}
+ else if(k==="shark"){const pc=mkCar(0x111111,0x333333),fg=[0,1].map(()=>{const g=new THREE.Group();parts(g,[[.6,1,.4,0x111111,0,.9,0],[.45,.45,.45,0xf0c8a0,0,1.65,0],[.7,.08,.7,0x111111,0,1.95,0]]);g.position.set(60,0,0);S.add(g);return g});pc.position.set(30,0,18);pc.rotation.y=-Math.PI/2;c.dur=13;c.steps=[[0,"You missed the payment."],[3,"A black car pulls up to the farmhouse."],[6.5,"The men in dark coats do not make threats."],[9.5,"They simply take the deed."]];c.end=["FORECLOSED","You could not repay the loan shark. He owns the farm now."];
+  c.f=t=>{pc.position.x=30-14*Math.min(1,t/5);if(t>5){const w=Math.min(1,(t-5)/4);fg.forEach((g,i)=>{g.position.set(16-3*w,0,16-6*w+i*1.2);g.rotation.y=Math.PI*1.2})}C.position.set(6+t*.2,3,20);C.lookAt(14,1.2,12)}}
+ else if(k==="mil"){if(!sets.b){mkBeach();sets.b=1}c.dur=14;c.steps=[[0,"$3,000 in the bank."],[3.5,"You sold the farm and bought a small place by the sea."],[7,"Sun, sand, and not a single cow to milk."],[11,"Not a bad life for a farmer."]];c.end=["🏖️ RETIRED","You made it! Retire here for good, or keep farming?"];c.f=t=>{const a=t*.2;C.position.set(220+Math.sin(a)*9,3+Math.sin(t*.5),220+Math.cos(a)*9);C.lookAt(220,1.3,220)}}
+ else if(k==="year"){c.dur=14;c.steps=[[0,"Spring..."],[3,"Summer..."],[6,"Autumn..."],[9,"And winter. A full year on the farm."]];c.end=["🎉 ONE YEAR","Cows: "+cows.length+" · Hens: "+chick.length+" · Farmers: "+up.fm+" · Cash: $"+money];c.f=t=>{const a=t*.12;C.position.set(Math.sin(a)*34,12+t*.3,Math.cos(a)*34-2);C.lookAt(0,0,-2);ground.material.color.setHex(SC[Math.min(3,Math.floor(t/3))])}}
+ else if(k==="fair"){if(!sets.f){mkFair();sets.f=1}c.dur=13;c.steps=[[0,"The county fair."],[3,"Your pumpkin towers over the competition."],[7,"The judges lean in... and nod."],[10,"BLUE RIBBON!"]];c.end=["🎃 CHAMPION","You won the county fair!"];c.f=t=>{C.position.set(-223+t*.25,3,230-t*.5);C.lookAt(-220,2.4,220)}}
+ else if(k==="legacy"){c.dur=14;c.steps=[[0,"Every field planted. Every pen full."],[4,"Your farmers work while you watch the sunset."],[8,"A legacy to be proud of."]];c.end=["🏆 LEGACY FARM","You built the perfect farm."];c.f=t=>{const a=t*.15;C.position.set(Math.sin(a)*30,8,Math.cos(a)*30-2);C.lookAt(0,1,-2);fmr.forEach((f,i)=>f.g.position.set(Math.sin(t*.5+i*2.1)*7,0,-3+Math.cos(t*.4+i*1.7)*7))}}
+ else{const D=DC[x];tomb.position.set(P.position.x,0,P.position.z);c.dur=13;c.steps=[[0,D[0]],[3.2,D[1]],[6.5,"A simple grave marks the spot."],[10,"The farm needed its farmer."]];c.end=[D[2],D[3]];
+  c.f=t=>{const u=Math.min(1,Math.max(0,(t-3)/9)),r=3+u*13;C.position.set(P.position.x+Math.sin(camA)*r,1.8+u*11,P.position.z+Math.cos(camA)*r);C.lookAt(P.position.x,.5,P.position.z);
+   if(t>=3){const v=Math.min(1,(t-3)/.9);P.rotation.z=v*Math.PI/2;P.position.y=v*.3}if(t>=6){P.visible=false;tomb.visible=true}}}}
+function fan(dl=0){[523,659,784,1047].forEach((f,i)=>tone(f,.5,"triangle",.1,0,0,dl+i*.15));tone(1047,.9,"triangle",.1,0,0,dl+.6)}
+let sO=null,sG=null;
+function sirenOn(on){if(!AC)return;if(on&&!sO){sO=AC.createOscillator();sO.type="sawtooth";const f=AC.createBiquadFilter();f.type="lowpass";f.frequency.value=1800;sG=AC.createGain();sG.gain.value=0;sO.connect(f);f.connect(sG);sG.connect(mG);sO.start()}if(!on&&sO){try{sO.stop()}catch(e){}sO=null}}
+function cutSnd(c,t,dt){if(!AC||c.skip)return;const k=c.k;c.p=c.p||{};
+ const at=(n,a,fn)=>{if(t>=a&&!c["s"+n]){c["s"+n]=1;fn()}};
+ const per=(n,ev,a,b,fn)=>{if(t>=a&&t<=b){c.p[n]=(c.p[n]||0)-dt;if(c.p[n]<=0){c.p[n]=typeof ev==="function"?ev():ev;fn()}}};
+ const beat=()=>{tone(60,.12,"sine",.2,40);tone(55,.12,"sine",.15,40,0,.18)};
+ if(k==="murder"){at(1,.1,()=>tone(55,2.6,"sine",.07,50));at(2,3.5,()=>noise(.5,.4,"lowpass",250));at(3,7.5,()=>sirenOn(true));
+  if(t>=7.5&&sO){sO.frequency.value=650+350*(.5+.5*Math.sin((t-7.5)*2.6));sG.gain.value=Math.min(.14,.02+(t-7.5)*.03)}
+  at(4,11.2,()=>{tone(1800,.05,"square",.1);tone(1800,.05,"square",.1,0,0,.2)})}
+ else if(k==="herd"){per(1,1.6,0,10,()=>noise(1.2,.08,"bandpass",500));at(2,3.5,()=>sfx("howl"));at(3,6.5,()=>tone(130,1.2,"sawtooth",.08,80,400));at(4,9.5,()=>tone(65,2.5,"sine",.1,50))}
+ else if(k==="bank"){at(1,.3,()=>sfx("coin"));at(2,1.4,()=>sfx("no"));per(3,.8,3,7,()=>noise(.04,.2,"bandpass",1500));at(4,7.5,()=>{tone(140,.15,"square",.2,60);noise(.15,.6,"lowpass",900)})}
+ else if(k==="death"){const x=c.x;per(1,()=>.8+t*.12,0,3.1,beat);
+  if(x==="cold")per(2,.5,0,3,()=>noise(.6,.1,"bandpass",900));
+  if(x==="drown"){at(2,.2,()=>noise(.6,.4,"bandpass",700));per(3,.35,.6,3,()=>tone(400+Math.random()*500,.1,"sine",.06,900))}
+  if(x==="th")per(2,.7,0,3,()=>noise(.7,.06,"highpass",2500));
+  if(x==="hu"){at(2,.5,()=>tone(70,.8,"sawtooth",.08,45,150));at(3,1.8,()=>tone(65,.8,"sawtooth",.08,45,150))}
+  if(x==="en")at(2,.3,()=>tone(300,1.8,"sine",.08,110));
+  at(5,3.2,()=>tone(880,3,"sine",.07));at(6,6.6,()=>{tone(523,1.5,"triangle",.07);tone(392,2,"triangle",.07,0,0,.4)})}
+ else if(k==="poach"){per(1,.2,0,6,()=>noise(.2,Math.min(.25,.03+t*.04),"lowpass",260));per(2,.32,3,5,()=>tone(600,.22,"sawtooth",.05,1200,1600));at(3,5.5,()=>noise(.15,.35,"bandpass",700));at(4,10,()=>{tone(100,.25,"sine",.2,60);noise(.2,.3,"lowpass",300)})}
+ else if(k==="fire"){per(1,.12,0,13,()=>noise(.14,.12+.01*t,"highpass",3000));at(2,3,()=>noise(1.2,.3,"lowpass",450));at(3,6.5,()=>{tone(440,.5,"square",.07);tone(349,.5,"square",.07,0,0,.6)});at(4,10,()=>{noise(1.5,.5,"lowpass",250);tone(55,1.5,"sine",.15,35)})}
+ else if(k==="dog"){per(1,.25,0,2.8,()=>tone(3000+Math.random()*600,.05,"sine",.03));at(2,3.7,()=>tone(750,.5,"sine",.08,380));at(3,8,()=>{tone(262,2,"sine",.06);tone(311,2,"sine",.05,0,0,.2);tone(392,2.5,"sine",.05,0,0,.4)})}
+ else if(k==="raid"){at(1,.3,()=>sfx("howl"));per(2,.12,2,3.2,()=>tone(700+Math.random()*500,.12,"square",.04,300));at(3,3.5,()=>sfx("howl"));at(4,9.5,()=>tone(65,2.5,"sine",.1,50))}
+ else if(k==="storm"){per(1,.08,0,12,()=>noise(.1,.07,"highpass",3500));per(2,2,0,12,()=>noise(1.8,.08,"bandpass",450));at(3,.5,()=>noise(1.6,.6,"lowpass",320));at(4,4,()=>{noise(1.6,.6,"lowpass",300);sfx("moo")});at(5,8,()=>noise(1.8,.6,"lowpass",280))}
+ else if(k==="shark"){per(1,.2,0,5,()=>noise(.2,.04+.03*Math.min(1,t/5),"lowpass",200));at(2,5.2,()=>noise(.2,.4,"bandpass",600));per(3,.45,5.5,8,()=>noise(.07,.15,"lowpass",450));[8,8.3,8.6].forEach((a,i)=>at("k"+i,a,()=>tone(120,.09,"square",.15,80)));at(4,10,()=>{tone(140,.15,"square",.2,60);noise(.15,.6,"lowpass",900)})}
+ else if(k==="mil"){at(1,0,()=>fan());per(2,2.6,0,14,()=>noise(2.2,.1,"lowpass",600));per(3,()=>3+Math.random()*2,1,14,()=>{tone(1900,.25,"sine",.05,2500);tone(2300,.2,"sine",.05,1800,0,.3)});at(4,11,()=>fan())}
+ else if(k==="year"){at(1,0,()=>fan());per(2,.5,.2,3,()=>tone(2600+Math.random()*800,.07,"sine",.04,3600));per(3,.05,3,6,()=>noise(.06,.04,"highpass",5000));per(4,1.5,6,9,()=>noise(1,.07,"bandpass",600));per(5,.7,9,13,()=>tone(1568,.5,"sine",.04));at(6,10,()=>fan())}
+ else if(k==="fair"){at(1,0,()=>noise(1.5,.15,"bandpass",1500));per(2,.05,0,13,()=>noise(.07,t<7?.04:.1,"highpass",3000));at(3,10,()=>{fan();tone(784,1.2,"square",.06,0,0,.7)})}
+ else if(k==="legacy"){per(1,4,0,14,()=>[262,330,392].forEach(f=>tone(f,3.8,"sine",.04)));per(2,()=>2+Math.random()*3,1,14,()=>tone(2600,.07,"sine",.03,3600));at(3,8,()=>fan())}}
+function cutUpd(dt){const c=cut;if(c.done)return;c.t+=dt;const t=c.t;let i=-1;c.steps.forEach((q,j)=>{if(t>=q[0])i=j});if(i!==c.cap){c.cap=i;$("ccap").textContent=i>=0?c.steps[i][1]:""}
+ c.f(Math.min(t,c.dur));cutSnd(c,t,dt);if(t>=c.dur-1.1)$("cfade").style.opacity=1;if(t>=c.dur){c.done=1;$("cut").style.display="none";gameOver(c.end[0],c.end[1],c.test,c.good)}}
+$("cskip").onclick=()=>{if(cut&&!cut.done)cut.t=Math.max(cut.t,cut.dur-.2);cut.skip=1;sirenOn(false)};
+let coldT=0,swT=0,stT2=0,owed=0,due=0,lw=0,fireOn=false,fireT=0,raids=0;const fireObjs=[],won={mil:0,year:0,leg:0,fair:0};
+function keepGoing(){cut=null;ms=0;$("over").style.display="none";$("cut").style.display="none";$("cfade").style.opacity=0;document.body.classList.remove("cutting");P.visible=true;P.rotation.z=0;P.position.y=0;tomb.visible=false;toast("▶ Keep going!")}
+function dousing(o){if(tool!=="water")return toast("Not working - use the 💧 Water tool on the flames");if(Math.hypot(o.position.x-P.position.x,o.position.z-P.position.z)>10)return toast("Too far - walk closer");S.remove(o);fireObjs.splice(fireObjs.indexOf(o),1);sfx("water");if(!fireObjs.length){fireOn=false;hay=0;toast("🧯 Fire out! The barn's hay burned up (hay = 0)")}}
+function mkBeach(){const X=220,Z=220;add(new THREE.CircleGeometry(30,24),M(0xf0d890),X,.02,Z,false).rotation.x=-Math.PI/2;add(new THREE.PlaneGeometry(200,100),M(0x2a8ac8),X,0,Z-70,false).rotation.x=-Math.PI/2;
+add(new THREE.CylinderGeometry(.2,.3,5,6),M(0x8a6a3a),X+4,2.5,Z-2);for(let i=0;i<5;i++){const l=add(new THREE.BoxGeometry(.3,.08,3),M(0x2d8a35),X+4+Math.sin(i*1.26)*1.4,5.1,Z-2+Math.cos(i*1.26)*1.4);l.rotation.y=i*1.26}
+add(new THREE.BoxGeometry(1.2,.15,2),M(0xe85a5a),X,.45,Z);add(new THREE.ConeGeometry(1.8,.8,8),M(0xf2e050),X,2.6,Z-.6);add(new THREE.CylinderGeometry(.04,.04,2.2,5),M(0xcccccc),X,1.4,Z-.6);
+const g=new THREE.Group();parts(g,[[.6,.5,.4,0xf2f2f2,0,.9,0],[.4,.4,.4,0xf0c8a0,0,1.35,0],[.7,.06,.7,0xe8c860,0,1.6,0]]);g.position.set(X,0,Z+.2);S.add(g)}
+function mkFair(){const X=-220,Z=220;add(new THREE.CircleGeometry(30,24),M(0x9acd60),X,.02,Z,false).rotation.x=-Math.PI/2;
+add(new THREE.BoxGeometry(2.2,1.8,2),M(0xe8c040),X,.9,Z);add(new THREE.BoxGeometry(2.2,1.2,2),M(0xc0c0c8),X-2.4,.6,Z);add(new THREE.BoxGeometry(2.2,.8,2),M(0xc08040),X+2.4,.4,Z);
+const p=add(new THREE.SphereGeometry(1.1,14,10),M(0xe8700a),X,2.6,Z);p.scale.y=.8;add(new THREE.CylinderGeometry(.1,.14,.5,6),M(0x3a6a2a),X,3.55,Z);add(new THREE.BoxGeometry(.5,.9,.1),M(0x2255dd),X+1.2,2.2,Z+1.1);
+add(new THREE.ConeGeometry(9,5,4),M(0xcc2a2a),X,6,Z-10).rotation.y=Math.PI/4;
+for(let i=0;i<16;i++){const a=-1.1+i*.147,g=new THREE.Group();parts(g,[[.6,.9,.4,[0x3a6ad0,0xd04a4a,0x4aa05a,0xe0b030][i%4],0,.9,0],[.4,.4,.4,0xf0c8a0,0,1.55,0]]);g.position.set(X+Math.sin(a)*8,0,Z+Math.cos(a)*8+2);g.rotation.y=a+Math.PI;S.add(g)}}
+function watch(dt){if(cut||ms>1e8)return;
+ if(money<=0){money=0;const b0=bkr;bkr+=dt;if(bkr>=6)return startCut("bank");if(b0===0||Math.floor(bkr)!==Math.floor(b0))toast("💸 You are broke! Earn money within "+(6-Math.floor(bkr))+"s or the bank takes the farm")}else bkr=0;
+ if(!cows.length&&!chick.length)return startCut("herd");
+ const hr=(7+time/150*24)%24,nt=hr>=19||hr<6,px=P.position.x,pz=P.position.z,inH=px>15&&px<23&&pz>7&&pz<13,inB=px>-20&&px<-12&&pz>-15&&pz<-9;
+ if(seas()===3&&nt&&!inH&&!inB&&!sleeping){const c0=coldT;coldT+=dt;if(c0<12&&coldT>=12)toast("🥶 You are freezing - get indoors!");if(coldT>=40)return startCut("death","cold")}else coldT=Math.max(0,coldT-dt*2);
+ if(Math.hypot(px-PX,pz-PZ)<4.3){if(drv)return startCut("death","drown");const s0=swT;swT+=dt;if(s0<.1)toast("🌊 Deep water! Get out of the pond!");if(swT>=3)return startCut("death","drown")}else swT=0;
+ if(brk.length>=2){const s0=stT2;stT2+=dt;if(s0<.1)toast("⛈️ Several fences are broken - repair them fast!");if(stT2>=50)return startCut("storm")}else stT2=0;
+ if(owed){const left=due-time;if(left<150&&!lw){lw=1;toast("🦈 The loan shark wants his money by tomorrow!")}if(left<=0)return startCut("shark")}else lw=0;
+ if(fireOn){fireT-=dt;if(AC&&Math.random()<dt*8)noise(.12,.1,"highpass",3000);fireObjs.forEach((m,i)=>{m.scale.y=1+Math.sin(performance.now()/110+i)*.25});if(fireT<=0){fireOn=false;fireObjs.forEach(m=>S.remove(m));fireObjs.length=0;return startCut("fire")}}
+ else if(nt&&hay>=HMAX()&&Math.random()<dt/120){fireOn=true;fireT=45;for(let i=0;i<4;i++)fireObjs.push(add(new THREE.ConeGeometry(.5,1.6,6),new THREE.MeshBasicMaterial({color:i%2?0xff7a1a:0xffc030}),-18.5+i*1.6,.8,-13+(i%2)*2.4,false));toast("🔥 The barn lantern started a fire! Tap the flames with the 💧 Water tool")}
+ tiles.forEach(t=>{if(!t.crop){t.giant=0;t.ripeT=0;return}if(t.crop.userData.type==="pumpkin"&&t.g>=1&&t.wet>0&&!t.giant){t.ripeT=(t.ripeT||0)+dt;if(t.ripeT>=60){t.giant=1;toast("🎃 A giant pumpkin! Harvest it for the county fair")}}});
+ if(!won.mil&&money>=3000){won.mil=1;return startCut("mil")}
+ if(!won.year&&time>=2400){won.year=1;return startCut("year")}
+ if(!won.leg&&fRows>=2&&pLv>=2&&yLv>=2&&up.fm>=3&&up.sh>=4&&up.pg>=4&&up.gt>=4){won.leg=1;return startCut("legacy")}}
+const svp=document.createElement("div");svp.style.cssText="position:fixed;right:8px;top:calc(env(safe-area-inset-top,0px) + 90px);z-index:70;max-height:75vh;overflow:auto;display:none;flex-direction:column;gap:6px;background:var(--hud);padding:10px;border-radius:14px;min-width:240px;font-size:13px";document.body.appendChild(svp);
+function svOpen(){svRefresh();svp.style.display="flex"}
+function svRefresh(){svp.innerHTML="<b>💾 Save slots</b>";
+ for(let i=1;i<=5;i++){let d=null;try{d=JSON.parse(localStorage.getItem("fs_slot"+i))}catch(e){}
+  const row=document.createElement("div");row.style.cssText="display:flex;gap:4px;align-items:center";
+  const lb=document.createElement("div");lb.style.cssText="flex:1;font-size:12px";lb.innerHTML="<b>Slot "+i+"</b><br>"+(d?"Day "+d._day+" · $"+d.money+" · "+new Date(d._at).toLocaleString([],{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}):"Empty");row.appendChild(lb);
+  const mk=(l,f)=>{const b=document.createElement("button");b.textContent=l;b.style.padding="6px 8px";let ar=0;b.onclick=()=>{if(l!=="Save"&&!ar){ar=1;b.textContent="Sure?";setTimeout(()=>{ar=0;b.textContent=l},2500);return}f()};row.appendChild(b)};
+  mk("Save",()=>{if(cut||ms>1e8)return toast("Not possible - cannot save right now");try{localStorage.setItem("fs_slot"+i,JSON.stringify(Object.assign(snap(),{_day:Math.floor(time/150)+1,_at:Date.now()})));toast("💾 Saved to slot "+i)}catch(e){toast("Not possible - saving is blocked in this browser")}svRefresh()});
+  if(d){mk("Load",()=>{try{localStorage.setItem("fs_save",JSON.stringify(d))}catch(e){}ms=1e9;location.reload()});mk("✕",()=>{try{localStorage.removeItem("fs_slot"+i)}catch(e){}svRefresh()})}
+  svp.appendChild(row)}
+ const x=document.createElement("button");x.textContent="Close";x.onclick=()=>svp.style.display="none";svp.appendChild(x)}
+$("sv").onclick=()=>{svp.style.display==="flex"?svp.style.display="none":svOpen()};
 // ===== EASTER EGG =====
 const gb=document.createElement("div");gb.textContent="GARRETT!";gb.style.cssText="position:fixed;z-index:25;display:none;pointer-events:none;transform:translate(-50%,-100%);background:#fff;color:#111;font:900 clamp(40px,9vw,72px) system-ui,sans-serif;padding:12px 26px;border-radius:28px;border:5px solid #111;white-space:nowrap";
 const gtl=document.createElement("div");gtl.style.cssText="position:absolute;left:50%;bottom:-19px;margin-left:-14px;border:14px solid transparent;border-top-color:#111;border-bottom:0";gb.appendChild(gtl);document.body.appendChild(gb);
@@ -373,14 +541,14 @@ addEventListener("visibilitychange",()=>{if(document.hidden)saveGame()});
 loadGame();
 const skyD=new THREE.Color(0x87ceeb),skyN=new THREE.Color(0x0a0f2e),sky=new THREE.Color();
 let last=performance.now();
-function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;time+=dt*tScale;
+function loop(now){requestAnimationFrame(loop);if(gamePaused){last=now;R.render(S,C);return}const dt=Math.min(.05,(now-last)/1000);last=now;if(cut){cutUpd(dt);R.render(S,C);return}time+=dt*tScale;
  // move
  if(keys.q)camA+=dt*1.8;if(keys.e)camA-=dt*1.8;
  let f=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0),r=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);
  if((f||r)&&ms<=0&&!sleeping){const sx=Math.sin(camA),cz=Math.cos(camA),dx=(-sx*f+cz*r),dz=(-cz*f-sx*r),l=Math.hypot(dx,dz);
   const ob=drv?TR:P,sp=(drv?9:6)*spdMul,rr=drv?1.4:.5,nx=Math.max(-26,Math.min(34,ob.position.x+dx/l*sp*dt)),nz=Math.max(-26,Math.min(26,ob.position.z+dz/l*sp*dt));
 if(!blocked(nx,ob.position.z,rr))ob.position.x=nx;if(!blocked(ob.position.x,nz,rr))ob.position.z=nz;ob.rotation.y=Math.atan2(dx,dz);if(drv)P.position.copy(ob.position)}
- C.position.set(P.position.x+Math.sin(camA)*camD*camZ,camD*camZ*camP,P.position.z+Math.cos(camA)*camD*camZ);C.lookAt(P.position.x,1,P.position.z);harvestRun(dt);animals(dt);coop(dt);breed(dt);critters(dt);extras(dt);vitals(dt);sound(dt);
+ C.position.set(P.position.x+Math.sin(camA)*camD*camZ,camD*camZ*camP,P.position.z+Math.cos(camA)*camD*camZ);C.lookAt(P.position.x,1,P.position.z);harvestRun(dt);animals(dt);coop(dt);breed(dt);critters(dt);extras(dt);vitals(dt);watch(dt);sound(dt);
  // world
  tiles.forEach(t=>{const w=t.wet>0;if(w)t.wet-=dt;if(w&&t.wet<=0)tcol(t);grow(t,dt);showCrop(t)});
  chick.forEach(c=>{const u=c.userData;if(Math.random()<.01){u.tx=-19+Math.random()*5;u.tz=-5+Math.random()*(zS+4)}
@@ -391,7 +559,127 @@ if(!blocked(nx,ob.position.z,rr))ob.position.x=nx;if(!blocked(ob.position.x,nz,r
  sky.lerpColors(skyN,skyD,day*(rain?.65:1));S.background=sky;S.fog=new THREE.Fog(sky,60,140);
  const h=Math.floor(hr),m=Math.floor((hr%1)*60);
  $("clock").textContent="Day "+(Math.floor(time/150)+1)+" "+SEAS[seas()]+" · "+(h%12||12)+":"+String(m).padStart(2,"0")+(h<12?" AM":" PM");
- $("money").textContent="💰 $"+money+"  🌾 "+hay;
+ $("money").textContent="💰 $"+money+"  🌾 "+hay+(owed?"  🦈 $"+owed+" (Day "+(Math.floor(due/150)+1)+")":"");
  R.render(S,C)}
 requestAnimationFrame(loop);toast("Hoe a tile, plant, water, then harvest!");
-</script></body></html>
+</script>
+<script>
+/* ===== v2 ADDITIONS: crops+seasons, upgrades, market/silo, quests, hail/drought, dog bond, Farm panel ===== */
+(function(){
+const $=id=>document.getElementById(id),LS=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k));localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+["ho","wc","gh","sc","silo","kit","rod","pan","bed"].forEach(k=>{if(up[k]==null)up[k]=0});
+const day=()=>Math.floor(time/150)+1,st={earned:0,harv:0,q:0},inv={},qs=[],SPb=SP.slice();
+const X={ach:{},cm:{},ck:null,cn:0,mer:null,wcd:0,a:0};
+let hold=false,mf=1,mh=[1],bond=30,pm=money,lastDay=-1,evT=100+Math.random()*60,drT=0,petT=45,sv=10,fxT=0,lastPet=0;
+// ---- new crops (season rules: ss = allowed seasons 0 spring,1 summer,2 autumn,3 winter; winter needs the Greenhouse)
+Object.assign(CROPS,{corn:{t:50,cost:12,sell:34,c:0xe8d040,ic:"🌽",ss:[1,2]},tomato:{t:45,cost:10,sell:28,c:0xd02020,ic:"🍅",ss:[0,1]},strawberry:{t:35,cost:15,sell:45,c:0xe03060,ic:"🍓",ss:[0,3]}});
+const _mk=mkCrop;
+mkCrop=function(type,t){if(!["corn","tomato","strawberry"].includes(type))return _mk(type,t);
+ const g=new THREE.Group(),mat=M(0x4a9a3a),sp=(geo,x,y,z)=>{const s=new THREE.Mesh(geo,mat);s.position.set(x,y,z);s.castShadow=true;g.add(s)};g.userData={type,mat};
+ if(type==="corn")for(let k=0;k<4;k++)sp(new THREE.CylinderGeometry(.06,.09,1.8,6),(k%2-.5)*.8,.9,(k>>1)*.8-.4);
+ else if(type==="tomato")sp(new THREE.SphereGeometry(.6,8,6),0,.6,0);
+ else for(let k=0;k<5;k++)sp(new THREE.SphereGeometry(.28,8,6),(Math.random()-.5)*1.3,.25,(Math.random()-.5)*1.3);
+ g.position.set(t.x,.2,t.z);S.add(g);return g};
+[["corn","🌽 12"],["tomato","🍅 10"],["strawberry","🍓 15"]].forEach(([k,l],i)=>{const b=document.createElement("button");b.textContent=l.replace(" "," $");b.dataset.t=k;b.onclick=()=>sel(k);bar.insertBefore(b,bar.children[6+i])});
+const sOK=k=>{const s=seas();return (CROPS[k].ss||[0,1,2,3]).includes(s)&&(s!==3||up.gh)};
+const tot=()=>Object.values(inv).reduce((a,b)=>a+b,0),cap=()=>40+30*up.silo;
+// ---- act wrapper: season rules, hold-to-silo, bigger hoe/can
+const _act=act;
+act=function(t){
+ if(CROPS[tool]&&t.s&&!t.crop&&!sOK(tool))return toast(seas()===3&&!up.gh?"Too cold - buy the Greenhouse in the Shop":"Wrong season for this crop");
+ if(tool==="harvest"&&hold&&t.crop&&t.g>=1&&!t.giant&&Math.hypot(t.x-P.position.x,t.z-P.position.z)<=7){if(tot()>=cap())return toast("Silo full - sell in the Farm panel");const y=t.crop.userData.type;inv[y]=(inv[y]||0)+1;S.remove(t.crop);t.crop=null;t.g=0;return toast("📦 Stored "+CROPS[y].ic)}
+ _act(t);const L=tool==="hoe"?up.ho:tool==="water"?up.wc:0;
+ if(L)tiles.forEach(n=>{if(n!==t&&Math.hypot(n.x-t.x,n.z-t.z)<=T*(L>1?1.5:1.01)){if(tool==="hoe"){if(!n.crop&&!n.s){n.s=1;tcol(n)}}else if(n.s){n.wet=30;tcol(n)}}})};
+// ---- shop items
+ITEMS.push(["wc","💧 Bigger watering can",2,l=>100+100*l],["ho","⛏️ Better hoe",2,l=>100+100*l],["silo","📦 Silo (+30 stock)",3,l=>80+60*l],["sc","🧍 Scarecrow (hail guard)",2,l=>90+90*l],["gh","🏠 Greenhouse (winter farming)",1,()=>400]);
+// ---- greenhouse glass + scarecrows
+const gl=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0xbfe8ff,transparent:true,opacity:.18,depthWrite:false}));gl.visible=false;S.add(gl);
+const scs=[];function syncSc(){while(scs.length<up.sc){const g=new THREE.Group(),x=scs.length?9.2:-9.2;[[.15,2,.15,0x6b4a2a,0,1,0],[1.6,.12,.12,0x6b4a2a,0,1.6,0],[.45,.45,.45,0xe8c860,0,2.25,0]].forEach(([a,b,c,col,px,py,pz])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(a,b,c),M(col));m.position.set(px,py,pz);m.castShadow=true;g.add(m)});g.position.set(x,0,5.6);S.add(g);scs.push(g)}}
+// ---- market (daily price index, affects every sale), quests
+const applyMF=()=>SP.forEach((_,i)=>SP[i]=SPb[i]*mf);
+function newQ(){const ks=Object.keys(CROPS).filter(sOK);if(!ks.length)return;const c=ks[Math.random()*ks.length|0],n=4+(Math.random()*6|0);qs.push({c,n,p:0,exp:day()+3,r:Math.round(n*CROPS[c].sell*1.5)})}
+function qHarv(c){qs.slice().forEach(q=>{if(q.c===c&&++q.p>=q.n){money+=q.r;st.q++;qs.splice(qs.indexOf(q),1);toast("📜 Quest done! +$"+q.r)}})}
+function newDay(){nd3();mf=Math.max(.6,Math.min(1.7,mf+(1-mf)*.15+(Math.random()-.5)*.35));mh.push(mf);if(mh.length>7)mh.shift();applyMF();
+ for(let i=qs.length-1;i>=0;i--)if(day()>qs[i].exp){qs.splice(i,1);toast("📜 A quest expired")}
+ for(let i=0;i<3&&qs.length<2;i++)newQ();toast("📈 Market index x"+mf.toFixed(2)+(mh.length>1&&mf>=mh[mh.length-2]?" ▲":" ▼"))}
+// ---- dog bond (Pet or Feed tool, tap the dog)
+const pb=document.createElement("button");pb.textContent="🐕 Pet";pb.dataset.t="pet";pb.onclick=()=>sel("pet");bar.appendChild(pb);
+const r2=new THREE.Raycaster(),v2=new THREE.Vector2(),cv2=R.domElement;let d0=null;
+cv2.addEventListener("pointerdown",e=>{d0={x:e.clientX,y:e.clientY}});
+cv2.addEventListener("pointerup",e=>{if(gamePaused||!d0||!dog||(tool!=="pet"&&tool!=="feed")||Math.hypot(e.clientX-d0.x,e.clientY-d0.y)>10)return;
+ v2.set((e.clientX-vl)/vw*2-1,-((e.clientY-vt)/vh)*2+1);r2.setFromCamera(v2,C);if(!r2.intersectObject(dog,true).length)return;
+ if(Math.hypot(dog.position.x-P.position.x,dog.position.z-P.position.z)>7)return toast("Too far - walk closer");
+ const n=performance.now();if(n-lastPet<700)return;lastPet=n;
+ if(tool==="feed"){if(hay<1)return toast("Not enough hay - grab some in the barn");hay--;bond=Math.min(100,bond+15);toast("🐕 Yum! Bond "+(bond|0)+"%")}else{bond=Math.min(100,bond+8);toast("🐕 Good dog! Bond "+(bond|0)+"%")}});
+// ---- Farm panel (stats, market, quests, settings)
+const fp=document.createElement("div");fp.id="fxp";fp.style.cssText=bp.style.cssText+";max-height:80vh;overflow:auto;width:min(360px,92vw);font-size:14px;line-height:1.45";document.body.appendChild(fp);
+fp.innerHTML='<div id="fxd"></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button id="fxh"></button><button id="fxs">💰 Sell stock</button><button id="fxx">Close</button></div><label>🔊 Volume <input id="fxv" type="range" min="0" max="100" value="100"></label><div>⏩ Game speed: <button data-sp="0.5">0.5×</button> <button data-sp="1">1×</button> <button data-sp="2">2×</button></div>';
+const fxr=()=>{const sell=k=>Math.round(CROPS[k].sell*PM()*(X.cm[k]||1)),ks=Object.keys(CROPS),stock=ks.filter(k=>inv[k]).map(k=>CROPS[k].ic+inv[k]).join(" ")||"empty";
+ $("fxd").innerHTML="<b>📊 Farm</b> - Day "+day()+"<br>Earned $"+st.earned+" · Harvested "+st.harv+" · Quests "+st.q+
+ "<br><b>📈 Market</b> x"+mf.toFixed(2)+" (7d: "+mh.map(v=>v.toFixed(1)).join(" ")+")<br>"+ks.map(k=>CROPS[k].ic+"$"+sell(k)).join(" ")+
+ "<br>📦 Silo "+tot()+"/"+cap()+": "+stock+"<br><b>📜 Quests</b><br>"+(qs.length?qs.map(q=>"Harvest "+q.n+" "+CROPS[q.c].ic+" ("+q.p+"/"+q.n+") by day "+q.exp+" → $"+q.r).join("<br>"):"None right now")+
+ (up.dog?"<br><b>🐕 Dog bond</b> "+(bond|0)+"%"+(bond>=60?" (digs up cash!)":" (60%+ = bonus)"):"")+"<br>🌦️ "+(drT>0?"Drought!":"Normal weather")+" · Scarecrows "+up.sc+" · Greenhouse "+(up.gh?"yes":"no");
+ $("fxd").innerHTML+=x3txt();$("fxh").textContent=hold?"📦 Hold crops: ON":"📦 Hold crops: OFF"};
+$("fxh").onclick=()=>{hold=!hold;fxr()};
+$("fxs").onclick=()=>{let v=0;for(const k in inv){v+=inv[k]*CROPS[k].sell*PM()*(X.cm[k]||1);inv[k]=0}v=Math.round(v);if(!v)return toast("Silo is empty");money+=v;toast("Sold stock +$"+v);fxr()};
+$("fxx").onclick=()=>fp.style.display="none";
+$("fxv").oninput=e=>{if(typeof mG!=="undefined"&&mG&&!mute)mG.gain.value=e.target.value/100};
+fp.querySelectorAll("[data-sp]").forEach(b=>b.onclick=()=>{tScale=+b.dataset.sp;toast("Speed x"+tScale)});
+const fb=document.createElement("button");fb.textContent="📊 Farm";fb.onclick=()=>{fxr();fp.style.display=fp.style.display==="flex"?"none":"flex"};bar.appendChild(fb);
+addEventListener("keydown",e=>{if(e.key==="k"||e.key==="K")fb.onclick()});
+const si=document.createElement("div");si.style.cssText="position:fixed;left:10px;top:calc(env(safe-area-inset-top,0px) + 92px);font-size:12px;opacity:0;transition:opacity .4s;pointer-events:none";si.textContent="💾 Saved";document.body.appendChild(si);
+const save=()=>{LS("fs_x",{st,qs,inv,hold,mf,mh,bond,x3:X});si.style.opacity=1;setTimeout(()=>si.style.opacity=0,900)};
+addEventListener("visibilitychange",()=>{if(document.hidden)save()});
+(function(){if(!localStorage.getItem("fs_save"))return;const d=LS("fs_x");if(!d)return;Object.assign(st,d.st);qs.push(...(d.qs||[]));Object.assign(inv,d.inv);hold=!!d.hold;mf=d.mf||1;mh=d.mh||[1];bond=d.bond==null?30:d.bond;applyMF();if(d.x3)Object.assign(X,d.x3)})();
+TUT.push(["New: crops, seasons and the Farm panel","🌽🍅🍓 New crops with seasons: corn (summer/autumn), tomato (spring/summer), strawberry (spring/winter). <b>Winter needs the Greenhouse</b> (Shop) - without it nothing grows.<br>Shop upgrades: bigger watering can and hoe (hit neighbor tiles), silo, scarecrows (hail guard), greenhouse.<br>📊 Farm (or K): stats, daily market index, quests, volume and game speed. 📦 Hold crops stores harvests in the silo so you can sell when prices are high.<br>Watch for ☀️ droughts and 🌩️ hail. The 🐕 Pet tool (or Feed) builds your dog's bond - at 60%+ it digs up cash."]);
+// ---- per-frame hook (runs only when not paused / not in a cutscene)
+const prevT=new Map();let last=performance.now();const _r=R.render.bind(R);
+R.render=function(s,c){const n=performance.now(),dt=Math.min(.1,(n-last)/1000);last=n;if(!gamePaused&&!cut&&!document.body.classList.contains("cutting"))try{upd(dt)}catch(e){}_r(s,c)};
+function upd(dt){
+ if(money>pm)st.earned+=money-pm;pm=money;
+ tiles.forEach(t=>{const y=t.crop?t.crop.userData.type:null,p=prevT.get(t);if(p&&p.y&&!y&&p.g>=1){st.harv++;qHarv(p.y)}prevT.set(t,{y,g:t.g})});
+ const d=day();if(d!==lastDay){if(lastDay>0)newDay();else for(let i=0;i<3&&qs.length<2;i++)newQ();lastDay=d}
+ SG[3]=up.gh?1:0;gl.visible=!!up.gh&&seas()===3;gl.scale.set(21,3.2,6.5-fN+1);gl.position.set(0,1.6,(6.5+fN)/2);syncSc();
+ if(drT>0){drT-=dt;tiles.forEach(t=>{if(t.s&&t.wet>0){t.wet=Math.max(0,t.wet-dt*2);if(!t.wet)tcol(t)}});if(drT<=0)toast("🌤️ The drought ended")}
+ evT-=dt;if(evT<=0){evT=120+Math.random()*100;if(Math.random()<.5){if(!(seas()===3&&up.gh)){let k=0;const pr=[0,.5,1][Math.min(2,up.sc)];tiles.forEach(t=>{if(t.crop&&Math.random()>=pr){t.g*=.4;showCrop(t);k++}});toast("🌩️ Hail! "+(k?k+" crops damaged":"Your crops are safe"))}}else if(seas()!==3){drT=45;toast("☀️ Drought! Soil dries 3x faster for 45s")}}
+ bond=Math.max(0,bond-dt/6);if(up.dog&&bond>=60){petT-=dt;if(petT<=0){petT=50+Math.random()*30;money+=8;toast("🐕 Your dog dug up cash (+$8)")}}
+ fxT-=dt;if(fxT<=0){fxT=.5;if(fp.style.display==="flex")fxr()}
+ sv-=dt;if(sv<=0){sv=10;save()}upd3(dt)}
+// ===== v3: silo for tractor/farmers, per-crop prices, soil rotation, kitchen, merchant, rod, house upgrades, achievements, mobile + settings =====
+const RC=[["bread","🍞","wheat",3,40],["sauce","🥫","tomato",3,110],["jam","🍓","strawberry",3,170],["popcorn","🍿","corn",3,130]];
+const ACH=[["h1","First harvest",()=>st.harv>=1],["h100","100 harvests",()=>st.harv>=100],["e1k","Earn $1,000",()=>st.earned>=1000],["e10k","Earn $10,000",()=>st.earned>=10000],["q3","3 quests done",()=>st.q>=3],["yr","Survive a year",()=>day()>16],["dg","Dog bond 100%",()=>bond>=100],["ck","Cook 5 dishes",()=>X.cn>=5]];
+ITEMS.push(["kit","🍳 Kitchen (cook crops)",1,()=>250],["rod","🎣 Better rod",3,l=>60+60*l],["pan","🥫 Pantry (slower hunger)",2,l=>120+100*l],["bed","🛏️ Cozy bed (slower tiredness)",2,l=>120+100*l]);
+const store=t=>{const y=t.crop.userData.type;inv[y]=(inv[y]||0)+1;S.remove(t.crop);t.crop=null;t.g=0};
+const _hr=harvestRun;harvestRun=function(dt){if(hold&&drv){const hx=TR.position.x+Math.sin(TR.rotation.y)*2,hz=TR.position.z+Math.cos(TR.rotation.y)*2;tiles.forEach(t=>{if(t.crop&&t.g>=1&&!t.giant&&tot()<cap()&&Math.hypot(t.x-hx,t.z-hz)<T*.9)store(t)})}_hr(dt)};
+const _jb=jobs;jobs=function(){return _jb().map(j=>{const t=j[2];return hold&&t&&t.m&&t.crop&&t.g>=1&&!t.giant?[j[0],j[1],t,()=>{if(t.crop&&t.g>=1&&tot()<cap())store(t)}]:j})};
+const _fi=fish;fish=function(){const m=money;_fi();const g=money-m;if(g>0){const rare=Math.random()<.12+.1*up.rod;let b=g*.25*up.rod+(rare?25:0);b=Math.round(b);money+=b;if(rare)toast("🐟 Rare "+(seas()===3?"ice trout":(7+time/150*24)%24<9?"dawn salmon":"golden carp")+"! +$"+(g+b))}};
+const pt3=new Map();
+function nd3(){Object.keys(CROPS).forEach(k=>{X.cm[k]=Math.max(.6,Math.min(1.9,(X.cm[k]||1)+(1-(X.cm[k]||1))*.2+(Math.random()-.5)*.5))});
+ if(X.mer&&day()>X.mer.exp)X.mer=null;if(!X.mer&&Math.random()<.5){const ks=Object.keys(CROPS),c=ks[Math.random()*ks.length|0];X.mer={c,n:5+(Math.random()*6|0),exp:day()+1};toast("🧳 A traveling merchant wants "+X.mer.n+" "+CROPS[c].ic+" at a premium!")}}
+function upd3(dt){
+ tiles.forEach(t=>{const y=t.crop?t.crop.userData.type:null,p=pt3.get(t);
+  if(y&&(!p||!p.y)){if(t.lc===y){t.tired=(t.tired||0)+1;toast("🌱 Soil is tired of "+CROPS[y].ic+" - rotate crops!")}else t.tired=0}
+  if(!y&&p&&p.y)t.lc=p.y;pt3.set(t,{y});
+  if(y&&t.tired&&t.wet>0&&t.g<1)t.g=Math.max(0,t.g-dt*SG[seas()]*.25*Math.min(3,t.tired)/CROPS[y].t)});
+ if(!sleeping&&!god){hu=Math.min(100,hu+dt*.09*up.pan);en=Math.min(100,en+dt*.075*up.bed)}
+ if(X.ck){X.ck.t-=dt;if(X.ck.t<=0){const r=RC[X.ck.i],v=Math.round(r[4]*PM());money+=v;X.cn++;toast(r[1]+" "+r[0]+" is ready! +$"+v);X.ck=null}}
+ if(X.wcd>0)X.wcd-=dt;X.a-=dt;if(X.a<=0){X.a=1;ACH.forEach(([id,n,f])=>{if(!X.ach[id]&&f()){X.ach[id]=1;toast("🏆 "+n)}})}}
+const kd=document.createElement("div");kd.style.cssText="display:flex;gap:6px;flex-wrap:wrap";
+RC.forEach((r,i)=>{const b=document.createElement("button");b.textContent=r[1]+" "+r[3]+"×"+CROPS[r[2]].ic+" → $"+r[4];b.onclick=()=>{if(!up.kit)return toast("Not available - buy the Kitchen in the Shop");if(X.ck)return toast("Not ready - kitchen is busy");if((inv[r[2]]||0)<r[3])return toast("Not enough "+CROPS[r[2]].ic+" in the silo");inv[r[2]]-=r[3];X.ck={i,t:20};toast("Cooking "+r[0]+"... 20s");fxr()};kd.appendChild(b)});
+const mb=document.createElement("button");mb.onclick=()=>{const m=X.mer;if(!m)return;if((inv[m.c]||0)<m.n)return toast("Not enough "+CROPS[m.c].ic+" in the silo");inv[m.c]-=m.n;const v=Math.round(m.n*CROPS[m.c].sell*PM()*1.8);money+=v;X.mer=null;toast("🧳 Merchant paid +$"+v);fxr()};kd.appendChild(mb);fp.insertBefore(kd,fp.children[1]);
+function x3txt(){mb.style.display=X.mer?"":"none";if(X.mer)mb.textContent="🧳 Sell "+X.mer.n+"×"+CROPS[X.mer.c].ic+" at 1.8×";
+ return "<br><b>🍳 Kitchen</b> "+(up.kit?(X.ck?RC[X.ck.i][1]+" "+Math.ceil(X.ck.t)+"s left":"idle"):"(buy in Shop)")+"<br><b>🏆 Achievements</b> "+Object.keys(X.ach).length+"/"+ACH.length+(Object.keys(X.ach).length?": "+ACH.filter(a=>X.ach[a[0]]).map(a=>a[1]).join(", "):"")}
+// mobile + settings + water-all
+const css=document.createElement("style");css.textContent="@media (pointer:coarse){button{padding:11px 12px;font-size:15px}#pad{grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,54px)}}body.cutting #sgp{display:none!important}";document.head.appendChild(css);
+const wb=document.createElement("button");wb.textContent="🚿 Water all";wb.onclick=()=>{if(X.wcd>0)return toast("Not ready - "+Math.ceil(X.wcd)+"s");tiles.forEach(t=>{if(t.s){t.wet=30;tcol(t)}});X.wcd=30;sfx("water");toast("🚿 Watered everything")};bar.appendChild(wb);
+const top=$("ar").parentNode,cb=document.createElement("button");cb.textContent="⬇️";cb.title="Hide/show tool bar";cb.onclick=()=>{bar.style.display=bar.style.display==="none"?"":"none"};top.appendChild(cb);
+const sg=document.createElement("div");sg.id="sgp";sg.style.cssText=fp.style.cssText;sg.style.display="none";document.body.appendChild(sg);
+sg.innerHTML="<b>⚙️ Settings</b>";sg.append($("fxv").parentNode,fp.querySelector("[data-sp]").parentNode);
+const ap=document.createElement("button");ap.textContent="⏸ Auto-pause when tab loses focus: ON";ap.onclick=()=>{window.noAP=!window.noAP;ap.textContent="⏸ Auto-pause when tab loses focus: "+(window.noAP?"OFF":"ON")};
+const rt=document.createElement("button");rt.textContent="🔁 Show tutorial again";rt.onclick=()=>{sg.style.display="none";tutShow(0)};
+const sx=document.createElement("button");sx.textContent="Close";sx.onclick=()=>sg.style.display="none";sg.append(ap,rt,sx);
+const gb=document.createElement("button");gb.textContent="⚙️";gb.onclick=()=>sg.style.display=sg.style.display==="flex"?"none":"flex";top.appendChild(gb);
+TUT.push(["More new stuff","📦 With Hold crops ON, the tractor and farmers also fill the silo. Each crop now has its own price in the silo market.<br>🌱 Planting the same crop twice in a row on a tile tires the soil (slower growth) - rotate crops!<br>🍳 Kitchen (Shop) turns 3 crops into a pricier dish. 🧳 Merchants pay 1.8× for a requested crop. 🎣 Better rod = more fish money and rare catches. 🥫 Pantry and 🛏️ Cozy bed slow hunger and tiredness. 🏆 Achievements are in the Farm panel. 🚿 Water all (30s cooldown), ⬇️ hides the tool bar, ⚙️ has settings."]);
+})();
+</script>
+</body></html>
