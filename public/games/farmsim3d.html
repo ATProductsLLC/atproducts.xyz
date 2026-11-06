@@ -14,7 +14,7 @@ button{background:var(--hud);color:var(--fg);border:2px solid transparent;border
 button.on{border-color:var(--on)}
 #pad{position:fixed;left:10px;bottom:calc(env(safe-area-inset-bottom,0px) + var(--bh,62px) + 8px);display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,46px);gap:4px}
 #pad button{padding:0;font-size:18px}
-#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:var(--hud);padding:6px 14px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast{position:fixed;left:50%;top:50px;transform:translateX(-50%);background:var(--hud);padding:6px 14px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .3s;pointer-events:none}
 #help{position:fixed;right:8px;top:100px;font-size:12px;background:var(--hud);padding:6px 10px;border-radius:10px;max-width:190px;pointer-events:none}
 body.cutting #top,body.cutting #help,body.cutting #stats,body.cutting #pad,body.cutting #bar,body.cutting #toast,body.cutting #shb,body.cutting #vig{display:none!important}
 #top{flex-wrap:wrap}@media (max-width:520px){.chip{font-size:12px;padding:4px 8px}#top{gap:4px}}
