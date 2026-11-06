@@ -18,10 +18,8 @@ button.on{border-color:var(--on)}
 #help{position:fixed;right:8px;top:100px;font-size:12px;background:var(--hud);padding:6px 10px;border-radius:10px;max-width:190px;pointer-events:none}
 body.cutting #top,body.cutting #help,body.cutting #stats,body.cutting #pad,body.cutting #bar,body.cutting #toast,body.cutting #shb,body.cutting #vig{display:none!important}
 #top{flex-wrap:wrap}@media (max-width:520px){.chip{font-size:12px;padding:4px 8px}#top{gap:4px}}
-body.paused #pz{position:relative;z-index:101}
-body.cutting #fxp{display:none!important}
 </style></head><body>
-<div id="top"><div class="chip" id="money"></div><div class="chip" id="clock"></div><span style="pointer-events:auto;display:flex;gap:6px"><button id="ar">▭ 16:9</button><button id="mu">🔊</button><button id="sv">💾</button><button id="pz" title="Pause (P)" onclick="togglePause()">⏸</button></span></div>
+<div id="top"><div class="chip" id="money"></div><div class="chip" id="clock"></div><span style="pointer-events:auto;display:flex;gap:6px"><button id="ar">▭ 16:9</button><button id="mu">🔊</button><button id="sv">💾</button></span></div>
 <div id="help">WASD / D-pad: move<br>Drag / right-drag: rotate camera (Q/E)<br>Scroll: zoom<br>Tap tile/animal/hay: use tool (1-9)<br>Hay is in the barn<br>F: tractor  G: gun on/off  R: reload  H: help</div>
 <div id="stats" class="chip" style="position:fixed;left:8px;top:calc(env(safe-area-inset-top,0px) + 50px);font-size:13px;pointer-events:none"></div>
 <div id="vig" style="position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(circle,transparent 25%,#000 105%)"></div>
@@ -34,7 +32,6 @@ body.cutting #fxp{display:none!important}
 <div id='cstamp' style='position:absolute;left:50%;top:45%;transform:translate(-50%,-50%) rotate(-12deg) scale(1.7);opacity:0;transition:opacity .3s,transform .3s;border:8px solid #d22;color:#d22;font:900 clamp(36px,9vw,80px) system-ui,sans-serif;padding:8px 24px;border-radius:12px;pointer-events:none'>FORECLOSED</div>
 <div id='cfade' style='position:absolute;inset:0;background:#000;opacity:0;transition:opacity 1s;pointer-events:none'></div>
 <button id='cskip' style='position:absolute;right:12px;top:calc(env(safe-area-inset-top,0px) + 8px)'>Skip ▶</button></div>
-<div id="pauseov" style="position:fixed;inset:0;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(0,0,0,.6);text-align:center;touch-action:auto"><h1 style="margin:0;font-size:clamp(32px,8vw,64px)">PAUSED</h1><button style="font-size:18px;padding:12px 28px" onclick="togglePause()">▶ Resume</button><div style="font-size:13px;opacity:.8">Press P or Esc to resume</div></div>
 <div id="toast"></div>
 <div id="pad">
 <span></span><button data-k="w">▲</button><span></span>
@@ -42,46 +39,6 @@ body.cutting #fxp{display:none!important}
 <span></span><button data-k="s">▼</button><span></span></div>
 <div id="bar"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
-/* ---- PAUSE: freezes sim, timers, audio and input ---- */
-let gamePaused=false;
-(function(){
-const nst=window.setTimeout.bind(window),nct=window.clearTimeout.bind(window),timers=new Map();let nid=1e6;
-window.setTimeout=function(fn,ms,...a){
-  if(typeof fn!=="function")return nst(fn,ms,...a);
-  const id=nid++,t={ms:+ms||0,start:performance.now(),h:0};
-  t.fn=()=>{timers.delete(id);fn(...a)};
-  t.h=gamePaused?0:nst(t.fn,t.ms);
-  timers.set(id,t);return id};
-window.clearTimeout=function(id){const t=timers.get(id);if(t){nct(t.h);timers.delete(id)}else nct(id)};
-function setPaused(p){
-  if(p===gamePaused)return;
-  const now=performance.now();gamePaused=p;
-  if(p){
-    timers.forEach(t=>{nct(t.h);t.ms=Math.max(0,t.ms-(now-t.start))});
-    try{for(const k in keys)keys[k]=0}catch(e){}
-    try{if(AC&&AC.state==="running")AC.suspend()}catch(e){}
-  }else{
-    timers.forEach(t=>{t.start=now;t.h=nst(t.fn,t.ms)});
-    try{if(AC&&AC.state==="suspended")AC.resume()}catch(e){}
-  }
-  document.body.classList.toggle("paused",p);
-  const o=document.getElementById("pauseov"),b=document.getElementById("pz");
-  if(o)o.style.display=p?"flex":"none";
-  if(b)b.textContent=p?"\u25B6":"\u23F8";
-}
-window.togglePause=()=>setPaused(!gamePaused);
-addEventListener("keydown",e=>{
-  const k=e.key;
-  if(k==="p"||k==="P"||k==="Escape"){
-    if(e.repeat){e.stopImmediatePropagation();e.preventDefault();return}
-    if(k==="Escape"&&!gamePaused)return;          /* Esc only resumes */
-    e.stopImmediatePropagation();e.preventDefault();togglePause();return}
-  if(gamePaused){e.stopImmediatePropagation();e.preventDefault()}
-},true);
-addEventListener("blur",()=>{try{if(!window.noAP&&!gamePaused&&document.getElementById("over").style.display!=="flex")setPaused(true)}catch(e){}});
-})();
-</script>
 <script>
 const N=8,T=2.1,CROPS={wheat:{t:25,cost:3,sell:9,c:0xe8c040,ic:"🌾"},carrot:{t:40,cost:8,sell:22,c:0xf08020,ic:"🥕"},pumpkin:{t:65,cost:20,sell:60,c:0xe86a10,ic:"🎃"}};
 const TOOLS=[["hoe","⛏️ Hoe"],["water","💧 Water"],["harvest","✂️ Harvest"],["wheat","🌾 3"],["carrot","🥕 8"],["pumpkin","🎃 20"],["feed","🌿 Feed"],["milk","🥛 Milk"],["collect","🥚 Eggs/Clean"],["fish","🎣 Fish"],["gun","🔫 Gun"]];
@@ -541,7 +498,7 @@ addEventListener("visibilitychange",()=>{if(document.hidden)saveGame()});
 loadGame();
 const skyD=new THREE.Color(0x87ceeb),skyN=new THREE.Color(0x0a0f2e),sky=new THREE.Color();
 let last=performance.now();
-function loop(now){requestAnimationFrame(loop);if(gamePaused){last=now;R.render(S,C);return}const dt=Math.min(.05,(now-last)/1000);last=now;if(cut){cutUpd(dt);R.render(S,C);return}time+=dt*tScale;
+function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;if(cut){cutUpd(dt);R.render(S,C);return}time+=dt*tScale;
  // move
  if(keys.q)camA+=dt*1.8;if(keys.e)camA-=dt*1.8;
  let f=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0),r=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);
@@ -562,124 +519,4 @@ if(!blocked(nx,ob.position.z,rr))ob.position.x=nx;if(!blocked(ob.position.x,nz,r
  $("money").textContent="💰 $"+money+"  🌾 "+hay+(owed?"  🦈 $"+owed+" (Day "+(Math.floor(due/150)+1)+")":"");
  R.render(S,C)}
 requestAnimationFrame(loop);toast("Hoe a tile, plant, water, then harvest!");
-</script>
-<script>
-/* ===== v2 ADDITIONS: crops+seasons, upgrades, market/silo, quests, hail/drought, dog bond, Farm panel ===== */
-(function(){
-const $=id=>document.getElementById(id),LS=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k));localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
-["ho","wc","gh","sc","silo","kit","rod","pan","bed"].forEach(k=>{if(up[k]==null)up[k]=0});
-const day=()=>Math.floor(time/150)+1,st={earned:0,harv:0,q:0},inv={},qs=[],SPb=SP.slice();
-const X={ach:{},cm:{},ck:null,cn:0,mer:null,wcd:0,a:0};
-let hold=false,mf=1,mh=[1],bond=30,pm=money,lastDay=-1,evT=100+Math.random()*60,drT=0,petT=45,sv=10,fxT=0,lastPet=0;
-// ---- new crops (season rules: ss = allowed seasons 0 spring,1 summer,2 autumn,3 winter; winter needs the Greenhouse)
-Object.assign(CROPS,{corn:{t:50,cost:12,sell:34,c:0xe8d040,ic:"🌽",ss:[1,2]},tomato:{t:45,cost:10,sell:28,c:0xd02020,ic:"🍅",ss:[0,1]},strawberry:{t:35,cost:15,sell:45,c:0xe03060,ic:"🍓",ss:[0,3]}});
-const _mk=mkCrop;
-mkCrop=function(type,t){if(!["corn","tomato","strawberry"].includes(type))return _mk(type,t);
- const g=new THREE.Group(),mat=M(0x4a9a3a),sp=(geo,x,y,z)=>{const s=new THREE.Mesh(geo,mat);s.position.set(x,y,z);s.castShadow=true;g.add(s)};g.userData={type,mat};
- if(type==="corn")for(let k=0;k<4;k++)sp(new THREE.CylinderGeometry(.06,.09,1.8,6),(k%2-.5)*.8,.9,(k>>1)*.8-.4);
- else if(type==="tomato")sp(new THREE.SphereGeometry(.6,8,6),0,.6,0);
- else for(let k=0;k<5;k++)sp(new THREE.SphereGeometry(.28,8,6),(Math.random()-.5)*1.3,.25,(Math.random()-.5)*1.3);
- g.position.set(t.x,.2,t.z);S.add(g);return g};
-[["corn","🌽 12"],["tomato","🍅 10"],["strawberry","🍓 15"]].forEach(([k,l],i)=>{const b=document.createElement("button");b.textContent=l.replace(" "," $");b.dataset.t=k;b.onclick=()=>sel(k);bar.insertBefore(b,bar.children[6+i])});
-const sOK=k=>{const s=seas();return (CROPS[k].ss||[0,1,2,3]).includes(s)&&(s!==3||up.gh)};
-const tot=()=>Object.values(inv).reduce((a,b)=>a+b,0),cap=()=>40+30*up.silo;
-// ---- act wrapper: season rules, hold-to-silo, bigger hoe/can
-const _act=act;
-act=function(t){
- if(CROPS[tool]&&t.s&&!t.crop&&!sOK(tool))return toast(seas()===3&&!up.gh?"Too cold - buy the Greenhouse in the Shop":"Wrong season for this crop");
- if(tool==="harvest"&&hold&&t.crop&&t.g>=1&&!t.giant&&Math.hypot(t.x-P.position.x,t.z-P.position.z)<=7){if(tot()>=cap())return toast("Silo full - sell in the Farm panel");const y=t.crop.userData.type;inv[y]=(inv[y]||0)+1;S.remove(t.crop);t.crop=null;t.g=0;return toast("📦 Stored "+CROPS[y].ic)}
- _act(t);const L=tool==="hoe"?up.ho:tool==="water"?up.wc:0;
- if(L)tiles.forEach(n=>{if(n!==t&&Math.hypot(n.x-t.x,n.z-t.z)<=T*(L>1?1.5:1.01)){if(tool==="hoe"){if(!n.crop&&!n.s){n.s=1;tcol(n)}}else if(n.s){n.wet=30;tcol(n)}}})};
-// ---- shop items
-ITEMS.push(["wc","💧 Bigger watering can",2,l=>100+100*l],["ho","⛏️ Better hoe",2,l=>100+100*l],["silo","📦 Silo (+30 stock)",3,l=>80+60*l],["sc","🧍 Scarecrow (hail guard)",2,l=>90+90*l],["gh","🏠 Greenhouse (winter farming)",1,()=>400]);
-// ---- greenhouse glass + scarecrows
-const gl=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0xbfe8ff,transparent:true,opacity:.18,depthWrite:false}));gl.visible=false;S.add(gl);
-const scs=[];function syncSc(){while(scs.length<up.sc){const g=new THREE.Group(),x=scs.length?9.2:-9.2;[[.15,2,.15,0x6b4a2a,0,1,0],[1.6,.12,.12,0x6b4a2a,0,1.6,0],[.45,.45,.45,0xe8c860,0,2.25,0]].forEach(([a,b,c,col,px,py,pz])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(a,b,c),M(col));m.position.set(px,py,pz);m.castShadow=true;g.add(m)});g.position.set(x,0,5.6);S.add(g);scs.push(g)}}
-// ---- market (daily price index, affects every sale), quests
-const applyMF=()=>SP.forEach((_,i)=>SP[i]=SPb[i]*mf);
-function newQ(){const ks=Object.keys(CROPS).filter(sOK);if(!ks.length)return;const c=ks[Math.random()*ks.length|0],n=4+(Math.random()*6|0);qs.push({c,n,p:0,exp:day()+3,r:Math.round(n*CROPS[c].sell*1.5)})}
-function qHarv(c){qs.slice().forEach(q=>{if(q.c===c&&++q.p>=q.n){money+=q.r;st.q++;qs.splice(qs.indexOf(q),1);toast("📜 Quest done! +$"+q.r)}})}
-function newDay(){nd3();mf=Math.max(.6,Math.min(1.7,mf+(1-mf)*.15+(Math.random()-.5)*.35));mh.push(mf);if(mh.length>7)mh.shift();applyMF();
- for(let i=qs.length-1;i>=0;i--)if(day()>qs[i].exp){qs.splice(i,1);toast("📜 A quest expired")}
- for(let i=0;i<3&&qs.length<2;i++)newQ();toast("📈 Market index x"+mf.toFixed(2)+(mh.length>1&&mf>=mh[mh.length-2]?" ▲":" ▼"))}
-// ---- dog bond (Pet or Feed tool, tap the dog)
-const pb=document.createElement("button");pb.textContent="🐕 Pet";pb.dataset.t="pet";pb.onclick=()=>sel("pet");bar.appendChild(pb);
-const r2=new THREE.Raycaster(),v2=new THREE.Vector2(),cv2=R.domElement;let d0=null;
-cv2.addEventListener("pointerdown",e=>{d0={x:e.clientX,y:e.clientY}});
-cv2.addEventListener("pointerup",e=>{if(gamePaused||!d0||!dog||(tool!=="pet"&&tool!=="feed")||Math.hypot(e.clientX-d0.x,e.clientY-d0.y)>10)return;
- v2.set((e.clientX-vl)/vw*2-1,-((e.clientY-vt)/vh)*2+1);r2.setFromCamera(v2,C);if(!r2.intersectObject(dog,true).length)return;
- if(Math.hypot(dog.position.x-P.position.x,dog.position.z-P.position.z)>7)return toast("Too far - walk closer");
- const n=performance.now();if(n-lastPet<700)return;lastPet=n;
- if(tool==="feed"){if(hay<1)return toast("Not enough hay - grab some in the barn");hay--;bond=Math.min(100,bond+15);toast("🐕 Yum! Bond "+(bond|0)+"%")}else{bond=Math.min(100,bond+8);toast("🐕 Good dog! Bond "+(bond|0)+"%")}});
-// ---- Farm panel (stats, market, quests, settings)
-const fp=document.createElement("div");fp.id="fxp";fp.style.cssText=bp.style.cssText+";max-height:80vh;overflow:auto;width:min(360px,92vw);font-size:14px;line-height:1.45";document.body.appendChild(fp);
-fp.innerHTML='<div id="fxd"></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button id="fxh"></button><button id="fxs">💰 Sell stock</button><button id="fxx">Close</button></div><label>🔊 Volume <input id="fxv" type="range" min="0" max="100" value="100"></label><div>⏩ Game speed: <button data-sp="0.5">0.5×</button> <button data-sp="1">1×</button> <button data-sp="2">2×</button></div>';
-const fxr=()=>{const sell=k=>Math.round(CROPS[k].sell*PM()*(X.cm[k]||1)),ks=Object.keys(CROPS),stock=ks.filter(k=>inv[k]).map(k=>CROPS[k].ic+inv[k]).join(" ")||"empty";
- $("fxd").innerHTML="<b>📊 Farm</b> - Day "+day()+"<br>Earned $"+st.earned+" · Harvested "+st.harv+" · Quests "+st.q+
- "<br><b>📈 Market</b> x"+mf.toFixed(2)+" (7d: "+mh.map(v=>v.toFixed(1)).join(" ")+")<br>"+ks.map(k=>CROPS[k].ic+"$"+sell(k)).join(" ")+
- "<br>📦 Silo "+tot()+"/"+cap()+": "+stock+"<br><b>📜 Quests</b><br>"+(qs.length?qs.map(q=>"Harvest "+q.n+" "+CROPS[q.c].ic+" ("+q.p+"/"+q.n+") by day "+q.exp+" → $"+q.r).join("<br>"):"None right now")+
- (up.dog?"<br><b>🐕 Dog bond</b> "+(bond|0)+"%"+(bond>=60?" (digs up cash!)":" (60%+ = bonus)"):"")+"<br>🌦️ "+(drT>0?"Drought!":"Normal weather")+" · Scarecrows "+up.sc+" · Greenhouse "+(up.gh?"yes":"no");
- $("fxd").innerHTML+=x3txt();$("fxh").textContent=hold?"📦 Hold crops: ON":"📦 Hold crops: OFF"};
-$("fxh").onclick=()=>{hold=!hold;fxr()};
-$("fxs").onclick=()=>{let v=0;for(const k in inv){v+=inv[k]*CROPS[k].sell*PM()*(X.cm[k]||1);inv[k]=0}v=Math.round(v);if(!v)return toast("Silo is empty");money+=v;toast("Sold stock +$"+v);fxr()};
-$("fxx").onclick=()=>fp.style.display="none";
-$("fxv").oninput=e=>{if(typeof mG!=="undefined"&&mG&&!mute)mG.gain.value=e.target.value/100};
-fp.querySelectorAll("[data-sp]").forEach(b=>b.onclick=()=>{tScale=+b.dataset.sp;toast("Speed x"+tScale)});
-const fb=document.createElement("button");fb.textContent="📊 Farm";fb.onclick=()=>{fxr();fp.style.display=fp.style.display==="flex"?"none":"flex"};bar.appendChild(fb);
-addEventListener("keydown",e=>{if(e.key==="k"||e.key==="K")fb.onclick()});
-const si=document.createElement("div");si.style.cssText="position:fixed;left:10px;top:calc(env(safe-area-inset-top,0px) + 92px);font-size:12px;opacity:0;transition:opacity .4s;pointer-events:none";si.textContent="💾 Saved";document.body.appendChild(si);
-const save=()=>{LS("fs_x",{st,qs,inv,hold,mf,mh,bond,x3:X});si.style.opacity=1;setTimeout(()=>si.style.opacity=0,900)};
-addEventListener("visibilitychange",()=>{if(document.hidden)save()});
-(function(){if(!localStorage.getItem("fs_save"))return;const d=LS("fs_x");if(!d)return;Object.assign(st,d.st);qs.push(...(d.qs||[]));Object.assign(inv,d.inv);hold=!!d.hold;mf=d.mf||1;mh=d.mh||[1];bond=d.bond==null?30:d.bond;applyMF();if(d.x3)Object.assign(X,d.x3)})();
-TUT.push(["New: crops, seasons and the Farm panel","🌽🍅🍓 New crops with seasons: corn (summer/autumn), tomato (spring/summer), strawberry (spring/winter). <b>Winter needs the Greenhouse</b> (Shop) - without it nothing grows.<br>Shop upgrades: bigger watering can and hoe (hit neighbor tiles), silo, scarecrows (hail guard), greenhouse.<br>📊 Farm (or K): stats, daily market index, quests, volume and game speed. 📦 Hold crops stores harvests in the silo so you can sell when prices are high.<br>Watch for ☀️ droughts and 🌩️ hail. The 🐕 Pet tool (or Feed) builds your dog's bond - at 60%+ it digs up cash."]);
-// ---- per-frame hook (runs only when not paused / not in a cutscene)
-const prevT=new Map();let last=performance.now();const _r=R.render.bind(R);
-R.render=function(s,c){const n=performance.now(),dt=Math.min(.1,(n-last)/1000);last=n;if(!gamePaused&&!cut&&!document.body.classList.contains("cutting"))try{upd(dt)}catch(e){}_r(s,c)};
-function upd(dt){
- if(money>pm)st.earned+=money-pm;pm=money;
- tiles.forEach(t=>{const y=t.crop?t.crop.userData.type:null,p=prevT.get(t);if(p&&p.y&&!y&&p.g>=1){st.harv++;qHarv(p.y)}prevT.set(t,{y,g:t.g})});
- const d=day();if(d!==lastDay){if(lastDay>0)newDay();else for(let i=0;i<3&&qs.length<2;i++)newQ();lastDay=d}
- SG[3]=up.gh?1:0;gl.visible=!!up.gh&&seas()===3;gl.scale.set(21,3.2,6.5-fN+1);gl.position.set(0,1.6,(6.5+fN)/2);syncSc();
- if(drT>0){drT-=dt;tiles.forEach(t=>{if(t.s&&t.wet>0){t.wet=Math.max(0,t.wet-dt*2);if(!t.wet)tcol(t)}});if(drT<=0)toast("🌤️ The drought ended")}
- evT-=dt;if(evT<=0){evT=120+Math.random()*100;if(Math.random()<.5){if(!(seas()===3&&up.gh)){let k=0;const pr=[0,.5,1][Math.min(2,up.sc)];tiles.forEach(t=>{if(t.crop&&Math.random()>=pr){t.g*=.4;showCrop(t);k++}});toast("🌩️ Hail! "+(k?k+" crops damaged":"Your crops are safe"))}}else if(seas()!==3){drT=45;toast("☀️ Drought! Soil dries 3x faster for 45s")}}
- bond=Math.max(0,bond-dt/6);if(up.dog&&bond>=60){petT-=dt;if(petT<=0){petT=50+Math.random()*30;money+=8;toast("🐕 Your dog dug up cash (+$8)")}}
- fxT-=dt;if(fxT<=0){fxT=.5;if(fp.style.display==="flex")fxr()}
- sv-=dt;if(sv<=0){sv=10;save()}upd3(dt)}
-// ===== v3: silo for tractor/farmers, per-crop prices, soil rotation, kitchen, merchant, rod, house upgrades, achievements, mobile + settings =====
-const RC=[["bread","🍞","wheat",3,40],["sauce","🥫","tomato",3,110],["jam","🍓","strawberry",3,170],["popcorn","🍿","corn",3,130]];
-const ACH=[["h1","First harvest",()=>st.harv>=1],["h100","100 harvests",()=>st.harv>=100],["e1k","Earn $1,000",()=>st.earned>=1000],["e10k","Earn $10,000",()=>st.earned>=10000],["q3","3 quests done",()=>st.q>=3],["yr","Survive a year",()=>day()>16],["dg","Dog bond 100%",()=>bond>=100],["ck","Cook 5 dishes",()=>X.cn>=5]];
-ITEMS.push(["kit","🍳 Kitchen (cook crops)",1,()=>250],["rod","🎣 Better rod",3,l=>60+60*l],["pan","🥫 Pantry (slower hunger)",2,l=>120+100*l],["bed","🛏️ Cozy bed (slower tiredness)",2,l=>120+100*l]);
-const store=t=>{const y=t.crop.userData.type;inv[y]=(inv[y]||0)+1;S.remove(t.crop);t.crop=null;t.g=0};
-const _hr=harvestRun;harvestRun=function(dt){if(hold&&drv){const hx=TR.position.x+Math.sin(TR.rotation.y)*2,hz=TR.position.z+Math.cos(TR.rotation.y)*2;tiles.forEach(t=>{if(t.crop&&t.g>=1&&!t.giant&&tot()<cap()&&Math.hypot(t.x-hx,t.z-hz)<T*.9)store(t)})}_hr(dt)};
-const _jb=jobs;jobs=function(){return _jb().map(j=>{const t=j[2];return hold&&t&&t.m&&t.crop&&t.g>=1&&!t.giant?[j[0],j[1],t,()=>{if(t.crop&&t.g>=1&&tot()<cap())store(t)}]:j})};
-const _fi=fish;fish=function(){const m=money;_fi();const g=money-m;if(g>0){const rare=Math.random()<.12+.1*up.rod;let b=g*.25*up.rod+(rare?25:0);b=Math.round(b);money+=b;if(rare)toast("🐟 Rare "+(seas()===3?"ice trout":(7+time/150*24)%24<9?"dawn salmon":"golden carp")+"! +$"+(g+b))}};
-const pt3=new Map();
-function nd3(){Object.keys(CROPS).forEach(k=>{X.cm[k]=Math.max(.6,Math.min(1.9,(X.cm[k]||1)+(1-(X.cm[k]||1))*.2+(Math.random()-.5)*.5))});
- if(X.mer&&day()>X.mer.exp)X.mer=null;if(!X.mer&&Math.random()<.5){const ks=Object.keys(CROPS),c=ks[Math.random()*ks.length|0];X.mer={c,n:5+(Math.random()*6|0),exp:day()+1};toast("🧳 A traveling merchant wants "+X.mer.n+" "+CROPS[c].ic+" at a premium!")}}
-function upd3(dt){
- tiles.forEach(t=>{const y=t.crop?t.crop.userData.type:null,p=pt3.get(t);
-  if(y&&(!p||!p.y)){if(t.lc===y){t.tired=(t.tired||0)+1;toast("🌱 Soil is tired of "+CROPS[y].ic+" - rotate crops!")}else t.tired=0}
-  if(!y&&p&&p.y)t.lc=p.y;pt3.set(t,{y});
-  if(y&&t.tired&&t.wet>0&&t.g<1)t.g=Math.max(0,t.g-dt*SG[seas()]*.25*Math.min(3,t.tired)/CROPS[y].t)});
- if(!sleeping&&!god){hu=Math.min(100,hu+dt*.09*up.pan);en=Math.min(100,en+dt*.075*up.bed)}
- if(X.ck){X.ck.t-=dt;if(X.ck.t<=0){const r=RC[X.ck.i],v=Math.round(r[4]*PM());money+=v;X.cn++;toast(r[1]+" "+r[0]+" is ready! +$"+v);X.ck=null}}
- if(X.wcd>0)X.wcd-=dt;X.a-=dt;if(X.a<=0){X.a=1;ACH.forEach(([id,n,f])=>{if(!X.ach[id]&&f()){X.ach[id]=1;toast("🏆 "+n)}})}}
-const kd=document.createElement("div");kd.style.cssText="display:flex;gap:6px;flex-wrap:wrap";
-RC.forEach((r,i)=>{const b=document.createElement("button");b.textContent=r[1]+" "+r[3]+"×"+CROPS[r[2]].ic+" → $"+r[4];b.onclick=()=>{if(!up.kit)return toast("Not available - buy the Kitchen in the Shop");if(X.ck)return toast("Not ready - kitchen is busy");if((inv[r[2]]||0)<r[3])return toast("Not enough "+CROPS[r[2]].ic+" in the silo");inv[r[2]]-=r[3];X.ck={i,t:20};toast("Cooking "+r[0]+"... 20s");fxr()};kd.appendChild(b)});
-const mb=document.createElement("button");mb.onclick=()=>{const m=X.mer;if(!m)return;if((inv[m.c]||0)<m.n)return toast("Not enough "+CROPS[m.c].ic+" in the silo");inv[m.c]-=m.n;const v=Math.round(m.n*CROPS[m.c].sell*PM()*1.8);money+=v;X.mer=null;toast("🧳 Merchant paid +$"+v);fxr()};kd.appendChild(mb);fp.insertBefore(kd,fp.children[1]);
-function x3txt(){mb.style.display=X.mer?"":"none";if(X.mer)mb.textContent="🧳 Sell "+X.mer.n+"×"+CROPS[X.mer.c].ic+" at 1.8×";
- return "<br><b>🍳 Kitchen</b> "+(up.kit?(X.ck?RC[X.ck.i][1]+" "+Math.ceil(X.ck.t)+"s left":"idle"):"(buy in Shop)")+"<br><b>🏆 Achievements</b> "+Object.keys(X.ach).length+"/"+ACH.length+(Object.keys(X.ach).length?": "+ACH.filter(a=>X.ach[a[0]]).map(a=>a[1]).join(", "):"")}
-// mobile + settings + water-all
-const css=document.createElement("style");css.textContent="@media (pointer:coarse){button{padding:11px 12px;font-size:15px}#pad{grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,54px)}}body.cutting #sgp{display:none!important}";document.head.appendChild(css);
-const wb=document.createElement("button");wb.textContent="🚿 Water all";wb.onclick=()=>{if(X.wcd>0)return toast("Not ready - "+Math.ceil(X.wcd)+"s");tiles.forEach(t=>{if(t.s){t.wet=30;tcol(t)}});X.wcd=30;sfx("water");toast("🚿 Watered everything")};bar.appendChild(wb);
-const top=$("ar").parentNode,cb=document.createElement("button");cb.textContent="⬇️";cb.title="Hide/show tool bar";cb.onclick=()=>{bar.style.display=bar.style.display==="none"?"":"none"};top.appendChild(cb);
-const sg=document.createElement("div");sg.id="sgp";sg.style.cssText=fp.style.cssText;sg.style.display="none";document.body.appendChild(sg);
-sg.innerHTML="<b>⚙️ Settings</b>";sg.append($("fxv").parentNode,fp.querySelector("[data-sp]").parentNode);
-const ap=document.createElement("button");ap.textContent="⏸ Auto-pause when tab loses focus: ON";ap.onclick=()=>{window.noAP=!window.noAP;ap.textContent="⏸ Auto-pause when tab loses focus: "+(window.noAP?"OFF":"ON")};
-const rt=document.createElement("button");rt.textContent="🔁 Show tutorial again";rt.onclick=()=>{sg.style.display="none";tutShow(0)};
-const sx=document.createElement("button");sx.textContent="Close";sx.onclick=()=>sg.style.display="none";sg.append(ap,rt,sx);
-const gb=document.createElement("button");gb.textContent="⚙️";gb.onclick=()=>sg.style.display=sg.style.display==="flex"?"none":"flex";top.appendChild(gb);
-TUT.push(["More new stuff","📦 With Hold crops ON, the tractor and farmers also fill the silo. Each crop now has its own price in the silo market.<br>🌱 Planting the same crop twice in a row on a tile tires the soil (slower growth) - rotate crops!<br>🍳 Kitchen (Shop) turns 3 crops into a pricier dish. 🧳 Merchants pay 1.8× for a requested crop. 🎣 Better rod = more fish money and rare catches. 🥫 Pantry and 🛏️ Cozy bed slow hunger and tiredness. 🏆 Achievements are in the Farm panel. 🚿 Water all (30s cooldown), ⬇️ hides the tool bar, ⚙️ has settings."]);
-})();
-</script>
-</body></html>
+</script></body></html>
