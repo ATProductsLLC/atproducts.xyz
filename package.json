@@ -16,7 +16,7 @@
     "@astrojs/react": "^7.1.7",
     "@netlify/blobs": "^11.1.9",
     "astro": "^7.4.10",
-    "bootstrap": "^5.3.8",
+    "bootstrap": "^5.3.9",
     "bootstrap-icons": "^1.13.2",
     "jquery": "^4.0.0",
     "jquery-ui": "^1.14.2",
