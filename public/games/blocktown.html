@@ -70,7 +70,8 @@ var RS=.5;function size(){const w=innerWidth,h=innerHeight;rd.setPixelRatio(1);r
 addEventListener('resize',size);size();
 const envHemisphere=new THREE.HemisphereLight(0xffffff,0x667766,.9);sc.add(envHemisphere);const sun=new THREE.DirectionalLight(0xfff0c8,.55);sun.position.set(50,100,30);sc.add(sun);
 const bg=new THREE.BoxGeometry(1,1,1),M={},mat=c=>M[c]||(M[c]=new THREE.MeshLambertMaterial({color:c}));
-function box(p,w,h,d,c,x,y,z,m){const o=new THREE.Mesh(bg,m||mat(c));o.scale.set(w,h,d);o.position.set(x,y,z);p.add(o);return o}
+function signMats(m){if(!m.userData.sm){const s=new THREE.MeshBasicMaterial({color:new THREE.Color(m.userData.bg)});m.userData.sm=[s,s,s,s,m,m]}return m.userData.sm}
+function box(p,w,h,d,c,x,y,z,m){const o=new THREE.Mesh(bg,m&&m.userData&&m.userData.bg?signMats(m):m||mat(c));o.scale.set(w,h,d);o.position.set(x,y,z);p.add(o);return o}
 /* world */
 const N=4,P=80,RW=16,BL=P-RW,E=N*P+60,WE=1150,obs=[];
 const riverOriginalGround=box(sc,3400,.1,3400,0x5c9a4a,0,-.05,0);
@@ -83,7 +84,7 @@ const wt=new THREE.CanvasTexture(wc);wt.wrapS=wt.wrapT=THREE.RepeatWrapping;wt.m
 function winMat(c,w,h){const rx=Math.max(1,Math.round(w/3.4)),ry=Math.max(1,Math.round(h/3.2)),key=c+'_'+rx+'_'+ry;if(!WM[key]){const t=wt.clone();t.needsUpdate=true;t.repeat.set(rx,ry);WM[key]=new THREE.MeshLambertMaterial({color:c,map:t})}return WM[key]}
 function bld(x,z,w,d,h,c,win){box(sc,w,h,d,c,x,h/2+.3,z,win?winMat(c,Math.max(w,d),h):0);box(sc,w+.5,.6,d+.5,0x4a4a50,x,h+.6,z);obs.push({x,z,w:w/2,d:d/2,h})}
 const GD={x:130,z:85},SF=[],CD=[],CV={'-1,0':['pd',0x4a8ad8,'SF POLICE'],'-1,-3':['hs',0xe04040,'SANFORD USD MEDICAL CENTER'],'3,1':['ha',0xe04040,'AVERA MCKENNAN HOSPITAL']},bmat=c=>new THREE.MeshBasicMaterial({color:c});
-function lbl(t,w,h,bg,fg,fs){const c=document.createElement('canvas');c.width=256;c.height=Math.round(256*h/w);const g=c.getContext('2d');g.fillStyle=bg;g.fillRect(0,0,c.width,c.height);g.strokeStyle=fg;g.lineWidth=5;g.strokeRect(5,5,c.width-10,c.height-10);g.fillStyle=fg;let fit=Math.min(fs||44,c.height*.62);g.font='bold '+fit+'px Arial';while(g.measureText(t).width>c.width-24&&fit>5){fit--;g.font='bold '+fit+'px Arial'}g.textAlign='center';g.textBaseline='middle';g.fillText(t,c.width/2,c.height/2+2);const tx=new THREE.CanvasTexture(c);tx.magFilter=THREE.NearestFilter;return new THREE.MeshBasicMaterial({map:tx})}
+function lbl(t,w,h,bg,fg,fs){const c=document.createElement('canvas');c.width=256;c.height=Math.round(256*h/w);const g=c.getContext('2d');g.fillStyle=bg;g.fillRect(0,0,c.width,c.height);g.strokeStyle=fg;g.lineWidth=5;g.strokeRect(5,5,c.width-10,c.height-10);g.fillStyle=fg;let fit=Math.min(fs||44,c.height*.62);g.font='bold '+fit+'px Arial';while(g.measureText(t).width>c.width-24&&fit>5){fit--;g.font='bold '+fit+'px Arial'}g.textAlign='center';g.textBaseline='middle';g.fillText(t,c.width/2,c.height/2+2);const tx=new THREE.CanvasTexture(c);tx.magFilter=THREE.NearestFilter;const lm=new THREE.MeshBasicMaterial({map:tx});lm.userData.bg=bg;return lm}
 function shopFront(k,x,z,dz,col,a1,a2,name,bg,fg){bld(x,z,26,26,8,col,0);const fz=z+dz*13,q=(w,h,d,c,px,py,pz,m)=>box(sc,w,h,d,c,px,py,pz,m);
  [-6.5,6.5].forEach(o=>{q(7.4,3.4,.2,0x222222,x+o,2.6,fz+dz*.1);q(7,3,.2,0,x+o,2.6,fz+dz*.2,bmat(0x9fd0e8))});
  q(2.8,3.8,.3,0x2a2018,x,2.1,fz+dz*.15);q(2,2.8,.2,0,x,2.2,fz+dz*.3,bmat(0x9fd0e8));
@@ -138,7 +139,7 @@ for(let i=-N;i<N;i++)for(let j=-N;j<N;j++){const cx=(i+.5)*P,cz=(j+.5)*P,dc=Math
 const SH={x:100,z:94};
 {const hx=100,hz=100,c=document.createElement('canvas');c.width=128;c.height=32;const g=c.getContext('2d');g.fillStyle='#1d3d2a';g.fillRect(0,0,128,32);g.strokeStyle='#e8c46a';g.lineWidth=2;g.strokeRect(2,2,124,28);g.fillStyle='#e8c46a';g.font='bold 18px Arial';g.textAlign='center';g.fillText('SAFEHOUSE',64,23);const t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;
  box(sc,12,6,10,0xb89a6a,hx,3.4,hz);box(sc,13.4,.7,11.4,0x7a3b2e,hx,6.75,hz);box(sc,10,1.2,8,0x7a3b2e,hx,7.7,hz);box(sc,2.2,3.4,.3,0x4a2e1a,hx,2.1,94.85);box(sc,2.8,.3,1.6,0x6a5a4a,hx,.55,94);[-3.6,3.6].forEach(dx=>box(sc,2,1.6,.3,0x9fd0e8,hx+dx,3.8,94.85));
- const sg=new THREE.Mesh(bg,new THREE.MeshBasicMaterial({map:t}));sg.scale.set(5,1.25,.2);sg.position.set(hx,5.6,94.7);sc.add(sg);box(sc,3,.12,7,0x9a9a96,hx,.4,91.5);obs.push({x:hx,z:hz,w:6.6,d:5.6})}
+ const sd=new THREE.MeshBasicMaterial({color:0x1d3d2a});const sg=new THREE.Mesh(bg,[sd,sd,sd,sd,new THREE.MeshBasicMaterial({map:t}),new THREE.MeshBasicMaterial({map:t})]);sg.scale.set(5,1.25,.2);sg.position.set(hx,5.6,94.7);sc.add(sg);box(sc,3,.12,7,0x9a9a96,hx,.4,91.5);obs.push({x:hx,z:hz,w:6.6,d:5.6})}
 const shr=new THREE.Mesh(new THREE.CylinderGeometry(1.8,1.8,.08,20),new THREE.MeshBasicMaterial({color:0x7ec850,transparent:true,opacity:.5}));shr.position.set(SH.x,.45,SH.z-1);sc.add(shr);
 finishCity();roadSigns();
 /* ===== GREATER SIOUX FALLS: river, farmland, big airport ===== */
