@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Game</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      background: #000;
+    }
+    #container, #fr {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <iframe id="fr" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+  </div>
+
+  <script>
+    const DB_NAME = 'GameCacheDB_local_v3';
+    // Drop the old cache that still held the jsdelivr-based XML
+    try { indexedDB.deleteDatabase('GameCacheDB'); } catch (e) {}
+    const STORE_NAME = 'GameFiles';
+    const CACHE_DURATION = 90 * 24 * 60 * 60 * 1000; // 3 ay
+    const FILE_URL = '32.xml?v=local3'; // local copy
+    const FALLBACK_URL = '32.xml?v=local3'; // used if no local copy
+
+    // IndexedDB veritabanını aç
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          db.createObjectStore(STORE_NAME, { keyPath: 'url' });
+        };
+        request.onsuccess = (event) => resolve(event.target.result);
+        request.onerror = (event) => reject(event.target.error);
+      });
+    }
+
+    // Dosyayı IndexedDB'ye kaydet (ayrı transaction)
+    async function saveToCache(url, content) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.put({ url: url, content: content, timestamp: Date.now() });
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(new Error('Failed to cache file'));
+      });
+    }
+
+    // Dosyayı IndexedDB'den al veya çek ve kaydet
+    async function getFileFromCache(url) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(STORE_NAME, 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get(url);
+
+        request.onsuccess = async (event) => {
+          const data = event.target.result;
+          if (data && (Date.now() - data.timestamp) < CACHE_DURATION) {
+            resolve(data.content);
+          } else {
+            try {
+              const response = await fetch(url, { cache: 'no-store' });
+              if (!response.ok) throw new Error('HTTP ' + response.status);
+              const text = await response.text();
+              await saveToCache(url, text); // Ayrı transaction ile kaydet
+              resolve(text);
+            } catch (err) {
+              reject(err);
+            }
+          }
+        };
+        request.onerror = (event) => reject(event.target.error);
+      });
+    }
+
+    // Remove the sticky ad block (works on local, CDN and cached copies)
+    function stripAds(html) {
+      const start = html.indexOf('<!-- Sticky Bottom Center Ad');
+      const end = html.lastIndexOf('</body>');
+      if (start !== -1 && end > start) {
+        html = html.slice(0, start) + html.slice(end);
+      }
+      // Safety net in case the markup differs
+      return html.replace('</head>', '<style>#ad-container{display:none!important}</style></head>');
+    }
+
+
+    // Safety net: force everything to load from this folder, never jsdelivr
+    function localize(html) {
+      var dir = new URL('.', location.href).href;           // folder that holds index.html
+      html = html.replace(/https?:\/\/(?:cdn|fastly|gcore|testingcf)\.jsdelivr\.net\/gh\/[^\/"'\s]+\/[^\/@"'\s]+(?:@[^\/"'\s]+)?\//g, dir);
+      html = html.replace(/https?:\/\/(?:cdn|fastly|gcore|testingcf)\.jsdelivr\.net\/[^"'\s)]*/g, function (m) {
+        console.warn('[local] leftover jsdelivr URL blocked:', m); return dir;
+      });
+      // make sure relative URLs resolve against this folder
+      return html.replace(/<head>/i, '<head><base href="' + dir + '">');
+    }
+
+    // Remove any service worker / Cache Storage left over from older versions
+    try {
+      if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(function (r) { r.forEach(function (x) { x.unregister(); }); });
+      if (window.caches) caches.keys().then(function (k) { k.forEach(function (n) { caches.delete(n); }); });
+    } catch (e) {}
+
+    // Oyunu otomatik başlat
+    function playGame() {
+      const iframe = document.getElementById("fr");
+      getFileFromCache(FILE_URL).catch(() => getFileFromCache(FALLBACK_URL)).then((text) => {
+        iframe.contentDocument.open();
+        iframe.contentDocument.write(localize(stripAds(text)));
+        iframe.contentDocument.close();
+        iframe.style.display = "block";
+      }).catch((err) => {
+        console.error('Error loading game:', err);
+        alert('Oyun yüklenemedi. İnternet bağlantınızı kontrol edin.');
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', playGame);
+  </script>
+</body>
+</html>
