@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bondtown</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d1633;--dusk:#3b2d63;--panel:rgba(29,22,51,.93);--text:#f6f1ff;--mute:#b9aedb;--accent:#ffc48a;--mint:#8fe3c8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#1d1633;--dusk:#3b2d63}}
+:root[data-theme="dark"]{--ink:#1d1633;--dusk:#3b2d63}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{height:100%;margin:0;background:var(--ink);color:var(--text);font-family:'Fredoka',system-ui,sans-serif;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.screen{position:fixed;inset:0;display:none}
+.screen.on{display:flex}
+#title{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:24px;background:linear-gradient(180deg,rgba(29,22,51,.84),rgba(59,45,99,.68))}
+.logo{width:min(62vw,330px);height:auto;margin-bottom:8px}
+h1{font-size:clamp(46px,13vw,92px);font-weight:600;margin:0;line-height:1;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:0 0 18px;font-size:18px}
+.btn,.ghost{font:inherit;font-size:18px;font-weight:500;border-radius:14px;padding:12px 28px;min-width:190px;border:2px solid var(--accent)}
+.btn{background:var(--accent);color:var(--ink)}
+.ghost{background:transparent;color:var(--text)}
+button:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+.copy{position:fixed;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom,0px));text-align:center;color:var(--mute);font-size:14px}
+.panel{position:fixed;left:0;right:0;bottom:0;max-height:54vh;overflow:auto;background:var(--panel);padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));border-radius:18px 18px 0 0;touch-action:pan-y}
+@media(min-width:800px){.panel{left:auto;top:0;width:380px;max-height:none;border-radius:0;padding-top:calc(16px + env(safe-area-inset-top,0px))}}
+.panel h2{margin:0 0 4px;font-size:24px;font-weight:600}
+.note{margin:0 0 14px;color:var(--mute);font-size:14px;line-height:1.35}
+.row{margin:0 0 12px}.row b{display:block;font-weight:500;color:var(--mute);font-size:14px;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:2px solid transparent;background:var(--dusk);color:var(--text);padding:7px 12px;border-radius:10px;font:inherit;font-size:15px}
+.sw{width:32px;height:32px;border-radius:50%;border:3px solid transparent;padding:0}
+.sel{border-color:var(--accent)}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.bar button{flex:1;min-width:130px;padding:11px 14px}
+#pinfo{color:var(--accent);margin:0 0 12px;font-size:16px}
+#wardrobe{display:none}
+#hud{display:none}
+#hint{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:14px;background:var(--panel);padding:8px 12px;border-radius:10px;font-size:14px;color:var(--mute)}
+#act{position:fixed;right:18px;bottom:calc(30px + env(safe-area-inset-bottom,0px));display:none;min-width:0;padding:14px 22px}
+#joy{position:fixed;left:22px;bottom:calc(26px + env(safe-area-inset-bottom,0px));width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.16);display:none;touch-action:none}
+#nub{position:absolute;left:40px;top:40px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.6);pointer-events:none}
+@media(pointer:coarse){#joy.on{display:block}#hint{display:none}}
+#toast{position:fixed;left:50%;top:calc(64px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--panel);padding:10px 16px;border-radius:12px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:86vw;text-align:center}
+#dbg{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:10px;width:230px;max-height:72vh;overflow:auto;display:none;background:var(--panel);border:1px solid var(--dusk);border-radius:12px;padding:10px;font-size:13px;z-index:5;touch-action:pan-y;-webkit-user-select:text;user-select:text}
+#dbg pre{margin:6px 0 8px;font:12px/1.4 ui-monospace,Menlo,monospace;color:var(--mint)}
+#dbg button{font:inherit;font-size:12px;background:var(--dusk);color:var(--text);border:1px solid transparent;border-radius:8px;padding:5px 8px;margin:0 4px 4px 0}
+#title .logo{filter:drop-shadow(0 6px 14px rgba(0,0,0,.55))}
+#title h1{text-shadow:0 4px 0 rgba(12,8,28,.55),0 10px 28px rgba(0,0,0,.6)}
+#title .sub,#title .copy{text-shadow:0 2px 8px rgba(0,0,0,.75)}
+#title .btn,#title .ghost{box-shadow:0 8px 18px rgba(0,0,0,.45)}
+#dlg{display:none;left:50%;right:auto;top:auto;transform:translateX(-50%);width:min(640px,100%);max-height:46vh;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+#dnar{display:none;margin:0 0 8px;color:var(--mute);font-style:italic;font-size:16px;line-height:1.4}
+#dname{color:var(--accent);font-size:18px;font-weight:600}
+#dtext{font-size:18px;line-height:1.4;margin:6px 0 12px}
+#dch{display:flex;flex-direction:column;gap:6px}
+#dch .chip{width:100%;text-align:left;font-size:16px}
+#dfx{margin:10px 0 0;color:var(--mint)}
+#stats{position:fixed;top:calc(54px + env(safe-area-inset-top,0px));left:14px;background:var(--panel);padding:8px 10px;border-radius:10px}
+.st{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute);margin:2px 0}
+.st span{width:68px}.st i{display:block;width:90px;height:7px;background:var(--dusk);border-radius:4px;overflow:hidden}.st u{display:block;height:100%;background:var(--accent)}
+#obj{position:fixed;left:14px;top:calc(142px + env(safe-area-inset-top,0px));display:none;max-width:230px;background:var(--panel);color:var(--mint);padding:8px 12px;border-radius:10px;font-size:14px;line-height:1.3}
+#phbtn{position:fixed;top:calc(58px + env(safe-area-inset-top,0px));right:14px;background:var(--panel);color:var(--text);border:2px solid var(--dusk);border-radius:12px;padding:6px 10px;font:inherit;font-size:20px;line-height:1}
+#phbd{display:none;position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;background:#ff6b81;color:#fff;font:600 11px/18px 'Fredoka',sans-serif;text-align:center;font-style:normal}
+#phone{display:none;position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));width:min(300px,calc(100vw - 28px));height:min(520px,70vh);z-index:6}
+.ph{height:100%;background:#15101f;border:3px solid #3b2d63;border-radius:28px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.55)}
+.phs{display:flex;justify-content:space-between;align-items:center;padding:10px 16px 6px;font-size:13px;color:var(--mute)}
+.phs button,.phb{background:none;border:0;color:var(--mute);font:inherit;font-size:16px;padding:2px 6px}
+#phbody{flex:1;overflow:auto;padding:6px 12px 12px;display:flex;flex-direction:column;touch-action:pan-y}
+.apps{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.app{position:relative;background:var(--dusk);color:var(--text);border:0;border-radius:16px;padding:16px 6px;font:inherit;font-size:13px}.app b{display:block;font-size:26px;margin-bottom:4px}
+.app i{position:absolute;top:6px;right:8px;background:#ff6b81;color:#fff;border-radius:9px;min-width:18px;height:18px;font:600 11px/18px 'Fredoka',sans-serif;font-style:normal}
+.phn{display:flex;align-items:center;gap:6px;padding-bottom:8px;border-bottom:1px solid var(--dusk);margin-bottom:6px;font-weight:500}
+.bb{max-width:82%;padding:8px 11px;border-radius:14px;margin:3px 0;font-size:14px;line-height:1.3}
+.bb.p{align-self:flex-start;background:var(--dusk)}.bb.y{align-self:flex-end;background:var(--accent);color:var(--ink)}.bb.ty{opacity:.6}.bb.pic{font-style:italic;color:var(--mint)}
+.phc{display:flex;flex-direction:column;gap:6px;margin-top:auto;padding-top:10px}.phc .chip{text-align:left;font-size:14px;padding:8px 10px}
+.phm{margin:6px 0;padding:10px;background:var(--dusk);border-radius:12px;font-size:14px}
+#mvig{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .7s;background:radial-gradient(ellipse at center,transparent 38%,rgba(20,12,36,.78));z-index:4}
+.hrt{position:fixed;color:#ff6b81;font-size:30px;pointer-events:none;z-index:7;animation:hf 2.6s ease-out forwards}
+@keyframes hf{from{transform:translateY(0) scale(.6);opacity:0}15%{opacity:1}to{transform:translateY(-170px) scale(1.3);opacity:0}}
+#card{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#120c22;color:var(--text);font-size:clamp(26px,6vw,44px);font-weight:500;text-align:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .8s;z-index:8}
+#menubtn{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:14px;background:var(--panel)}
+</style></head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="title" class="screen">
+  <img class="logo" alt="AT Products LLC" src="data:image/webp;base64,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">
+  <h1>Bondtown</h1>
+  <p class="sub">A low poly romance in a small town</p>
+  <button id="cont" class="btn" type="button">Continue</button>
+  <button id="newbtn" class="ghost" type="button">New game</button>
+  <button id="sndbtn" class="ghost" type="button">Settings</button>
+  <div class="copy">© 2026 AT Products LLC. All rights reserved.</div>
+</div>
+
+<div id="setp" class="panel" style="display:none;z-index:9"><h2>Settings</h2><div class="row"><b>Music volume</b><input id="vol" type="range" min="0" max="100" aria-label="Music volume" style="width:100%;touch-action:auto"></div><div class="row"><b>Sound</b><div class="chips"><button id="sndt" class="chip" type="button"></button></div></div><div class="row"><b>Voice</b><div class="chips"><button id="ttst" class="chip" type="button"></button></div></div><div class="row"><b>Controls</b><p class="note">WASD or arrow keys to move, E to interact, Esc or F1 for the menu. On touch, use the joystick and the action button.</p></div><div class="bar"><button id="setx" class="btn" type="button">Done</button></div></div>
+<div id="create" class="screen"><div class="panel">
+  <h2>Create your character</h2>
+  <p class="note">Your looks lock when you press Play. Clothes can change any time at your wardrobe.</p>
+  <p id="pinfo"></p>
+  <div id="opts"></div>
+  <div class="bar"><button id="reroll" class="ghost" type="button">New partner</button><button id="play" class="btn" type="button">Play</button></div>
+</div></div>
+
+<div id="wardrobe" class="panel">
+  <h2>Wardrobe</h2><p class="note">Changes save automatically.</p>
+  <div id="wopts"></div>
+  <div class="bar"><button id="wdone" class="btn" type="button">Done</button></div>
+</div>
+
+<div id="hud">
+  <button id="phbtn" type="button" aria-label="Phone">📱<i id="phbd"></i></button>
+  <div id="phone"><div class="ph"><div class="phs"><span id="phtime"></span><button id="phx" type="button" aria-label="Close phone">✕</button></div><div id="phbody"></div></div></div>
+  <div id="obj"></div><div id="hint">WASD or arrows to move · E to interact · Esc or F1 for menu</div>
+  <button id="act" class="btn" type="button"></button>
+  <button id="menubtn" class="chip" type="button">Menu</button>
+  <div id="stats"></div>
+  <div id="joy"><div id="nub"></div></div>
+</div>
+<div id="dlg" class="panel"><p id="dnar"></p><b id="dname"></b><p id="dtext"></p><div id="dch"></div><p id="dfx" class="note"></p></div>
+<div id="dbg"></div>
+<div id="toast"></div><div id="mvig"></div><div id="card"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),T=THREE,K='bondtown-save';
+const SK=['#f4d3b5','#e0ac7f','#c68a5c','#9a6a44','#5f3e2a'],HC=['#2a1d17','#6b4226','#c9a24a','#b5493a','#d8d4e8'],
+CL=['#e9e4f5','#3d6fb4','#c4465c','#5f8f55','#e0a63c','#2b2b3c','#8a5cc2','#808a3a'],SH=['#2b2b3c','#f1efe9','#c4465c','#7a5a3a'],
+HS=[['short','Short'],['long','Long'],['bun','Bun'],['buzz','Buzz']],AC=[['none','None'],['scarf','Scarf'],['glasses','Glasses'],['hat','Hat']],
+NM=['Rowan','Eli','Theo','Miles','Jonah','Dev'],NF=['Maya','June','Iris','Nora','Tessa','Lena'],BU=['slim','avg','broad'];
+const rs=()=>Math.floor(Math.random()*1e9);
+function rng(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function genPartner(seed,pref){const r=rng(seed),pk=a=>a[Math.floor(r()*a.length)];
+  const g=pref==='r'?(r()<.5?'m':'f'):pref;
+  return{seed,gender:g,name:pk(g==='m'?NM:NF),build:pk(BU),skin:pk(SK),hairStyle:pk(HS)[0],hairColor:pk(HC),
+    top:pk(['#808a3a','#5f8f55','#e0a63c','#3d6fb4']),bottom:pk(['#2b2b3c','#3b4a6b','#6b5a3a']),shoes:pk(SH),acc:pk(['scarf','scarf','glasses','none'])}}
+const def=()=>({gender:'m',build:'avg',skin:SK[1],hairStyle:'short',hairColor:HC[1],top:CL[1],bottom:CL[5],shoes:SH[1],acc:'none',pref:'f',seed:rs()});
+const load=()=>{try{return JSON.parse(localStorage.getItem(K))}catch(e){return null}};
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(cfg))}catch(e){}};
+
+const M=c=>new T.MeshLambertMaterial({color:c,flatShading:true});
+function bx(w,h,d,c,x,y,z,p){const m=new T.Mesh(new T.BoxGeometry(w,h,d),M(c));m.position.set(x,y,z);if(p)p.add(m);return m}
+function setAcc(g,a){const G=g.userData.accG;while(G.children.length)G.remove(G.children[0]);
+  if(a==='scarf'){bx(.52,.14,.4,'#c4465c',0,1.34,0,G);bx(.12,.36,.06,'#c4465c',.14,1.14,.2,G)}
+  if(a==='glasses'){bx(.16,.12,.02,'#2a2340',-.11,1.65,.235,G);bx(.16,.12,.02,'#2a2340',.11,1.65,.235,G);bx(.07,.03,.02,'#2a2340',0,1.67,.235,G)}
+  if(a==='hat'){bx(.58,.08,.58,'#c4465c',0,1.93,0,G);bx(.4,.2,.4,'#c4465c',0,2.03,0,G)}}
+function setOutfit(g,o){const u=g.userData;u.top.forEach(m=>m.material.color.set(o.top));u.bot.forEach(m=>m.material.color.set(o.bottom));u.sh.forEach(m=>m.material.color.set(o.shoes));setAcc(g,o.acc)}
+function makeChar(o){
+  const g=new T.Group(),b=new T.Group(),u=g.userData={bot:[],sh:[],top:[]};g.add(b);
+  const w={slim:.54,avg:.62,broad:.74}[o.build];b.scale.y=o.gender==='f'?.95:1;
+  u.legs=[-1,1].map(s=>{const p=new T.Group();p.position.set(s*.15,.72,0);b.add(p);u.bot.push(bx(.24,.72,.28,o.bottom,0,-.36,0,p));u.sh.push(bx(.27,.14,.38,o.shoes,0,-.65,.07,p));return p});
+  u.top.push(bx(w,.7,.34,o.top,0,1.07,0,b));
+  u.arms=[-1,1].map(s=>{const p=new T.Group();p.position.set(s*(w/2+.1),1.38,0);b.add(p);u.top.push(bx(.17,.5,.2,o.top,0,-.25,0,p));bx(.15,.16,.17,o.skin,0,-.58,0,p);return p});
+  bx(.46,.46,.44,o.skin,0,1.62,0,b);bx(.07,.07,.02,'#1d1633',-.11,1.65,.23,b);bx(.07,.07,.02,'#1d1633',.11,1.65,.23,b);
+  const hc=o.hairColor,hs=o.hairStyle;
+  if(hs==='buzz')bx(.48,.07,.46,hc,0,1.86,0,b);else{bx(.5,.16,.5,hc,0,1.9,0,b);bx(.5,.1,.1,hc,0,1.82,.22,b)}
+  if(hs!=='buzz')bx(.5,.3,.12,hc,0,1.74,-.2,b);
+  if(hs==='long'){bx(.5,.62,.12,hc,0,1.5,-.2,b);bx(.06,.42,.3,hc,-.26,1.6,-.05,b);bx(.06,.42,.3,hc,.26,1.6,-.05,b)}
+  if(hs==='bun'){const s=new T.Mesh(new T.IcosahedronGeometry(.15,0),M(hc));s.position.set(0,2.0,-.12);b.add(s)}
+  u.accG=new T.Group();b.add(u.accG);setAcc(g,o.acc);return g}
+function anim(g,mv,t){const u=g.userData,s=mv?Math.sin(t*10)*.7:0,l=(a,v)=>a.rotation.x+=(v-a.rotation.x)*.3;
+  l(u.legs[0],s);l(u.legs[1],-s);l(u.arms[0],-s);l(u.arms[1],s)}
+function label(t,x,y,z,s=1){const c=document.createElement('canvas');c.width=320;c.height=80;const g=c.getContext('2d');
+  g.fillStyle='rgba(29,22,51,.88)';g.beginPath();(g.roundRect||g.rect).call(g,4,8,312,64,18);g.fill();
+  g.fillStyle='#fff';g.font='600 36px Fredoka,system-ui,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(t,160,41);
+  const sp=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(c),depthWrite:false}));sp.scale.set(4*s,s,1);sp.position.set(x,y,z);return sp}
+
+const rd=new T.WebGLRenderer({canvas:$('#c'),antialias:true});rd.setPixelRatio(Math.min(devicePixelRatio,2));
+const cam=new T.PerspectiveCamera(50,1,.1,200);
+let mode='title',cfg=load()||def(),pd,pl,pa,pc=[],near=null,wOpen=false,tm=0,ang=0;
+const keys={},jv={x:0,z:0},rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function fit(){const w=innerWidth,h=innerHeight;rd.setSize(w,h,false);cam.aspect=w/h;
+  if(mode==='create'){w>=800?cam.setViewOffset(w,h,190,0,w,h):cam.setViewOffset(w,h,0,h*.26,w,h)}else cam.clearViewOffset();cam.updateProjectionMatrix()}
+addEventListener('resize',fit);
+
+/* ---- world ---- */
+const world=new T.Scene(),colOut=[],colApt=[],colCafe=[];let col=colOut;
+world.background=new T.Color('#f6cfa3');world.fog=new T.Fog('#f6cfa3',48,115);
+const hemi=new T.HemisphereLight('#fff1dc','#7a8f6a',.95);world.add(hemi);
+const sun=new T.DirectionalLight('#ffd9a8',.8);sun.position.set(-20,30,15);world.add(sun);
+const hit=(w,h,d,c,x,y,z)=>{col.push({x,z,hx:w/2,hz:d/2});return bx(w,h,d,c,x,y,z,world)};
+const cyl=(rt,rb,h,seg,c,x,y,z)=>{const m=new T.Mesh(new T.CylinderGeometry(rt,rb,h,seg),M(c));m.position.set(x,y,z);world.add(m);return m};
+const cone=(r,h,seg,c,x,y,z)=>{const m=new T.Mesh(new T.ConeGeometry(r,h,seg),M(c));m.position.set(x,y,z);world.add(m);return m};
+const WARD={x:195,z:-5.4};
+function win(a,y,b,w,h,sh,dir){dir=dir||'f';const s=dir==='l'||dir==='b'?-1:1,fz=dir==='f'||dir==='b';
+  const P=(dx,dy,dz,c,W,H,D)=>fz?bx(W,H,D,c,a+dx,y+dy,b+dz*s,world):bx(D,H,W,c,b+dz*s,y+dy,a+dx,world);
+  P(0,0,.04,'#f4efe6',w+.3,h+.3,.12);P(0,0,.1,'#9fd3ea',w,h,.1);P(0,0,.15,'#f4efe6',.06,h,.06);P(0,0,.15,'#f4efe6',w,.06,.06);P(0,-h/2-.2,.12,'#d9d2c4',w+.5,.12,.3);
+  if(sh){P(-w/2-.4,0,.06,sh,.35,h+.3,.08);P(w/2+.4,0,.06,sh,.35,h+.3,.08)}}
+const planter=(x,y,z,w)=>{bx(w,.25,.32,'#7a5a3a',x,y,z,world);bx(w-.1,.14,.22,'#4f8f5a',x,y+.18,z,world);for(let i=0;i<5;i++)bx(.14,.14,.14,['#e84a6a','#ffd34e','#fff'][i%3],x-w/2+.2+i*(w-.4)/4,y+.3,z,world)};
+const lamp=(x,z)=>{col.push({x,z,hx:.2,hz:.2});cyl(.08,.1,3,5,'#2b2b3c',x,1.5,z);bx(.3,.3,.3,'#ffe9a8',x,3.15,z,world);bx(.4,.08,.4,'#2b2b3c',x,3.38,z,world)};
+const ring=(ri,ro,c,y,x,z)=>{const m=new T.Mesh(new T.RingGeometry(ri,ro,32),M(c));m.rotation.x=-Math.PI/2;m.position.set(x,y,z);world.add(m)};
+function apartment(){const X=-14,Z=-10;
+  bx(8.5,.5,7.25,'#8d8478',X,.25,Z-.1,world);hit(8,6,7,'#e8c9a0',X,3,Z);
+  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(c=>bx(.3,6,.3,'#f4efe6',X+c[0]*4.05,3,Z+c[1]*3.55,world));
+  bx(8.2,.18,7.2,'#f4efe6',X,3.1,Z,world);bx(.12,5.8,.12,'#b8b0a4',X-3.7,3.1,-6.4,world);
+  bx(9.3,.25,9.3,'#6b3a4a',X,6.1,Z,world);cone(6.4,3.2,4,'#8a4a5c',X,7.6,Z).rotation.y=Math.PI/4;cone(.25,.9,4,'#5a3a30',X,9.6,Z);
+  bx(.9,2.4,.9,'#a05a48',X+2,8.3,Z-1.5,world);bx(1.1,.2,1.1,'#5a3a30',X+2,9.6,Z-1.5,world);
+  bx(1.6,1.4,1.2,'#e8c9a0',X,7.3,Z+1.7,world);cone(1.25,.9,4,'#8a4a5c',X,8.4,Z+1.7).rotation.y=Math.PI/4;win(X,7.3,Z+2.3,.7,.7);
+  bx(4.4,.3,1.9,'#a39b8d',X,.15,-5.65,world);bx(3.2,.15,.6,'#b3ab9d',X,.075,-4.5,world);
+  bx(1.8,2.7,.16,'#f4efe6',X,1.65,-6.5,world);bx(1.4,2.4,.12,'#5c4a7a',X,1.5,-6.42,world);bx(1.4,.4,.1,'#9fd3ea',X,3,-6.4,world);bx(.1,.1,.1,'#e0c060',X+.45,1.5,-6.32,world);
+  bx(3.8,.2,2,'#8a4a5c',X,3.5,-5.6,world);bx(3.8,.5,.06,'#4a4458',X,3.85,-4.65,world);
+  [-1,1].forEach(s=>{bx(.2,3,.2,'#f4efe6',X+s*1.8,1.8,-4.75,world);bx(.2,.3,.2,'#ffe9a8',X+s*.9,2.8,-6.3,world)});
+  [-2.4,2.4].forEach(d=>{win(X+d,2,-6.5,1.3,1.3,'#4a7a6a');win(X+d,4.7,-6.5,1.3,1.3,'#4a7a6a');planter(X+d,.97,-6.15,1.6);planter(X+d,3.67,-6.15,1.6)});win(X,4.7,-6.5,1.3,1.6);
+  [[-1.6,'l',X-4],[1.6,'l',X-4],[-1.6,'r',X+4],[1.6,'r',X+4]].forEach(s=>[2,4.7].forEach(y=>win(Z+s[0],y,s[2],1.1,1.2,null,s[1])));
+  [-2,0,2].forEach(d=>win(X+d,4.7,Z-3.5,1.1,1.2,null,'b'));[-2,2].forEach(d=>win(X+d,2,Z-3.5,1.1,1.2,null,'b'));
+  bx(1.8,.05,1.7,'#d9c7a3',X,.045,-3.75,world);
+  for(let x=-18.6;x<=-9.4;x+=.55){if(x>-15.3&&x<-12.7)continue;bx(.12,.75,.12,'#f4efe6',x,.38,-3.8,world)}
+  bx(3.3,.08,.05,'#f4efe6',-16.95,.55,-3.8,world);bx(3.3,.08,.05,'#f4efe6',-11.05,.55,-3.8,world);col.push({x:-16.95,z:-3.8,hx:1.65,hz:.1},{x:-11.05,z:-3.8,hx:1.65,hz:.1});
+  bx(2.4,.9,.7,'#4f8f5a',-17,.45,-5.3,world);bx(2.4,.9,.7,'#4f8f5a',-11,.45,-5.3,world);
+  world.add(label('Your apartment',X,10.6,Z))}
+function cafe(){const X=14,Z=-10,A='#c4465c',W='#f4efe6';
+  bx(9.3,.4,7.25,'#7c7468',X,.2,Z-.1,world);hit(9,5,7,'#f2d9a6',X,2.5,Z);bx(9.1,1.1,7.1,'#6b8f7a',X,.75,Z,world);
+  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(c=>bx(.5,5,.5,'#b5654a',X+c[0]*4.5,2.5,Z+c[1]*3.5,world));
+  bx(9.6,.4,7.6,W,X,5.1,Z,world);bx(9.3,.3,7.3,'#5c4a7a',X,5.4,Z,world);
+  [[9.6,.6,.2,0,-3.7],[9.6,.6,.2,0,3.7],[.2,.6,7.6,-4.7,0],[.2,.6,7.6,4.7,0]].forEach(p=>bx(p[0],p[1],p[2],W,X+p[3],5.75,Z+p[4],world));
+  bx(5.4,1.3,.2,'#2b2150',X,6.6,-6.15,world);world.add(label('Rowan & Light',X,6.6,-5.95));
+  bx(1.4,.8,1,'#b8b0a4',X+2.5,6,Z-1.5,world);cyl(.4,.4,.1,8,'#4a4458',X+2.5,6.45,Z-1.5);bx(.7,1.6,.7,'#b5654a',X-2.5,6.35,Z-2,world);
+  for(let i=0;i<8;i++){const c=i%2?W:A,x=X-4.2+i*1.2;bx(1.2,.1,2.6,c,x,3.75,-5.3,world).rotation.x=.28;bx(1.2,.3,.08,c,x,3.35,-4.12,world)}
+  [-1,1].forEach(s=>bx(.1,3.4,.1,'#4a4458',X+s*4.7,1.7,-4.1,world));
+  for(let i=0;i<14;i++)bx(.1,.1,.1,'#ffe9a8',X-4.3+i*.66,3.2-.15*Math.sin(i/13*Math.PI),-4.15,world);
+  bx(1.9,2.8,.16,W,X,1.6,-6.5,world);bx(1.5,2.5,.12,'#4a3a2a',X,1.55,-6.42,world);bx(1.1,1.5,.1,'#9fd3ea',X,1.8,-6.35,world);bx(.1,.5,.1,'#e0c060',X+.55,1.5,-6.3,world);bx(.5,.3,.04,'#ffd34e',X-.45,2.2,-6.33,world);
+  win(X-2.8,2.3,-6.5,2.4,1.8);win(X+2.8,2.3,-6.5,2.4,1.8);[-3,0,3].forEach(d=>win(X+d,4.3,-6.5,1,.5));
+  [-1.5,1.5].forEach(z=>{win(Z+z,2.5,X-4.5,1.2,1.4,null,'l');win(Z+z,2.5,X+4.5,1.2,1.4,null,'r')});
+  [-2.5,2.5].forEach(d=>win(X+d,2.5,Z-3.5,1.3,1.4,null,'b'));bx(1.2,2.2,.1,'#4a3a2a',X,1.2,Z-3.55,world);
+  bx(1,1.3,.08,'#7a5a3a',8.7,.75,-5,world);bx(.85,1.1,.1,'#2b2b3c',8.7,.78,-4.96,world);[.9,.7,.5].forEach((y,i)=>bx(.5-i*.08,.04,.02,W,8.7,y+.1,-4.9,world));col.push({x:8.7,z:-5,hx:.5,hz:.2});
+  [-3,3].forEach(s=>{const x=X+s,z=-5.2;col.push({x,z,hx:.6,hz:.6});cyl(.6,.6,.08,8,W,x,.9,z);cyl(.07,.07,.9,6,'#4a4458',x,.45,z);cyl(.3,.3,.05,8,'#4a4458',x,.03,z);
+    [-1,1].forEach(c=>{bx(.45,.08,.45,A,x+c*.95,.55,z,world);bx(.06,.5,.06,'#4a4458',x+c*.95,.28,z,world);bx(.08,.45,.45,A,x+c*1.15,.85,z,world)})});
+  [-1.6,1.6].forEach(s=>{col.push({x:X+s,z:-5.6,hx:.45,hz:.45});cyl(.45,.35,.6,8,'#b5654a',X+s,.3,-5.6);cone(.4,1,6,'#4f8f5a',X+s,1.03,-5.6)});
+}
+let loc='out',dOpen=false;
+const AR={out:{b:[-40,40,-40,40],c:colOut,bg:'#f6cfa3',p:[-11,-2.5]},apt:{b:[193.5,206.5,-5.6,5.8],c:colApt,bg:'#2b2150',p:[200,4.6]},cafe:{b:[293.5,306.5,-5.6,5.8],c:colCafe,bg:'#2b2150',p:[300,4.6]}},
+LB={wardrobe:'Change outfit','enter-apt':'Enter apartment','enter-cafe':'Enter café',exit:'Go outside'};
+function go(l,x,z){if(loc!==l)bell();loc=l;const a=AR[l];col=a.c;world.background.set(a.bg);hemi.intensity=l==='out'?.95:.45;sun.intensity=l==='out'?.8:.25;if(world.fog)world.fog.color.set(a.bg);
+  pl.position.set(x==null?a.p[0]:x,0,z==null?a.p[1]:z);pa.visible=l==='out';if(l==='out'&&pa.position.x>100)pa.position.set(12.4,0,-3.2);cafeSpot();wv=tm+2.2;cam.position.set(pl.position.x,10,pl.position.z+13)}
+function room(I,wall,back,floor){bx(14,.2,12,floor,I,-.1,0,world);bx(14.6,4,.3,back,I,2,-6.15,world);bx(.3,4,12,wall,I-7.15,2,0,world);bx(.3,4,12,wall,I+7.15,2,0,world);bx(14,.25,.1,'#f4efe6',I,.12,-5.95,world);
+  bx(2.4,.04,1,'#8a4a5c',I,.02,5.3,world);world.add(label('Door',I,1.2,5.3,.6));const L=new T.PointLight('#ffd9a8',.4,28);L.position.set(I,5,0);world.add(L)}
+function aptInt(){col=colApt;room(200,'#e8d9c0','#e8d9c0','#c9a27a');
+  hit(1.6,2.4,.9,'#7a5a3a',195,1.2,-5.4);bx(.06,2.2,.05,'#4a3622',195,1.2,-4.92,world);world.add(label('Wardrobe',195,3.1,-5.4,.7));
+  hit(2.2,.5,3.2,'#7a5a3a',204.5,.25,-4.2);bx(2,.3,3,'#e9e4f5',204.5,.65,-4.2,world);bx(2.05,.15,1.8,'#3d6fb4',204.5,.85,-3.6,world);bx(.9,.2,.5,'#fff',204,.9,-5.3,world);bx(.9,.2,.5,'#fff',205,.9,-5.3,world);
+  hit(.7,.6,.7,'#7a5a3a',202.6,.3,-5.5);bx(.3,.4,.3,'#ffe9a8',202.6,.8,-5.5,world);
+  hit(1.2,.8,3,'#8a5cc2',194.5,.4,1.2);bx(.3,1,3,'#8a5cc2',193.8,.9,1.2,world);
+  bx(3,.03,3.6,'#c4465c',196.8,.02,1.2,world);hit(1.2,.5,1.8,'#7a5a3a',196.8,.25,1.2);
+  hit(2.4,.6,.7,'#2b2b3c',199,.3,-5.5);bx(1.8,1,.08,'#1d1633',199,1.3,-5.8,world);
+  hit(.9,1,4,'#e9e4f5',206.4,.5,-1);bx(.6,.05,.6,'#2b2b3c',206.4,1.03,0,world);bx(.6,.05,.5,'#7cc7e8',206.4,1.03,-1.8,world);hit(.9,2.2,.9,'#cfd6e6',206.4,1.1,-3.6);bx(.5,.8,3,'#7a5a3a',206.7,2.6,-1,world);
+  hit(1.2,.8,1.2,'#7a5a3a',203.2,.4,1.8);[-1,1].forEach(s=>bx(.45,.5,.45,'#c4465c',203.2+s*1.1,.25,1.8,world));
+  cyl(.4,.32,.5,8,'#b5654a',194.2,.25,-3);cone(.36,1.1,6,'#4f8f5a',194.2,1.03,-3);
+  [197.4,201.2].forEach(x=>{bx(1.8,1.3,.1,'#f4efe6',x,2.9,-5.95,world);bx(1.5,1,.1,'#9fd3ea',x,2.9,-5.9,world)});bx(1.2,.9,.06,'#3d6fb4',199,3.2,-5.97,world);col=colOut}
+function cafeInt(){col=colCafe;room(300,'#f2d9a6','#b5654a','#a98862');
+  hit(7,1.1,1.2,'#7a5a3a',300,.55,-3.6);bx(7.2,.1,1.4,'#e9e4f5',300,1.15,-3.6,world);bx(1,.6,.6,'#b8b0a4',298.5,1.5,-3.6,world);bx(.5,.4,.4,'#2b2b3c',302.5,1.4,-3.6,world);bx(1.4,.6,.7,'#9fd3ea',300.4,1.5,-3.4,world);
+  [2.4,3.2].forEach(y=>bx(5,.1,.4,'#7a5a3a',300,y,-5.8,world));for(let i=0;i<9;i++)bx(.3,.4,.3,['#c4465c','#e0a63c','#5f8f55','#3d6fb4'][i%4],298+i*.5,2.65,-5.8,world);
+  bx(.08,1.4,2.6,'#2b2b3c',306.9,2.6,-1,world);world.add(label('Menu',306.5,3.6,-1,.5));
+  for(let i=0;i<4;i++){const x=298.6+i*1.4;col.push({x,z:-2.6,hx:.25,hz:.25});cyl(.25,.25,.1,6,'#c4465c',x,.75,-2.6);cyl(.06,.06,.75,5,'#4a4458',x,.38,-2.6)}
+  [[296.2,1],[303.8,1],[300,2]].forEach(p=>{const x=p[0],z=p[1];col.push({x,z,hx:.6,hz:.6});cyl(.6,.6,.08,8,'#f4efe6',x,.9,z);cyl(.07,.07,.9,6,'#4a4458',x,.45,z);
+    [-1,1].forEach(c=>{bx(.45,.08,.45,'#c4465c',x+c*.95,.55,z,world);bx(.06,.5,.06,'#4a4458',x+c*.95,.28,z,world)});bx(.03,.8,.03,'#2b2b3c',x,3.8,z,world);cone(.4,.35,8,'#ffd34e',x,3.3,z)});
+  hit(.8,.5,4,'#6b8f7a',294,.25,1.5);bx(.2,.7,4,'#6b8f7a',293.55,.85,1.5,world);
+  [293.9,306.1].forEach(x=>{cyl(.4,.32,.5,8,'#b5654a',x,.25,-5.1);cone(.36,1.1,6,'#4f8f5a',x,1.03,-5.1)});col=colOut}
+let dn=null,paused=false;
+function pause(){if(mode!=='play'||wOpen||dOpen)return;paused=true;jv.x=jv.z=0;save();const c=$('#cont');c.style.display='';c.textContent='Resume';setMode('title')}
+function menuKey(){if(pOpen){closePh();return}if(mode==='title'&&paused){paused=false;$('#cont').textContent='Continue';setMode('play')}else if(wOpen||dOpen){closeW();endD()}else pause()}
+$('#menubtn').onclick=pause;
+const gy=(x,z)=>{if(Math.abs(x+14)<2.2&&z>-6.6&&z<-4.75)return .3;if(Math.abs(x+14)<1.6&&z>=-4.75&&z<-4.2)return .15;const r=Math.hypot(x,z-12);return r>2.9&&r<5.2?.06:0};
+const PR=t=>t.replace(/{name}/g,pd.name);
+const DL={meet:{t:'Hi! You must be new in town. I’m {name}. I run Rowan & Light, the café over there.',c:[['Nice to meet you, {name}!',{a:3,t:2,k:'charm'},'meet2'],['Just looking around.',{t:1},'meet2'],['Wow. Hi.',{x:3},'meet2']]},
+ meet2:{t:'Welcome to Bondtown. Stop by the café any time. Your first coffee is on me.',c:[['I’ll take you up on that.',{a:2}],['That’s kind of you.',{t:2}]]}};
+let sc=null,ms=0,mh=0,fin=0,pmv=false;
+Object.assign(DL,{
+ meet:{t:'Oh, hi! A new face. I’m {name}. I run Rowan & Light, the café over there. I know everyone in town, so I’d have remembered you.',c:[['Nice to meet you, {name}!',{a:3,t:2,k:'charm'},'meet2'],['Just looking around.',{t:1},'meet2'],['Hi. Wow, hi.',{x:2,k:'awk'},'meet2']]},
+ meet2:{t:'Bondtown is small, so we’ll keep bumping into each other. Might as well be friends. Your first coffee is on me, and I make a very good one.',c:[['Friends sounds good.',{a:3,t:2},'Good. Then I’ll save you a seat at the café. Don’t make it weird. Okay, make it a little weird.'],['Let’s see where it goes.',{a:1,x:1},'Fair. I like a slow burn. Come find me when you’re ready.'],['Coffee first, then friends.',{a:2},'Ha. A person of priorities. I’ll start the grinder.']]},
+ close1:{t:'Can I tell you something? Most people only know the café version of me: cheerful, quick, always pouring. I don’t let many people closer than the counter.',c:[['I’m glad you trust me.',{t:3,a:2},'I’m surprised how easy it was. Usually I rehearse this part. With you I just… said it.'],['You don’t have to say more.',{t:2},'Thank you. That helps more than you know. I’ll say it when I’m ready, and I think I’ll be ready soon.'],['So who’s the real you?',{t:1,x:1},'Quieter. Funnier, I think. Someone who stays up too late looking at old photos. You’ll meet them eventually.']]},
+ more1:{t:'I keep looking forward to seeing you more than I expected to. I check the door when the bell rings. Is that strange?',c:[['Not strange at all.',{x:4,a:2},'Okay. Good. I was bracing for you to laugh. My heart is doing something ridiculous.'],['I feel it too.',{x:5,a:3},'Oh. Oh. Okay. I need a second. I’m smiling like an idiot and I’m not even sorry.'],['Let’s keep things as they are.',{x:-2,t:2},'Understood. I’d rather have you as you are than not at all. No weirdness, I promise.']]},
+ date1:{t:'Would you go on a real date with me? Dinner, candles, no apron. I’ve been trying to ask for three weeks and I keep making a latte instead.',c:[['Yes. I’d love to.',{x:5,a:4,f:'dating',m:'date'},'You said yes. I’m going to be unbearable about this. Seven o’clock. Get ready at your place, wear something you like, then meet me at the café door. I’ll handle the rest.'],['Let me think about it.',{t:1},'Take your time. I’ll be here, and the offer doesn’t expire. The latte might, though.'],['I’d rather stay friends.',{x:-10,t:2},'Okay. Thank you for being honest. I mean it. Friends is a good thing to be, and I’m keeping you either way.']]},
+ rush1:{t:'Okay. Brace yourself. A flat white, two lattes, and a very serious cinnamon situation. I steam, you take the register?',c:[['Register. On it.',{t:2,a:1},'rush2'],['I’ll steam. Show me how.',{x:2,t:1},'rush2'],['I have no idea what I’m doing.',{a:2},'rush2']]},
+ rush2:{t:'Table two wants oat milk, table three is arguing about foam, and somebody just asked if we sell soup. (We do not sell soup.)',c:[['Tell them soup is a lifestyle choice.',{x:2,a:2},'rush3'],['Stay calm and smile.',{t:3},'rush3'],['Hand them a menu. Loudly.',{a:1,t:1},'rush3']]},
+ rush3:{t:'And… last cup. Done. We survived! Honestly, I’ve never had anyone stand behind this counter with me. It’s usually just me, panicking quietly.',c:[['You’re a good team captain.',{a:3,t:2},'Then you’re hired. Pay is coffee and gratitude. Mostly gratitude.'],['Next time I want a tip jar.',{x:2,a:1},'Deal. Half goes to your outfit budget.'],['Next time, ask me earlier.',{t:3},'I will. I promise. Thank you for showing up.']]},
+ listen1:{t:'Okay, don’t say anything. Just close your eyes for a moment and listen.',c:[['Closing them.',{t:3,a:1},'listen2'],['Is this a prank?',{a:1},'listen2'],['I’m peeking.',{x:2},'listen2']]},
+ listen2:{t:'Fountain water. A dog a few streets over. A bicycle bell. Every day the town sounds a little different and nobody notices.',c:[['I hear it now.',{t:3,a:2},'listen3'],['I hear you breathing.',{x:3},'listen3'],['I hear your stomach.',{a:2},'listen3']]},
+ listen3:{t:'I come here when the café gets loud in my head. Thanks for being quiet with me. Not everyone can.',c:[['Anytime.',{t:3,a:2},'It’s a standing appointment now. Fountain, quiet, us.'],['Same time tomorrow?',{x:2,a:2},'Same time tomorrow. I’ll bring the coffee.']]},
+ film1:{t:'This is it. Two years of dust on a shoebox. Rolls of film, all labeled in my handwriting. Some I don’t even remember shooting.',c:[['Open it together?',{t:3,a:2},'film2'],['Let me hold it for you.',{t:2,x:1},'film2'],['Breathe first.',{t:3},'film2']]},
+ film2:{t:'There’s one marked “First snow.” And another that just says “Don’t.” I think I know what’s on that one.',c:[['Then we skip that one.',{t:4},'film3'],['Now I’m curious.',{x:1,a:1},'film3'],['Snow first, then.',{a:3,t:2},'film3']]},
+ film3:{t:'Okay. Snow first. I’ll take it to the darkroom this weekend. I wanted somebody here when I finally looked. I’m glad it’s you.',c:[['I’ll be there.',{t:3,a:3},'Then it’s a plan. Bring tea. The darkroom gets cold.'],['Save me a print.',{a:2,x:1},'First copy’s yours. I promise.'],['You’re braver than you think.',{t:4},'That’s kind of exactly what I needed to hear.']]},
+ photo1:{t:'Perfect light, golden hour, no wind. Stand right there. No, not like that. Okay, like that.',c:[['Do I look okay?',{a:2,x:1},'photo2'],['Give me a good angle.',{x:2},'photo2'],['Photographer first, subject second.',{a:2,t:1},'photo2']]},
+ photo2:{t:'Hold still… got it. Look at this one. You’re mid-laugh and the lamps just turned on behind you.',c:[['Print that one.',{x:3,a:2},'photo3'],['Show me what you see.',{t:3},'photo3']]},
+ photo3:{t:'I usually photograph places so I don’t have to photograph people. You’re the first exception I’ve wanted to keep.',c:[['I’ll frame it.',{a:3,x:2},'And I’ll sign the back so you remember who took it.'],['That means a lot.',{t:3,a:2},'It’s true. Don’t tell the pigeons.']]},
+ walk1:{t:'I always wanted someone to take the long way with. Everyone’s in a hurry. I’m tired of hurrying.',c:[['No hurry tonight.',{t:3,a:2},'walk2'],['Take my hand?',{x:4},'walk2'],['Where does the long way end?',{t:1,x:1},'walk2']]},
+ walk2:{t:'Here, probably. The bench, the lamps, and nobody else. I’ve been thinking about this walk all day.',c:[['Sit with me.',{a:3,x:2},'walk3'],['I did too.',{x:4,a:2},'walk3'],['What did you think about?',{t:3},'walk3']]},
+ walk3:{t:'That I want this to be something we do. Not an event. A habit.',c:[['Then let’s make it one.',{a:3,x:4},'Every closing time. The long way, always.'],['A good habit.',{a:2,t:2},'The best one I have, honestly.'],['Let me catch my breath first.',{x:2},'Take all the time you need. I’m not going anywhere.'],['Kiss them.',{x:5,a:3,v:'kiss'},['The bench, the lamps, the quiet. For once, nobody is in a hurry.','Okay. That was worth the long way.'],()=>cfg.st.x>=20]]},
+ morning1:{t:'Good morning. You left the door unlocked and I took that as an invitation.',c:[['Best invitation ever.',{x:3,a:2},'morning2'],['You’re scary good at this.',{a:3},'morning2'],['Come here.',{x:4},'morning2']]},
+ morning2:{t:'Coffee’s made your way: too much oat milk, one sugar, stirred counterclockwise. Don’t ask. It’s science.',c:[['Counterclockwise?',{a:2,t:1},'morning3'],['You memorized my order.',{a:3,x:2},'morning3']]},
+ morning3:{t:'I memorize things about people I care about. It’s a flaw. It’s also how I know you hum when you’re happy.',c:[['I hum?',{a:2,x:1},'You do. It’s my favorite sound of the day.'],['Stay for breakfast.',{x:4,a:3},'I was hoping you’d ask. I brought pastries.'],['Don’t tell anyone.',{t:2,x:2},'Our secret. Along with the pastry box on the table.'],['Kiss them good morning.',{x:5,a:3,v:'kiss'},['The coffee goes cold. Neither of you notices.','Mm. Best breakfast so far.']]]}});
+
+const KF=()=>cfg.k||(cfg.k={});
+Object.assign(DL,{
+ know1:{t:'Okay, official first hangout. I picked the bench by the fountain. Neutral territory. Snacks provided.',c:[['Snacks? I’m in.',{a:2,t:1},'know2'],['Is this a test?',{t:1,x:1},'know2'],['I brought my own.',{a:1,x:1},'know2']]},
+ know2:{t:'You’re the one who read the menu board and said “soup?” out loud. Everyone does. We do not sell soup.',c:[['We do not sell soup.',{a:3,t:1,k:'joke'},'And now it’s ours. Whenever one of us says “soup,” the other pretends it’s a crime. Deal?'],['I will never say it again.',{a:1},'You’ll say it again. Everyone does.'],['Soup is a lifestyle.',{a:2,x:1,k:'joke'},'That’s the right answer. Welcome to the soup club. Membership is one.']]},
+ fest0:{t:'The Lantern Festival is tonight. The whole town floats a lantern in the park and makes a wish. Come with me? I’ll save a spot by the fountain.',c:[['Wouldn’t miss it.',{a:3,x:2,m:'fest'},'Then meet me at the fountain. Bring a wish. Not the practical kind.'],['I’m not sure about crowds.',{t:1,m:'fest'},'We’ll stay at the edge. Meet me at the fountain.'],['Only if you’re there.',{x:3,m:'fest'},'I’ll be there first. Don’t be late, I’ll panic.']]},
+ fest1:{t:'Look at them all. Hundreds of little lights. You’re supposed to whisper your wish so it comes true. I’m not telling you mine.',c:[['I’ll tell you mine.',{t:3,x:2},'fest2'],['Mine’s about you.',{x:4,a:2},'fest2'],['I wish for soup.',{a:3,k:'joke'},'fest2']]},
+ fest2:{t:'The crowd’s pressing in and I’m standing very close to you. I’m not complaining. Just noting it, like a scientist.',c:[['Stay close.',{x:4,a:2,k:'fest'},'fest3'],['It’s warm.',{a:2},'fest3'],['Scientists don’t blush.',{x:3,k:'fest'},'fest3']]},
+ fest3:{t:'Hold the lantern with me. On three. One… two… and there it goes. I think mine’s already coming true.',c:[['Mine too.',{x:5,a:3},'I’m keeping this night. All of it. Even the part where I stepped on your foot.'],['Tell me yours.',{t:3,x:2},'Someday. Once it’s true, I promise.'],['Kiss them.',{x:6,a:3,k:'fkiss',v:'kiss'},['The lantern drifts up while the whole park looks at the sky. You are not looking at the sky.','I’ll remember this one forever.'],()=>cfg.dating]]},
+ fight1:{t:'I need to ask you something and I hate that I have to. Marta at the bakery knows I’m thinking of selling the café. I only told you. Did you say something?',c:[['I never said a word.',{t:-2,a:-2,k:'f0'},'fight2'],['I mentioned it once. I’m sorry.',{t:-1,a:-3,k:'f1'},'fight2'],['You’re accusing me?',{t:-6,a:-6,x:-4,k:'f2'},'fight2']]},
+ fight2:{t:'I don’t know who to believe right now. Not even myself. I’m going to go. Don’t follow me.',c:[['Okay. I’ll give you space.',{t:2},['They leave. The bell over the door rings once, and the café is very quiet.','']],['Wait. Please.',{a:1,x:-1},['They keep walking. The bell rings once, and the café is very quiet.','']],['Fine. Go.',{t:-4,a:-4},['The bell rings once. The quiet that follows is worse than the shouting.','']]]},
+ repair1:{t:'I’ve been stewing for days. Marta overheard me on the phone. It was never you. I’m sorry I didn’t believe you.',c:[['I forgive you. Let’s start over.',{t:5,a:4,k:'rep'},'Thank you. There’s a free coffee with your name on it, forever.'],['It hurt.',{t:3,a:1,k:'rep'},'I know. I’ll earn it back, however long it takes.'],['Hug them.',{t:5,a:4,k:'rep',v:'hug'},['You step in and they hold on tighter than you expected.','I missed this more than I thought.']],['Let’s not talk about it.',{t:-2,a:-2},'Okay. But I’m not sure silence fixes it.']]},
+ repair1c:{t:'We haven’t really spoken in days, and I miss how easy it was. Can we try again?',c:[['I miss it too.',{t:4,a:4,k:'rep'},'Slow and honest, from here. I promise.'],['I need you to trust me first.',{t:2,k:'rep'},'That’s fair. I will actually try.'],['I think we’ve drifted.',{a:-5,t:-4},'Yeah. I felt that too. I’m sorry.']]},
+ test1:{t:'I got a letter. A photography residency in the city, six months, maybe more. It’s everything I applied for. And I’m terrified to say yes.',c:[['Go. I’ll support you.',{t:3,a:2,k:'sup'},'test2'],['Stay. I need you here.',{a:-2,x:2,k:'stay'},'test2'],['Let’s figure it out together.',{t:4,a:3,k:'tog'},'test2']]},
+ test2:{t:'I don’t want to lose this. I don’t want to lose you. I need an answer from us soon.',c:[['I’ll be ready.',{t:2},'Thank you. I’ll find you when it’s time.'],['Give me time.',{t:1},'All the time you need. Just not forever.']]},
+ final1:{t:'The residency starts Monday. I came to ask: what are we? Where do we go from here?',c:[['Whatever happens, we do it together.',{k:'commit',e:1}],['Go. We’ll make long distance work.',{k:'comp',e:1}],['I think we should let go.',{k:'part',e:1}]]},
+ sec1:{t:'You found the notes too? Someone’s leaving them around town, signed with a rowan leaf. My grandmother’s tree. I think this has something to do with why I came here.',c:[['Let’s find out who.',{t:3,k:'sec'},'sec2'],['Maybe leave it alone.',{t:1,k:'secd'},'Okay. Some doors are better closed. For now.']]},
+ sec2:{t:'The last note says: “Under the rowan, where the light first came through.” That’s the old tree behind the café. Dig? I can’t do it alone.',c:[['Grab a shovel.',{a:3,t:3},'sec3'],['Wait for daylight.',{t:2},'sec3']]},
+ sec3:{t:'A tin box. Film. A photo of my grandmother with someone I’ve never seen, under this tree. The back says: “For whoever needs light.”',c:[['She wanted you to find it.',{t:5,a:4,x:2},'She did. And I think she wanted me to find you.'],['We’ll develop it together.',{t:4,a:3},'That’s the plan. First print goes to you.']]},
+ chicken:{n:'A chicken wanders into the café, hops onto the best table and stares at you.',t:'Don’t make eye contact. It knows.',c:[['Offer it a crumb.',{a:2,k:'chick'},['It accepts the crumb with great dignity.','Traitor. It never takes crumbs from me.']],['Shoo it out.',{t:1},['The chicken stalks out, deeply offended. Your partner is laughing too hard to help.','']],['Name it.',{a:3,x:1,k:'chick'},['Your partner lies down on the counter.','“Soupy.” I hate that it’s perfect.']]]},
+ rain:{n:'It starts pouring. Your partner holds out an umbrella.',t:'There’s room for two. Probably. If we’re close.',c:[['Squeeze in.',{x:3,a:2,k:'rain'},['Shoulders touch. Neither of you talks the whole way, and neither of you minds.','']],['Run for it.',{a:2},['You sprint through puddles, soaked and laughing.','']],['Hold it for them.',{t:2,x:1,k:'rain'},['They look at you a beat too long.','Okay. Thanks.']]]},
+ ex:{n:'A stranger waves from across the street. Your partner stiffens.',t:'That’s an old friend. Ex. Very old. Basically fossil.',c:[['Are you okay?',{t:3},'I’m fine. It’s just like opening an old drawer. Thanks for asking.'],['Should I be jealous?',{x:2,a:-1},'No. Maybe a little flattered? Anyway, no.'],['Introduce me.',{a:1,t:-1},'I’d rather not. Let’s walk away calmly, like adults.']]},
+ bill:{n:'An unexpected bill arrived for the café, a new oven part. Your partner is quiet, trying to hide the number.',t:'It’s fine.',c:[['Offer to help.',{t:4,a:2},'Not money. But your company does more than you know.'],['Cook something together.',{a:3,x:1},['They manage a smile.','Beans on toast. Fancy.']],['Give them space.',{t:1},['They nod.','Thanks. I’ll be okay.']]]},
+ sick:{n:'Your partner is wrapped in a blanket behind the counter, coughing.',t:'Just a cold. Don’t come closer. I’m contagious and pitiful.',c:[['Bring tea and a blanket.',{a:3,t:2},['They take the blanket with both hands.','You’re a good person. Please never leave.']],['Make them rest.',{t:3},['They protest for ten seconds, then fall asleep on the counter.','']],['Cover their shift.',{a:2,t:3},['Orders pile up. By evening you’ve made peace with the grinder.','']]]},
+ note1:{n:'A folded note is taped to a lamp post: “Look where the light falls at golden hour.” It’s signed with a tiny rowan leaf.',t:'',c:[['Take it.',{i:1},['You tuck it in your pocket. Who left it?','']],['Read it aloud.',{i:1,a:1},['You read it to nobody. A pigeon is unimpressed.','']]]},
+ note2:{n:'Under a coffee cup at the café, you find a second note: “The tree remembers who watered it.” Same rowan leaf.',t:'',c:[['Keep it.',{i:1},['Two notes now. Whoever it is knows the town well.','']],['Show your partner.',{i:1,t:2},['Your partner goes pale.','Don’t show anyone else.']]]},
+ note3:{n:'A third note is slid under your door: “Bring someone you trust.” You know exactly who.',t:'',c:[['Tell your partner.',{i:1,t:3},['You have a feeling the next time you talk, the story won’t wait.','']],['Keep it to yourself.',{i:1},['You fold it small and put it away. Part of you already knows you’ll tell them.','']]]}});
+Object.assign(DL,{
+ date2:{t:'You made it. No apron, no counter, no excuses. I’ve been rearranging this table for an hour, which I’m telling you so you know how nervous I am.',c:[['It looks perfect.',{a:3,x:2},'date3'],['You’re nervous? Same.',{t:3,x:2},'date3'],['Is that candle legal?',{a:2,x:1},'date3']]},
+ date3:{t:'Rules for tonight: no talking about work, no soup jokes unless it’s an emergency, and you tell me one thing nobody in Bondtown knows about you.',c:[['I’m scared I’ll never feel at home.',{t:5,a:2},'date4'],['I sing in the shower. Loudly.',{a:3,x:1},'date4'],['I’ve thought about you since the day we met.',{x:5,a:2},'date4']]},
+ date4:{t:'Thank you. I’ll keep it safe. Now, dessert. I made it myself. It might be a disaster. It might be the best thing you’ve ever eaten.',c:[['I’ll eat it either way.',{a:3,t:2},'date5'],['Feed me.',{x:4},'date5'],['Let’s share one fork.',{x:3,a:2},'date5']]},
+ date5:{t:'The candle’s almost gone and I don’t want tonight to end. Walk me out?',c:[['Take their hand.',{x:4,a:3,k:'date'},['The bell rings as the door closes behind you, and neither of you lets go.','Best first date in Bondtown history. No notes.']],['Kiss them goodnight.',{x:6,a:3,k:'date',v:'kiss'},['You lean in. They meet you halfway, and the street lamps seem to hum.','…Hi. Wow. Yes. Good night. Definitely good night.'],()=>cfg.st.x>=12],['Walk out side by side.',{a:3,t:2,k:'date'},['Your shoulders keep brushing the whole way.','That counts. That absolutely counts.']],['Say goodnight at the door.',{a:2,t:1},'Goodnight, then. Same time next week? I’ll keep the table.']]}});
+const MS={date:{t:'First Date',loc:'apt',at:[[195.5,-4.2],[14,-3.8,'out'],[298.9,2,'cafe']],r:1.7,n:'date2',pp:[301.1,2],w:['Looking good. Now meet them at the café door.','They’re waiting. Head inside.'],o:['Get ready at your wardrobe (change outfit if you like)','Meet them at the café door','Take the candlelit table in the café'],re:'Get ready at your place, then meet me at the café door. Seven o’clock.'},fest:{t:'Lantern Festival',loc:'out',at:[[0,8.7]],r:1.5,n:'fest1',pp:[1.6,8.9],o:['Meet at the fountain for the Lantern Festival'],re:'Meet me at the fountain. The lanterns are about to go up.'},
+ rush:{t:'The Rush',loc:'cafe',at:[[300,-2.2]],r:1.5,n:'rush1',pp:[300,-4.8],o:['Head to the café counter'],re:'Meet me at the café counter. The line is only getting longer.'},
+ listen:{t:'Quiet at the Fountain',loc:'out',at:[[0,8.7]],r:1.3,hold:5,n:'listen1',pp:[1.6,8.9],o:['Stand still by the fountain and listen'],re:'Meet me at the fountain. Stand still a few seconds and just listen.'},
+ film:{t:'The Shoebox',loc:'cafe',at:[[305,-4.8]],r:1.4,n:'film1',pp:[303.7,-5.3],o:['Find the film box at the back of the café'],re:'I’ll be in the back of the café with the shoebox. Come when you’re ready.'},
+ photo:{t:'Golden Hour',loc:'out',at:[[-6.2,10.4],[4.4,8.6],[13,-3.2]],r:1.7,f:1,n:'photo1',w:['Frame 1 taken.','Frame 2 taken.'],o:['Photo walk: the west bench','Next frame: the lamp by the fountain','Last frame: the café door'],re:'Follow me around the park. I’ll show you where the light is good.'},
+ walk:{t:'The Long Way',loc:'out',at:[[12.5,-3.2],[3.2,9.2],[-6.2,10.4]],r:1.8,f:1,n:'walk1',w:['Through the park…','Almost there.'],o:['Meet at the café door after closing','Take the long way through the park','Walk to the bench'],re:'Meet me at the café door after closing. Then we take the long way.'},
+ morning:{t:'Good Morning',loc:'apt',at:[[200,2.4]],r:2,n:'morning1',pp:[201.6,1.2],o:['Head home. Something smells like coffee'],re:'Come by your place. I left something on the counter.'}};
+const TP=[
+ {t:'How are you settling in? New towns can be loud and quiet at the same time. Got everything you need?',c:[['Still unpacking, honestly.',{t:3},'Boxes are the worst. If you want a hand lifting, or just company on the floor reading labels, I’m around.'],['Great. This town is lovely.',{a:2},'It really is. It grows on you slowly, like moss, but in a good way.'],['Better now.',{x:3},'Smooth. I’ll be thinking about that line all afternoon.']]},
+ {t:'I take photos around town when the light is good. There’s a window about an hour before sunset where everything turns gold. Want to see some sometime?',c:[['I’d love that.',{a:3,x:1,m:'photo'},'Then come with me. I’ll show you my favorite spots. Start at the bench on the west side of the park.'],['Maybe.',{t:1},'No pressure. The offer stands. The light isn’t going anywhere.'],['Not really my thing.',{a:-2},'That’s okay. Not everyone sees it. I’ll keep my camera to myself.']]},
+ {t:'Busy day. Half the town wants coffee at once and my second pair of hands called in sick. Which is a joke, because I only have the one pair.',c:[['Need a hand?',{a:2,t:2,m:'rush'},'You’d really do that? Come by the café counter. I’ll show you the register. Fair warning: someone always orders soup.'],['Sounds exhausting.',{a:1},'It is, a little. But it’s a good tired. The kind that smells like cinnamon.'],['That’s your problem.',{a:-3,t:-2},'Right. Sorry. I shouldn’t have unloaded on you. Forget I said it.']]},
+ {t:'Ever just stand in the park and listen? Not music, just the town. It sounds different every day.',c:[['All the time.',{t:2,a:1,m:'listen'},'Then you’ll get this. There’s a spot by the fountain where it’s best. Meet me there and stay quiet for a bit.'],['Not yet. Show me?',{x:2,a:1,m:'listen'},'Gladly. Meet me at the fountain. The trick is standing still. Longer than feels natural.'],['Sounds boring.',{a:-2},'Ha. Fair. It’s quiet. That’s the point, though. Maybe someday.']]},
+ {t:'Do you ever get homesick? I moved here from somewhere bigger and for months I kept expecting the noise to come back.',c:[['Sometimes, yeah.',{t:3},'Me too. It gets lighter. Not gone, just lighter, like a bag you stop noticing you’re carrying.'],['Not really. I like it here.',{a:2},'Good. I hope you stay a long time. Bondtown could use more people who like it.'],['Is that why you stay busy?',{t:2,x:1},'Okay, ouch. Accurate. Yes. Busy is easier than quiet. Most days.']]},
+ {t:'Settle something. Best café drink: cold brew, flat white, or hot chocolate in disguise? I’m taking a poll for the menu.',c:[['Flat white, no question.',{a:2},'A classic. I respect it. I’ll make you a good one next time.'],['Hot chocolate. I’m not ashamed.',{a:2,x:1},'A person after my own heart. I use real chocolate, not powder. Do not tell the regulars.'],['Whatever you recommend.',{t:2},'Dangerous trust, but I’ll honor it. Let me think about what suits you.']]}];
+const TC=[
+ {t:'There’s a box of old film in the back of the shop. Rolls I shot years ago and never developed. I haven’t opened it in two years.',c:[['Want company when you do?',{t:3,a:2,m:'film'},'Yes. Actually, yes. Come to the back of the café when you can. It’s easier if somebody’s there.'],['Why not?',{t:2,m:'film'},'Because I’m afraid of what I’ll remember. But maybe it’s time. Meet me in the back of the café.'],['Some things should stay closed.',{a:-1},'Maybe. Maybe you’re right. I’ll keep it shut a while longer.']]},
+ {t:'I always save the best table for whoever looks like they need it. Today it was you. You came in looking like a stormcloud.',c:[['That’s sweet.',{a:2,x:1},'I notice people. It’s the only way I know how to be useful.'],['I did need it.',{t:2},'I know. You don’t have to explain. The table’s yours whenever.'],['Flattery gets you far.',{x:2},'I’m not flattering. But I’ll keep going anyway.']]},
+ {t:'You know what I’m scared of? That this town is the only place I’m good at being myself. What if I couldn’t do it anywhere else?',c:[['I think you could.',{t:4},'You really believe that? I’d like to be as sure as you sound.'],['Then stay. It’s a good place.',{a:2,t:1},'I’m not going anywhere. Just wondering out loud. Thank you for not flinching.'],['Maybe I’m the proof you can.',{x:2,t:2},'You might be. That’s a lot to put on someone. I like it a lot.']]},
+ {t:'Everyone asks why I opened a café. Nobody asks why I named it Rowan & Light. Want to guess?',c:[['A person you loved?',{t:2},'Close. Someone I wanted to become. The Rowan part is a tree my grandmother grew. The Light part is for the photos.'],['Because of the photos.',{a:2,x:1},'Yes. You pay attention. Rowan was her tree. Light was the thing I chased.'],['Tell me.',{t:3},'I will, slowly. It’s a long story that fits in a short name.']]}];
+const TM=[
+ {t:'I caught myself waving at nobody today. Just a wave, in the middle of the street. I think I was waving at you, and you weren’t even there.',c:[['Wave at me in person.',{x:3,a:2},'Okay. Like this. Hi. Hello. That’s me waving. Embarrassing, and worth it.'],['That’s sweet.',{a:2},'It’s a little pathetic. But sweet works too.'],['You’re making me blush.',{x:3},'Good. Now we’re even. I’ve been pink since noon.']]},
+ {t:'Walk with me after closing? The long way, through the park. Nobody’s in a hurry then.',c:[['Always.',{x:3,a:3,m:'walk'},'Great. Meet me at the café door after closing. I’ll lock up, and we can go the long way.'],['If I get to hold your hand.',{x:4,m:'walk'},'Negotiable. Mostly yes. Meet me at the café door after closing.'],['Another night.',{a:-1},'No problem. I’ll keep the long way saved for you.']]},
+ {t:'I rehearsed this in the mirror. Tell me you’re happy to see me. Not because you have to. Just because it makes my day.',c:[['I’m always happy to see you.',{a:3,x:3},'Okay. Okay, good. I can stop rehearsing now. Forget the script.'],['Tell me what you rehearsed.',{t:2,x:2},'No way. It was bad. It involved a metaphor about espresso. Let’s never speak of it.'],['You’re adorable when you’re nervous.',{x:4},'Stop. I’m going to drop something. Please stop, but also don’t.']]},
+ {t:'I almost closed early today to come find you. I made it as far as the door and then decided that would be too much.',c:[['It wouldn’t have been too much.',{x:4,a:2},'Then next time I’ll risk it. You’ll see me running down the street with a coffee.'],['Please don’t lose a day’s sales for me.',{a:2,t:1},'Responsible. I like that. But you’re worth a missed shift.'],['I’d have said yes.',{x:5},'Ah. I wish I’d known that two hours ago. I would’ve been gone before the bell.']]}];
+const TD=[
+ {t:'Good morning. I made your coffee the way you like it. Come see. It took three tries to get the foam right.',c:[['You remembered.',{a:3,x:2,m:'morning'},'Of course I did. Come home. It’s on the counter, getting colder, which is your fault, honestly.'],['Come here.',{x:4,m:'morning'},'Not till you get home, and the coffee’s still hot. Hurry.'],['Perfect timing.',{a:2},'I hoped it would be. I’ve been timing my mornings around you.']]},
+ {t:'I took a photo of you when you weren’t looking. Don’t be mad. You were reading and doing that thing with your eyebrow.',c:[['Can I see it?',{a:2,t:2},'Sure. Here. See? You look like someone who’s about to figure out a joke.'],['I’m not mad.',{x:3},'Whew. I almost deleted it. But it’s my favorite photo now.'],['Delete it.',{t:-2},'Done. Gone. Sorry. I should’ve asked first. It won’t happen again.']]},
+ {t:'I saved you a seat tonight. The good one, by the window, where you can watch the lamps come on.',c:[['You always do.',{a:3,x:2},'And I always will. The window seat is basically yours. I’ve put a little sign on it.'],['What would I do without you?',{x:3,a:2},'You’d be fine. But you’d have a worse seat.'],['Sit with me.',{x:4},'I thought you’d never ask. Let me close up first.']]},
+ {t:'What do we do tonight? Option one: cook something badly. Option two: take the long way. Option three: stay in and do absolutely nothing together.',c:[['Cook something badly.',{a:3,x:1},'Perfect. I’ll burn the onions. It’s a tradition I just made up.'],['Do absolutely nothing.',{a:3,t:2},'My favorite plan. I’m good at nothing. Excellent at it, really.'],['Surprise me.',{x:3},'Dangerous. Wear comfortable shoes and trust me.']]}];
+const stage=()=>cfg.dating?'Dating':(cfg.b&&cfg.b.more)?'Something more':(cfg.b&&cfg.b.close)?'Close friends':cfg.met?'Friends':'Strangers';
+const pool=()=>cfg.dating?TD:(cfg.b&&cfg.b.more)?TM:(cfg.b&&cfg.b.close)?TC:TP;
+
+const tier=()=>cfg.dating?3:(cfg.b&&cfg.b.more)?2:(cfg.b&&cfg.b.close)?1:0;
+const PH={
+ hello:{g:0,m:['Hi, it’s {name}! I tucked my number into your welcome card, so now you know one friendly face in town.'],c:[['Thanks! I’ll use it.',{a:2},'Good. Text me if you get lost. Or bored.'],['Is this a trick?',{t:1},'Only if “being helpful” counts as a trick.'],['Saved. Hi!',{a:1,x:1},'Hi back. This is nicer than shouting across the street.']]},
+ sky:{g:0,m:['Did you see the sky just now? Pink all the way across.'],c:[['Gorgeous.',{a:2},'Right? Little things like that make a town feel like home.'],['Missed it. Send a photo?',{a:1,t:1},'[photo: a pink sky over rooftops] There. Proof.'],['I was stuck indoors.',{t:1},'Next time I’ll shout from the street.']]},
+ market:{g:0,m:['Heard there’s a market on Saturday. Any idea if it’s worth the trip?'],c:[['Let’s check it out together.',{a:2,x:1},'Okay! Noon? I’ll bring a bag for all the things I don’t need.'],['No idea. Report back.',{a:1},'Deal. I’ll send you a verdict.'],['Skip it, stay in.',{t:1},'Boring, but valid. Enjoy the quiet.']]},
+ recs:{g:0,m:['Need a recommendation. A book, a podcast, or something to watch tonight?'],c:[['Something cozy.',{a:2,t:1},'Cozy. Yes. That’s exactly what I needed.'],['A mystery.',{a:2},'Ooh, I’m in. I love guessing wrong.'],['Go for a walk instead.',{t:1,x:1},'Honestly? That’s probably the best advice so far.']]},
+ pic:{g:0,m:['My neighbor’s chicken got out again. It’s on my roof.','[photo: a chicken standing proudly on a shingled roof]'],c:[['Frame it.',{a:3},'Already saved as my wallpaper.'],['How does a chicken get up there?',{a:2,t:1},'Honestly, I’ve stopped asking questions in this town.'],['Name it.',{a:2,x:1,k:'chick'},'Soupy. Obviously. Soupy the chicken.']]},
+ plan:{g:0,m:['Marta says the bakery has free leftovers at five. Want to grab some with me?'],c:[['Yes, save me one.',{a:2,t:1},'Done. I’ll fight a seagull for it.'],['I’ll meet you there.',{a:2},'Perfect. Wear something with pockets.'],['Can’t today.',{t:1},'No worries. I’ll send you a crumb report.']]},
+ bad:{g:1,m:['Rough day. Nothing dramatic, just everything slightly out of tune. Can I call you later?'],c:[['Of course. Anytime.',{t:3,a:2},'Thank you. I’ll call you after dinner.'],['Want to talk now?',{t:2,a:1},'Maybe in a bit. Thank you for asking first.'],['Take all the time you need.',{t:3},'I will. It helps knowing you’re there.']]},
+ strap:{g:1,m:['Found my old camera strap in a drawer. It still smells like the darkroom.'],c:[['Take it out again.',{a:2,t:1},'Maybe I will. This weekend, if the light’s good.'],['Do you miss it?',{t:3},'A little. It’s easier to miss things than do them.'],['Show me the old photos.',{a:2},'Someday. When I’m brave enough.']]},
+ song:{g:1,m:['This song reminded me of Bondtown today. Listen when you’re walking home.','[song: a slow guitar track, 3:42]'],c:[['Listening now.',{a:2,t:1},'Tell me which part gets you.'],['Sending you one back.',{a:3},'I’ll play it on repeat until you’re sorry.'],['Not really my style.',{a:-1},'That’s okay. I’ll find something else.']]},
+ miss:{g:2,m:['Slow day. Caught myself checking my phone for you. Anyway. How’s yours?'],c:[['I was just thinking of you.',{x:3,a:2},'Okay. Good. I’m less alone in this.'],['Mine’s dull. Yours?',{a:1,t:1},'Dull, but I’m smiling. Strange, isn’t it?'],['Busy, sorry!',{t:1},'Don’t apologize. Text me when you surface.']]},
+ night:{g:2,m:['Can’t sleep. Are you up?'],c:[['Always for you.',{x:4,a:2},'Good. Stay up with me a little.'],['Barely. Talk to me.',{a:2,t:2},'I just wanted to hear someone breathe through a screen.'],['Go to sleep, you.',{a:1},'Bossy. Fine. Goodnight.']]},
+ gm:{g:3,m:['Good morning. I’m already thinking about tonight.'],c:[['Same. What’s the plan?',{x:3,a:2},'Cook, candles, bad movie. Non-negotiable.'],['Good morning, you.',{a:3,x:2},'Hearing that from you is the best part of my morning.'],['Let me wake up first.',{a:1},'Take your time. I’ll be here with a smile.']]},
+ dinner:{g:3,m:['Cook or go out tonight? I’ll take either, as long as you’re there.'],c:[['Cook. Chaotic and fun.',{a:3,x:1},'Perfect. I’ll bring tomatoes and low expectations.'],['Go out.',{x:2,a:2},'Fancy. I’ll even iron something.'],['Surprise me.',{x:3},'Dangerous. I accept the risk.']]}};
+const TXT=[
+ [['Seen anything good in town today?',{a:1,t:1},'A cat napping on the post office steps. Four stars.'],['Any plans this weekend?',{a:1},'Maybe the market. Want to come?'],['Send me a photo from your walk.',{a:2},'[photo: a lamp post at dusk, glowing] Golden hour never gets old.']],
+ [['How was your day?',{t:2,a:1},'Long, but better now that you asked.'],['Want to hang out later?',{a:2,x:1},'Yes. Park? Anywhere. I mean the park.'],['Proud of you for today.',{t:3},'That’s the nicest thing anyone’s said all week.']],
+ [['Thinking about you.',{x:3,a:1},'Stop it. I’m grinning at my phone like an idiot.'],['Come over later?',{x:3,a:2},'Yes. Don’t clean for me. I’ll bring snacks.'],['Dinner this week?',{x:2,a:2},'Yes. Somewhere with candles and bad lighting.']],
+ [['Miss you.',{x:3,a:2},'Miss you too. Come find me.'],['Good morning, you.',{x:2,a:3},'Good morning. Now I’m smiling before I’ve had coffee.'],['Movie night at mine?',{x:2,a:2},'Yes. I get to pick something terrible.']]];
+const phS=()=>cfg.ph||(cfg.ph={th:[],un:0,pend:null,lt:-1,last:''});
+let pOpen=false,phv='home',ptm=40;
+const phT=t=>PR(t);
+function phR(){const b=$('#phbody'),p=phS(),n=new Date();$('#phtime').textContent=n.getHours()+':'+String(n.getMinutes()).padStart(2,'0');
+  $('#phbd').style.display=p.un?'block':'none';$('#phbd').textContent=p.un;b.innerHTML='';
+  const hd=t=>{const h=document.createElement('div');h.className='phn';const k=document.createElement('button');k.className='phb';k.type='button';k.textContent='‹';k.onclick=()=>{phv='home';phR()};h.append(k,t);b.appendChild(h)};
+  if(phv==='home'){const g=document.createElement('div');g.className='apps';
+    [['💬','Messages','msg',p.un],['📷','Memories','mem',0]].forEach(a=>{const e=document.createElement('button');e.type='button';e.className='app';e.innerHTML='<b>'+a[0]+'</b>'+a[1]+(a[3]?'<i>'+a[3]+'</i>':'');e.onclick=()=>{phv=a[2];if(a[2]==='msg')p.un=0;phR()};g.appendChild(e)});b.appendChild(g)}
+  else if(phv==='mem'){hd('Memories');const L=Object.keys(cfg.dn||{}).filter(i=>MS[i]).map(i=>MS[i].t),F={joke:'The soup joke',fest:'Lantern Festival',date:'First date',rain:'A shared umbrella',chick:'Soupy the chicken',rep:'Making up',sec:'The rowan notes',movie:'Shark Movie Night',stars:'Stargazing',dance:'The Slow Dance'};
+    Object.keys(F).forEach(k=>{if(KF()[k]&&!L.includes(F[k]))L.push(F[k])});
+    if(!L.length){const e=document.createElement('div');e.className='phm';e.textContent='No memories yet. Go make some.';b.appendChild(e)}L.forEach(t=>{const e=document.createElement('div');e.className='phm';e.textContent='📷 '+t;b.appendChild(e)})}
+  else{hd(pd.name);p.un=0;$('#phbd').style.display='none';
+    if(!p.th.length){const e=document.createElement('div');e.className='phm';e.textContent='No messages yet.';b.appendChild(e)}
+    p.th.forEach(m=>{const e=document.createElement('div');e.className='bb '+m.f+(m.ty?' ty':'')+(/^\[/.test(m.t)?' pic':'');e.textContent=m.ty?'…':phT(m.t);b.appendChild(e)});
+    const c=document.createElement('div');c.className='phc';
+    const opts=p.pend?PH[p.pend].c:(p.lt===cfg.n?null:TXT[tier()]),busy=p.th.length&&p.th[p.th.length-1].ty;
+    if(opts&&!busy)opts.forEach(o=>{const e=document.createElement('button');e.type='button';e.className='chip';e.textContent=PR(o[0]);e.onclick=()=>phPick(o);c.appendChild(e)});b.appendChild(c)
+    b.scrollTop=b.scrollHeight}}
+function phSend(id){const p=phS();PH[id].m.forEach(t=>p.th.push({f:'p',t}));p.pend=id;p.last=id;if(!(pOpen&&phv==='msg'))p.un++;toast('📱 New message from '+pd.name);phR();save()}
+function phPick(o){const p=phS(),d=o[1],s=cfg.st;p.th.push({f:'y',t:o[0]});
+  for(const q in d){if(q==='k')KF()[d.k]=1;else if('atx'.includes(q))s[q]=Math.max(0,Math.min(100,s[q]+d[q]))}
+  if(!p.pend)p.lt=cfg.n;p.pend=null;updStats();save();p.th.push({f:'p',t:'',ty:1});phR();
+  setTimeout(()=>{p.th=p.th.filter(m=>!m.ty);p.th.push({f:'p',t:o[2]});if(pOpen&&phv==='msg')phR();else{p.un++;phR()}save()},1100)}
+function openPh(){if(dOpen||wOpen||sc)return;pOpen=true;phv='home';$('#phone').style.display='block';$('#act').style.display='none';phR()}
+function closePh(){pOpen=false;$('#phone').style.display='none'}
+$('#phbtn').onclick=()=>pOpen?closePh():openPh();$('#phx').onclick=closePh;
+const SB=['know1','date1','fest0','fight1','rep','test1','final1'],GP=[2,2,2,3,3,3,2];
+function beat(){const s=cfg.st,b=cfg.b=cfg.b||{},k=KF(),c=cfg.ch||0,g=cfg.n-(cfg.lb||0);
+  if(!cfg.end&&(cfg.nt||0)>=3&&!k.sec&&!k.secd&&c>=4&&g>=1){cfg.lb=++cfg.n;return DL.sec1}
+  if(!cfg.end&&c<SB.length&&g>=GP[c]){cfg.ch=c+1;cfg.lb=++cfg.n;const i=SB[c];return i==='rep'?(s.t>=12?DL.repair1:DL.repair1c):DL[i]}
+  if(!b.close&&s.a>=12&&s.t>=8){b.close=1;return DL.close1}
+  if(b.close&&!b.more&&s.x>=12&&s.a>=20){b.more=1;return DL.more1}
+  return null}
+const EN={tog:['Together','Years on, the café has a darkroom in back and a window table with a tiny sign: “Reserved for my favorite person.” You never did sell soup.'],
+ ld:['Long Distance','The residency stretches to a year. Postcards, late calls, a photo every week. In spring you take the train home, and they’re waiting at the station, camera around their neck. It isn’t easy, but it’s yours.'],
+ fri:['Friends','You never quite said what you felt, and neither did they. But the window table is still yours, the soup joke still lands, and you’re still each other’s favorite person to run into.'],
+ part:['Parted Ways','Some things you didn’t say, some you couldn’t. The café bell rings and it isn’t them. Bondtown is small, so you’ll see each other again. It won’t be the same.'],
+ sec:['The Rowan Light','The tin box becomes a gallery show built from a grandmother’s film and a town’s quiet secret. Under the rowan tree, your partner takes one last photo of you, and you stay in the light.']};
+function showEnd(e){narr('',EN[e][1]);$('#dname').textContent='Ending: '+EN[e][0];$('#dfx').textContent='Thanks for playing. Start a new game for another path.';
+  const h=$('#dch');h.innerHTML='';const b=document.createElement('button');b.type='button';b.className='chip';b.textContent='Back to title';b.onclick=()=>{endD();pa.position.set(10,0,-3.5);go('out',-11,-2.5);if(!endDbg)pause()};h.appendChild(b);if(!endDbg){const f=document.createElement('button');f.type='button';f.className='chip';f.textContent='Keep playing';f.onclick=()=>{cfg.free=1;save();endD();pa.position.set(10,0,-3.5);go('out',-11,-2.5)};h.appendChild(f)}}
+function finale(){const s=cfg.st,k=KF();let e;
+  if(k.part||(!k.rep&&s.t<20)||s.a<15)e='part';else if(k.sec)e='sec';else if(!cfg.dating)e='fri';
+  else if(k.commit&&s.t>=35&&s.a>=35)e='tog';else if(s.a>=30)e='ld';else e='fri';
+  cfg.end=e;cfg.free=0;save();dOpen=false;runEnd(e,0)}
+TP.push({if:'awk',t:'You said “Hi. Wow, hi.” the day we met. I think about it more than I should.',c:[['I was nervous.',{t:2},'I know. It was the best first impression I’ve ever had.'],['I meant it.',{x:2,a:1},'Good. I meant my smile back.']]},
+ {if:'charm',t:'You walked up that first day like you owned the place. I was a little jealous. Mostly impressed.',c:[['I was faking it.',{t:3},'You were convincing. Don’t stop.'],['I own it now.',{a:2},'Fair. You do.']]},
+ {if:'joke',t:'Someone asked about soup at the counter today. I announced with great ceremony that we do not sell soup. I thought of you.',c:[['The club grows.',{a:2},'It always does.'],['You’re welcome.',{a:1,x:1},'Thank you for the best running joke in town.']]});
+TD.push({if:'date',t:'I still think about our first date. The candle, the terrible dessert. I’d do it all again tomorrow.',c:[['The dessert was great.',{a:3},'You’re a liar and I adore you.'],['Let’s do it again.',{x:4,a:2},'Friday. I’ll practice the dessert.']]});
+TC.push({if:'chick',t:'The chicken from the other week is back. It just sits there. I swear it recognizes you.',c:[['Soupy remembers.',{a:3},'It’s the only regular who never orders anything.'],['Don’t make eye contact.',{a:2,t:1},'Too late. We’re already friends.']]});
+TM.push({if:'rain',t:'I keep the umbrella we shared by the door, in case it rains again. I think I want it to.',c:[['Same.',{x:4,a:2},'Then we’re both hoping for bad weather.'],['It’s only a small umbrella.',{x:3,a:1},'That’s the best part.']]});
+const RP={p:'That made my day.',n:'Fair enough.',g:'Oh. Okay.'};
+function updStats(){const s=cfg.st;$('#stats').innerHTML='<div class="st"><span>Status</span><b style="color:var(--accent);font-weight:500">'+stage()+'</b></div>'+[['Affection','a'],['Trust','t'],['Attraction','x']].map(r=>'<div class="st"><span>'+r[0]+'</span><i><u style="width:'+s[r[1]]+'%"></u></i></div>').join('')}
+function narr(nr,tx){const a=$('#dnar');a.textContent=PR(nr||'');a.style.display=nr?'block':'none';$('#dname').textContent=tx?pd.name:'';$('#dtext').textContent=PR(tx||'');$('#dtext').style.display=tx?'':'none';ttsSay(nr,tx)}
+function say(n){fin=0;narr(n.n,n.t);if(n.s)$('#dname').textContent=n.s;$('#dfx').textContent='';const h=$('#dch');h.innerHTML='';
+  n.c.filter(c=>!c[3]||c[3]()).forEach(c=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=PR(c[0]);b.onclick=()=>pick(c);h.appendChild(b)})}
+function pick(c){tone(((c[1].a|0)+(c[1].x|0))>0?784:392,.25,.07);const d=c[1],s=cfg.st,k={a:'Affection',t:'Trust',x:'Attraction'},fx=[];let vis=null;
+  for(const q in d){if(q==='f'){cfg[d[q]]=1;continue}if(q==='k'){KF()[d.k]=1;continue}if(q==='i'){cfg.nt=(cfg.nt||0)+1;continue}if(q==='e')continue;if(q==='v'){vis=d.v;continue}if(q==='m'){if(!(cfg.dn&&cfg.dn[d.m]))cfg.mis=d.m;ms=0;mh=0;continue}s[q]=Math.max(0,Math.min(100,s[q]+d[q]));fx.push(k[q]+' '+(d[q]>0?'+':'')+d[q])}
+  updStats();save();if(d.e)return finale();const r=c[2];
+  if(r&&DL[r]){say(DL[r]);$('#dfx').textContent=fx.join(' · ');if(vis)playM(vis);return}
+  fin=1;const v=Object.values(d).filter(n=>typeof n==='number').reduce((a,b)=>a+b,0);if(Array.isArray(r))narr(r[0],r[1]);else narr('',r||(v>2?RP.p:v>0?RP.n:RP.g));$('#dfx').textContent=fx.join(' · ');
+  const h=$('#dch');h.innerHTML='';const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=cfg.mis&&!sc?'Let’s go':'Goodbye';b.onclick=endD;h.appendChild(b);if(vis)playM(vis)}
+function endD(){ttsStop();dOpen=false;endq=null;pt=null;$('#card').style.opacity=0;$('#dlg').style.display='none';$('#dlg').style.visibility='';
+  if(sc){const M=MS[sc];if(fin){(cfg.dn=cfg.dn||{})[sc]=1;if(cfg.mis===sc)cfg.mis=null;toast('Memory made: '+M.t)}const o=M.loc==='out';sc=null;ms=0;mh=0;if(!o)pa.position.set(10,0,-3.5);pa.visible=loc==='out';cafeSpot();save()}
+  else if(cfg.mis&&MS[cfg.mis])toast('New objective: '+MS[cfg.mis].o[0])}
+let endq=null,endDbg=0,endE='',pt=null;
+const ES={
+ tog:[{c:'Three years later',tp:{l:'cafe',x:300,z:-2.2,px:300,pz:-4.8}},{n:'The café now has a darkroom in the back, and a framed photo of a chicken in a paper hat above the espresso machine.',t:'You’re late. Again.'},{n:'',t:'The window table is reserved. I made the sign myself. Don’t read it out loud.'},{m:'auto'}],
+ ld:[{c:'Six months later',tp:{l:'out',x:-6.2,z:10.4,px:-14,pz:6}},{n:'The train road ends at the edge of the park. You’ve been checking the time for twenty minutes.',t:''},{w:[-7.4,10.4]},{n:'',t:'Don’t say anything. I rehearsed the whole train ride and forgot every word.'},{m:'auto'}],
+ fri:[{c:'A few years later',tp:{l:'out',x:-6.2,z:10.4,px:-5.2,pz:10.4}},{n:'The bench by the fountain is still yours. Nothing has changed except everything.',t:'Still not selling soup, by the way.'},{n:'',t:'Thanks for being the best friend this town ever handed me.'},{m:'hug'}],
+ part:[{c:'The next season',tp:{l:'out',x:12.5,z:-3.2,px:11,pz:-3.5}},{n:'The café bell rings behind you. It isn’t them.',t:''},{n:'',t:'I’m glad Bondtown is small. I’ll see you around. Take care of yourself.'},{w:[-4,-3.5]},{n:'They don’t look back. You stand there until the lamps come on.',t:''}],
+ sec:[{c:'The night of the exhibition',tp:{l:'out',x:4.4,z:8.6,px:5.6,pz:8.6}},{n:'Under the old rowan tree, the lamps flicker on. Your partner holds up the last print from the tin box.',t:'My grandmother wanted me to find this.'},{n:'',t:'I think she wanted me to find you, too.'},{m:'auto'}]};
+function tpTo(t){go(t.l,t.x,t.z);pa.visible=true;pa.position.set(t.px,0,t.pz);pt=null;pl.rotation.y=Math.atan2(t.px-t.x,t.pz-t.z);pa.rotation.y=pl.rotation.y+Math.PI}
+function stepEnd(){if(!endq)return;const st=endq.shift(),dl=$('#dlg'),cd=$('#card');
+  if(!st){endq=null;dl.style.display='block';dl.style.visibility='';showEnd(endE);return}
+  if(st.c){dl.style.display='none';cd.textContent=st.c;cd.style.opacity=1;setTimeout(()=>{if(endq&&st.tp)tpTo(st.tp)},900);setTimeout(()=>{cd.style.opacity=0;stepEnd()},2900)}
+  else if(st.m){dl.style.display='none';moment(st.m==='auto'?(cfg.dating?'kiss':'hug'):st.m,()=>stepEnd())}
+  else if(st.w){dl.style.display='none';pt={x:st.w[0],z:st.w[1]};const t0=performance.now(),iv=setInterval(()=>{if(!endq||!pt){clearInterval(iv);return}if(Math.hypot(pa.position.x-pt.x,pa.position.z-pt.z)<.3||performance.now()-t0>9000){clearInterval(iv);pt=null;stepEnd()}},100)}
+  else{dl.style.display='block';dl.style.visibility='';narr(st.n,st.t);$('#dfx').textContent='';const h=$('#dch');h.innerHTML='';const b=document.createElement('button');b.type='button';b.className='chip';b.textContent='Continue';b.onclick=stepEnd;h.appendChild(b)}}
+function runEnd(e,dbg){if(mode!=='play'||dOpen||wOpen||sc)return;endDbg=dbg;endE=e;dOpen=true;$('#act').style.display='none';endq=ES[e].slice();stepEnd()}
+let mo=null;
+function heart(){tone(1200+Math.random()*500,.18,.03);const e=document.createElement('span');e.className='hrt';e.textContent='❤';e.style.left=(44+Math.random()*12)+'vw';e.style.bottom=(36+Math.random()*12)+'vh';document.body.appendChild(e);setTimeout(()=>e.remove(),2700)}
+function moment(k,done){momentSfx(k);mk=k;mt=tm;const L=[pl,pa],sv=pa.position.clone(),vv=pa.visible,p=pl.position,d=k==='kiss'?.62:k==='hug'?.4:.5;L.forEach(c=>c.rotation.order='YXZ');
+  pa.visible=true;pa.position.set(p.x+d,p.y,p.z);pl.rotation.y=Math.PI/2;pa.rotation.y=-Math.PI/2;mo={x:p.x+d/2,z:p.z};$('#mvig').style.opacity=1;
+  setTimeout(()=>{if(mo)pl.rotation.x=pa.rotation.x=k==='kiss'?.1:k==='hug'?.06:0},800);for(let i=0;i<9;i++)setTimeout(heart,700+i*250);if(k==='dance'){const iv=setInterval(()=>{if(!mo){clearInterval(iv);return}pl.rotation.y+=.1;pa.rotation.y+=.1},40)}
+  setTimeout(()=>{pl.rotation.x=pa.rotation.x=0;pa.position.copy(sv);pa.visible=vv;mo=null;$('#mvig').style.opacity=0;done&&done()},3400)}
+function playM(k){const p=$('#dlg');p.style.visibility='hidden';moment(k,()=>{p.style.visibility=''})}
+function startScene(){const M=MS[cfg.mis];sc=cfg.mis;if(M.pp){pa.visible=true;pa.position.set(M.pp[0],0,M.pp[1])}
+  dOpen=true;$('#dlg').style.display='block';$('#act').style.display='none';say(DL[M.n])}
+function mtick(dt,mv){const M=MS[cfg.mis];if(!M||dOpen||wOpen||sc)return;const W=M.at[ms],p=pl.position;if(loc!==(W[2]||M.loc))return;
+  if(Math.hypot(p.x-W[0],p.z-W[1])>(M.r||1.6)){mh=0;return}
+  if(ms<M.at.length-1){ms++;mh=0;toast(M.w[ms-1]);return}
+  if(M.hold){if(mv){mh=0;return}mh+=dt;if(mh<M.hold)return}
+  startScene()}
+function setObj(){const o=$('#obj'),M=cfg.mis&&MS[cfg.mis],t=M&&!sc&&!dOpen?'★ '+M.o[Math.min(ms,M.o.length-1)]:'';if(o._t!==t){o._t=t;o.textContent=t;o.style.display=t?'block':'none'}}
+function talk(){dOpen=true;$('#dlg').style.display='block';$('#act').style.display='none';let n;
+  if(cfg.end&&!cfg.free){showEnd(cfg.end);return}
+  if(!cfg.met){cfg.met=1;cfg.lb=0;n=DL.meet}
+  else if(cfg.mis&&MS[cfg.mis])n={t:MS[cfg.mis].re,c:[['On it.',{},'Good. I’ll see you there.'],['Changed my mind.',{m:0},'No pressure. Ask me again whenever you’re ready.']]};
+  else{n=beat();if(!n&&cfg.n>1&&Math.random()<.4){const nt=cfg.nt||0,ev=['chicken','rain','ex','bill','sick'];n=DL[Math.random()<.35&&nt<3?'note'+(nt+1):ev[(Math.random()*ev.length)|0]];cfg.n++}
+    if(!n){const P=pool().filter(p=>!p.if||KF()[p.if]);n=P[cfg.n++%P.length]}}
+  say(n);save();updStats()}
+function buildWorld(){
+  bx(120,.4,120,'#7fb56a',0,-.2,0,world);
+  bx(70,.05,4,'#d9c7a3',0,.03,-1,world);bx(4,.05,22,'#d9c7a3',0,.035,9,world);
+  apartment();
+  
+  
+  cafe();bakery();
+  
+  
+  
+  ring(2.9,3.1,'#b8a47c',.07,0,12);ring(3.1,5,'#d9c7a3',.06,0,12);ring(5,5.2,'#b8a47c',.07,0,12);
+  col.push({x:0,z:12,hx:2.4,hz:2.4});cyl(2.4,2.6,.6,10,'#cfc8e0',0,.3,12);cyl(1.9,1.9,.1,10,'#7cc7e8',0,.62,12);cyl(.3,.4,1.6,6,'#cfc8e0',0,1.1,12);cyl(1.1,.6,.3,8,'#cfc8e0',0,1.9,12);cyl(.9,.9,.05,8,'#7cc7e8',0,2.07,12);
+  [[4.1,16.1],[-4.1,16.1],[4.1,7.9],[-4.1,7.9],[7,-3.3],[-4.5,-3.3]].forEach(p=>lamp(p[0],p[1]));
+  [-7.3,7.3].forEach(x=>{hit(.7,.3,2.2,'#7a5a3a',x,.6,12);bx(.12,.6,2.2,'#7a5a3a',x+(x<0?-.3:.3),1,12,world)});
+  const r=rng(7),ok=(x,z)=>!(Math.abs(x)<3.5&&z>-3)&&Math.hypot(x+14,z+10)>9&&Math.hypot(x-14,z+10)>9&&Math.hypot(x,z-12)>9&&Math.abs(z+1)>3&&Math.hypot(x+10,z+3)>4&&Math.hypot(x-10,z+3)>4&&Math.hypot(x-28,z+10)>7;
+  for(let i=0,n=0;n<26&&i<400;i++){const x=(r()-.5)*76,z=(r()-.5)*76;if(!ok(x,z))continue;n++;
+    col.push({x,z,hx:.5,hz:.5});cyl(.25,.35,1.4,5,'#7a5a3a',x,.7,z);cone(1.5,3.2,6,n%2?'#4f8f5a':'#5fa86a',x,2.9,z);cone(1,2.2,6,n%2?'#5fa86a':'#4f8f5a',x,4.3,z)}}
+/* ---- v2: bakery, townspeople, sky, sound, new dating scenes ---- */
+let npi=-1;
+function bakery(){const X=28,Z=-10;bx(8.5,.4,7,'#7c7468',X,.2,Z,world);hit(8,4.6,6.6,'#e8b58a',X,2.5,Z);bx(8.6,.4,7.2,'#f4efe6',X,5,Z,world);cone(6,2.2,4,'#a05a48',X,6.3,Z).rotation.y=Math.PI/4;
+  for(let i=0;i<7;i++)bx(1.2,.1,2,i%2?'#f4efe6':'#e0a63c',X-3.6+i*1.2,3.7,Z+4,world).rotation.x=.28;
+  bx(1.6,2.6,.12,'#4a3a2a',X,1.5,Z+3.35,world);[-2.7,2.7].forEach(d=>bx(2.6,1.4,.1,'#9fd3ea',X+d,2.2,Z+3.35,world));world.add(label('Marta’s Bakery',X,6.4,Z+3.8))}
+buildWorld();aptInt();cafeInt();
+const NP=[['Marta',28,-4.8,'Free leftovers at five. The seagulls know the schedule better than I do.'],['Old Pim',-6,6.5,'Forty years I’ve fed these pigeons. Not one thank-you.'],['Sunny',6.5,5.5,'Soupy the chicken was on my roof again. I charge rent now.'],['Ines',-24,-3,'I’m training for the lantern-folding contest. It’s a real sport here.']],NPCS=[];
+NP.forEach((q,i)=>{const c=makeChar(genPartner(101+i*17,'r'));c.position.set(q[1],0,q[2]);c.rotation.y=Math.PI;c.add(label(q[0],0,2.7,0,.7));world.add(c);NPCS.push(c)});
+const SKY=[['#9fd8f0',1,1],['#f6cfa3',.95,.8],['#e58f7a',.7,.5],['#2b2150',.45,.25],['#9fd8f0',1,1]];
+function sky(){for(const n of NPCS){const dx=pl.position.x-n.position.x,dz=pl.position.z-n.position.z;if(Math.hypot(dx,dz)<6)n.rotation.y+=(((Math.atan2(dx,dz)-n.rotation.y+Math.PI*3)%(Math.PI*2))-Math.PI)*.08;n.children[0].position.y=Math.sin(tm*1.6+n.position.x)*.02}
+  if(loc!=='out')return;const f=((tm+40)/240%1)*4,i=Math.floor(f),u=f-i,a=SKY[i],b=SKY[i+1],c=new T.Color(a[0]).lerp(new T.Color(b[0]),u);
+  world.background.copy(c);if(world.fog)world.fog.color.copy(c);hemi.intensity=a[1]+(b[1]-a[1])*u;sun.intensity=.8*(a[2]+(b[2]-a[2])*u)}
+let AC_,mg,snd=true;try{snd=localStorage.getItem('bondtown-snd')!=='0'}catch(e){}
+function au(){if(!snd)return null;try{if(!AC_){AC_=new(window.AudioContext||window.webkitAudioContext)();mg=AC_.createGain();mg.gain.value=vol;mg.connect(AC_.destination)}if(AC_.state==='suspended')AC_.resume();return AC_}catch(e){return null}}
+function tone(f,d,v,ty,at){const c=au();if(!c)return;const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+(at||0);o.type=ty||'sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(mg);o.start(t);o.stop(t+d+.05)}
+const bell=()=>{tone(1318,1.2,.12);tone(1760,1,.06,'sine',.12)};
+const SC=[261.6,293.7,329.6,392,440,523.3];let mi=0;
+setInterval(()=>{if(mode!=='play'||!snd||!AC_)return;tone(SC[(Math.random()*SC.length)|0]*(Math.random()<.2?.5:1),2.4,.045,'triangle');if(mi++%4===0)tone(130.8,3.5,.05)},900);
+addEventListener('pointerdown',au);addEventListener('keydown',au);
+let vol=.5;try{const v=localStorage.getItem('bondtown-vol');if(v!==null)vol=+v}catch(e){}
+const sb=$('#sndbtn'),sp_=$('#setp'),vl=$('#vol'),st_=$('#sndt');vl.value=vol*100;
+const sndUp=()=>{st_.textContent='Sound: '+(snd?'On':'Off')};sndUp();
+sb.onclick=()=>{sp_.style.display='block';sndUp()};$('#setx').onclick=()=>{sp_.style.display='none'};
+st_.onclick=()=>{snd=!snd;try{localStorage.setItem('bondtown-snd',snd?'1':'0')}catch(e){}sndUp();au()};
+vl.oninput=()=>{vol=vl.value/100;if(mg)mg.gain.value=vol;try{localStorage.setItem('bondtown-vol',vol)}catch(e){}au();tone(660,.3,.1)};
+let tts=true;try{tts=localStorage.getItem('bondtown-tts')!=='0'}catch(e){}
+const TTS_OK='speechSynthesis' in window,FV=/female|zira|samantha|karen|susan|aria|jenny|hazel|moira|tessa|fiona|victoria|allison|ava|kate|serena|nicky|joelle|zoe|veena|libby|sonia|natasha|clara|emma|amy|joanna|salli|ivy|kendra|kimberly|google us english|google uk english female/i,MV=/male|david|mark|guy|ryan|alex|daniel|fred|thomas|tom|oliver|aaron|arthur|gordon|rishi|lee|evan|nathan|eddy|reed|brian|joey|matthew|justin/i;
+function ttsStop(){if(TTS_OK)speechSynthesis.cancel()}
+let VL=[];const loadV=()=>{VL=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang))};if(TTS_OK){loadV();speechSynthesis.onvoiceschanged=loadV}
+function speak(t,g,pitch,rate){if(!tts||!TTS_OK||!t)return;const u=new SpeechSynthesisUtterance(t),w=g==='f'?FV:g==='m'?MV:null;let v=w&&VL.find(x=>w.test(x.name)),hit=!!v;
+  if(!v&&g==='f')v=VL.find(x=>!MV.test(x.name));if(!v&&g==='m')v=VL.find(x=>!FV.test(x.name));if(!v)v=VL[0]||null;
+  u.voice=v;u.lang='en-US';u.pitch=pitch||(g==='f'?(hit?1.1:1.45):g==='m'?(hit?.95:.75):1);u.rate=rate||1;u.volume=Math.min(1,vol*2);speechSynthesis.speak(u)}
+function ttsSay(nr,tx){if(mode!=='play')return;ttsStop();if(nr)speak(PR(nr),'n',1,.95);if(tx)speak(PR(tx),pd.gender)}
+const tt_=$('#ttst'),ttsUp=()=>{tt_.textContent=TTS_OK?'Voice: '+(tts?'On':'Off'):'Voice: unavailable';tt_.disabled=!TTS_OK};ttsUp();
+tt_.onclick=()=>{tts=!tts;try{localStorage.setItem('bondtown-tts',tts?'1':'0')}catch(e){}if(!tts)ttsStop();ttsUp()};
+let wv=0,pside=1;
+Object.assign(DL,{
+ meet2:{t:'Bondtown is small, so we’ll keep bumping into each other. Might as well be friends. Your first coffee is on me, and I make a very good one.',c:[['Friends sounds good.',{a:3,t:2,m:'seat'},'Good. Then I’ll save you a seat at the café. Don’t make it weird. Okay, make it a little weird. Meet me at the door.'],['Let’s see where it goes.',{a:1,x:1,m:'seat'},'Fair. I like a slow burn. I’ll hold a seat for you at the café anyway.'],['Coffee first, then friends.',{a:2,m:'seat'},'Ha. A person of priorities. I’ll start the grinder and save you a seat.']]},
+ seat1:{n:'The café is warm and a little loud. One table by the window has a folded napkin on the chair and a tiny sign propped against it: RESERVED. The handwriting is very serious.',t:'Don’t read the sign out loud. I made it in a hurry. This is the seat I save for people who look like they need one. Sit.',c:[['Read the sign out loud.',{a:3,x:1},'seat2'],['Sit down.',{t:2,a:1},'seat2'],['Is the napkin reserved too?',{a:2},'seat2']]},
+ seat2:{t:'First rule of Rowan & Light: nobody drinks alone. Second rule: no soup. Tell me what you’d order if you could have anything.',c:[['A flat white. Strong.',{a:2},'seat3'],['Hot chocolate, no shame.',{a:2,x:1},'seat3'],['Whatever you’d make me.',{t:3},'seat3']]},
+ seat3:{t:'Done. Two coffees, and I’ve already broken the first rule by sitting down with you. Welcome to Bondtown. Properly this time.',c:[['Thanks for saving the seat.',{a:3,t:2},['The sign stays on the table all week. Neither of you mentions it.','Anytime. I mean it. The seat is yours.']],['I’ll earn it back.',{t:3,a:1},['They push the napkin across the table with a grin.','You already have.']]]}});
+MS.seat={t:'Saving a Seat',loc:'out',at:[[14,-3.8],[296.2,2.9,'cafe']],r:1.7,w:['They’re holding a seat for you. Head inside.'],n:'seat1',pp:[297.6,2.9],o:['Meet at the café door','Take the seat they saved you'],re:'Meet me at the café door. I saved you a seat.'};
+function rustle(at,d){const c=au();if(!c)return;const n=(c.sampleRate*d)|0,b=c.createBuffer(1,n,c.sampleRate),a=b.getChannelData(0);for(let i=0;i<n;i++)a[i]=(Math.random()*2-1)*(1-i/n);
+  const r=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();f.type='lowpass';f.frequency.value=900;g.gain.value=.12;r.buffer=b;r.connect(f);f.connect(g);g.connect(mg);r.start(c.currentTime+at)}
+function momentSfx(k){
+  if(k==='dance'){for(let i=0;i<7;i++){const t=i*.45;if(i%3===0)tone(196,.9,.09,'sine',t);else tone(i%3===1?494:587,.5,.06,'triangle',t)}tone(784,1,.05,'sine',3)}
+  else if(k==='kiss'){tone(523,1.8,.07,'sine',.5);tone(659,1.8,.06,'sine',.7);tone(784,2.2,.05,'sine',.9);tone(300,.08,.1,'sine',.85);tone(380,.08,.08,'sine',.95)}
+  else{tone(262,2.4,.07,'sine',.4);tone(330,2.4,.06,'sine',.5);tone(392,2.4,.05,'sine',.6);rustle(.7,.35)}}
+let mk=null,mt=0,mz=0;
+function moAnim(){const A=[pl.userData.arms,pa.userData.arms];
+  if(mo&&mk){const p=Math.min(1,(tm-mt)/.6),h=(mk==='hug'?-1.45:mk==='kiss'?-1.25:-.9)*p+Math.sin(tm*3)*.04,z=(mk==='hug'?.6:mk==='kiss'?.5:.2)*p;
+    A.forEach(a=>{a[0].rotation.x=a[1].rotation.x=h;a[0].rotation.z=z;a[1].rotation.z=-z});mz=1}
+  else if(mz){A.forEach(a=>{a[0].rotation.z=a[1].rotation.z=0});mz=0}}
+function pstep(q,ux,uz,st){const ox=q.x,oz=q.z;for(const a of [0,.8*pside,-.8*pside,1.6*pside]){const cs=Math.cos(a),sn=Math.sin(a);q.x=ox+(ux*cs-uz*sn)*st;q.z=oz+(ux*sn+uz*cs)*st;
+  for(const c of col){const ex=q.x-c.x,ez=q.z-c.z,px=c.hx+.35-Math.abs(ex),pz=c.hz+.35-Math.abs(ez);if(px>0&&pz>0){if(px<pz)q.x+=(ex<0?-1:1)*px;else q.z+=(ez<0?-1:1)*pz}}
+  if(Math.hypot(q.x-ox,q.z-oz)>st*.7)return;if(a===0)pside=Math.random()<.5?1:-1}
+  q.x=ox;q.z=oz}
+function cafeSpot(){if(loc==='cafe'&&cfg.met){pa.visible=true;pa.position.set(300,0,-4.8);pa.rotation.y=0}}
+function cafeAnim(){if(loc!=='cafe'||!pa.visible||dOpen||sc||pmv)return;const a=pa.userData.arms;if(tm<wv)a[1].rotation.x=-2.7+Math.sin(tm*10)*.3;else a[0].rotation.x=-.9+Math.sin(tm*3)*.35}
+Object.assign(DL,{
+ movie1:{t:'I picked the worst movie I could find. Two stars. A man fights a shark. In space. We’re committed.',c:[['Perfect. Pass the blanket.',{a:3,x:2},'movie2'],['Space shark?',{a:2,t:1},'movie2'],['Come sit closer.',{x:4,a:2},'movie2']]},
+ movie2:{t:'I’ve seen the ending already. It’s bad. I wanted to watch it with you anyway.',c:[['Rest your head here.',{x:4,a:3,k:'movie'},['They lean in. The shark movie plays to an audience of nobody.','Best bad movie I’ve ever seen.']],['Quote the worst line.',{a:3},['They laugh so hard the blanket slides off the couch.','']],['Fall asleep on them.',{t:3,a:2,k:'movie'},['You wake an hour later. They didn’t move.','Hi. Don’t worry. I had an excellent view of the shark.']]]},
+ stars1:{t:'Lie back. Don’t look at me, look up. Stare at one dark patch and the stars come out slowly.',c:[['I see one.',{a:2,t:1},'stars2'],['I’m looking at you.',{x:4,a:2},'stars2'],['Make a wish.',{t:2,a:2},'stars2']]},
+ stars2:{t:'I used to think the sky was loud. Out here it’s the quietest thing in town. Next to you, anyway.',c:[['Take their hand.',{x:4,a:3,t:2,k:'stars'},['Your fingers find theirs in the dark, and neither of you says a word.','The stars can wait. This is better.']],['Count them with me.',{a:3,t:2},['You lose count at forty and start over, laughing.','']],['Tell me something true.',{t:5,a:2},'I’m not afraid of the quiet anymore. You did that.']]},
+ dance1:{t:'The band is a man with an accordion and a cat on a stool. I can’t dance. Please say you can’t either.',c:[['Not even a little.',{a:3,t:1},'dance2'],['I’ll lead.',{x:3,a:2},'dance2'],['Dance with me anyway.',{x:4,a:3},'dance2']]},
+ dance2:{t:'Okay. One song. Hands here. No, here. I’m already stepping on your foot.',c:[['Slow dance with them.',{x:5,a:3,k:'dance',v:'dance'},['The lamps hum, the accordion wanders off-key, and you turn in a slow circle under the lanterns.','I’m keeping this one. The foot-stepping too.']],['Laugh and step back.',{a:3,t:1},['You both nearly fall into the fountain.','']],['Just watch the band.',{t:2},'Fair. The cat is the real star.']]}});
+Object.assign(MS,{
+ movie:{t:'Shark Movie Night',loc:'apt',at:[[197.4,2.6]],r:1.6,n:'movie1',pp:[196.2,3.6],o:['Head home. Movie night is set up'],re:'Come by your place. I rented something terrible on purpose.'},
+ stars:{t:'Stargazing',loc:'out',at:[[-6.2,10.4]],r:1.5,hold:4,n:'stars1',pp:[-5,10.2],o:['Lie back on the west bench and look up'],re:'Meet me at the west bench. Bring a jacket, and stand still a few seconds.'},
+ dance:{t:'The Slow Dance',loc:'out',at:[[0,8.7]],r:1.5,n:'dance1',pp:[1.6,8.9],o:['Meet at the fountain for the music'],re:'Meet me at the fountain. There’s a band tonight.'}});
+TD.push({if:'date',t:'Movie night at my place? I found the worst film ever made. Bring a blanket and no standards.',c:[['Count me in.',{a:2,x:2,m:'movie'},'Come over. I’ll save you the good cushion.'],['Another night.',{a:-1},'No problem. The shark isn’t going anywhere.']]},
+ {if:'date',t:'Clear sky tonight. Meet me on the west bench and we’ll lie back and look at the stars.',c:[['I’ll be there.',{a:2,x:2,m:'stars'},'Good. Bring a jacket. It gets cold fast.'],['Too tired tonight.',{t:1},'Rest up. The stars keep.']]},
+ {if:'fest',t:'The band’s back at the fountain tonight. I can’t dance, but I’d like to be bad at it with you.',c:[['Save me a song.',{a:2,x:3,m:'dance'},'Fountain. Eight o’clock. Wear shoes you don’t love.'],['Not tonight.',{t:1},'Okay. I’ll tell the cat you said hi.']]});
+
+/* ---- preview ---- */
+const prev=new T.Scene();prev.background=new T.Color('#3b2d63');
+prev.add(new T.HemisphereLight('#fff1dc','#5a4a8a',1));const pl2=new T.DirectionalLight('#ffd9a8',.8);pl2.position.set(-4,8,6);prev.add(pl2);
+cyl(3,3.2,.2,12,'#2b2150',0,-.1,0);prev.add(world.children.pop());
+function buildPrev(){pc.forEach(c=>prev.remove(c));const a=makeChar(cfg),p=genPartner(cfg.seed,cfg.pref),b=makeChar(p);
+  a.position.x=-1.2;b.position.x=1.2;prev.add(a,b);pc=[a,b];$('#pinfo').textContent='Your partner: '+p.name}
+
+/* ---- ui ---- */
+function chips(h,label,key,list,sw,cb){const r=document.createElement('div');r.className='row';r.innerHTML='<b>'+label+'</b>';
+  const c=document.createElement('div');c.className='chips';
+  list.forEach((it,i)=>{const arr=Array.isArray(it),v=arr?it[0]:it,b=document.createElement('button');b.type='button';b.className=sw?'sw':'chip';
+    if(sw){b.style.background=v;b.setAttribute('aria-label',label+' '+(i+1))}else b.textContent=it[1];
+    if(cfg[key]===v)b.classList.add('sel');
+    b.onclick=()=>{cfg[key]=v;[...c.children].forEach(x=>x.classList.remove('sel'));b.classList.add('sel');cb&&cb()};c.appendChild(b)});
+  r.appendChild(c);h.appendChild(r)}
+function buildCreate(){const h=$('#opts'),pv=()=>buildPrev();h.innerHTML='';
+  chips(h,'You are','gender',[['m','Man'],['f','Woman']],0,pv);
+  chips(h,'Build','build',[['slim','Slim'],['avg','Average'],['broad','Broad']],0,pv);
+  chips(h,'Skin','skin',SK,1,pv);chips(h,'Hair style','hairStyle',HS,0,pv);chips(h,'Hair color','hairColor',HC,1,pv);
+  chips(h,'Top','top',CL,1,pv);chips(h,'Bottom','bottom',CL,1,pv);chips(h,'Shoes','shoes',SH,1,pv);chips(h,'Accessory','acc',AC,0,pv);
+  chips(h,'Partner','pref',[['m','Men'],['f','Women'],['r','Surprise me']],0,pv)}
+function setMode(m){mode=m;$('#title').classList.toggle('on',m==='title');$('#create').classList.toggle('on',m==='create');
+  $('#hud').style.display=m==='play'?'block':'none';$('#joy').classList.toggle('on',m==='play');fit()}
+let tt;function toast(s){const t=$('#toast');t.textContent=s;t.style.opacity=1;clearTimeout(tt);tt=setTimeout(()=>t.style.opacity=0,3200)}
+function openW(){wOpen=true;const h=$('#wopts');h.innerHTML='';const ap=()=>{setOutfit(pl,cfg);save()};
+  chips(h,'Top','top',CL,1,ap);chips(h,'Bottom','bottom',CL,1,ap);chips(h,'Shoes','shoes',SH,1,ap);chips(h,'Accessory','acc',AC,0,ap);
+  $('#wardrobe').style.display='block';$('#act').style.display='none'}
+function closeW(){wOpen=false;$('#wardrobe').style.display='none'}
+function act(){if(mode!=='play'||wOpen||dOpen||pOpen)return;
+  if(near==='wardrobe')openW();else if(near==='partner')talk();else if(near==='npc'){toast(NP[npi][0]+': '+NP[npi][3]);ttsStop();speak(NP[npi][3],npi===1?'m':'f')}
+  else if(near==='enter-apt')go('apt');else if(near==='enter-cafe')go('cafe');else if(near==='exit')go('out',loc==='apt'?-14:14,loc==='apt'?-3.2:-3.8)}
+function startPlay(){if(pl)world.remove(pl);if(pa)world.remove(pa);pd=genPartner(cfg.seed,cfg.pref);
+  pl=makeChar(cfg);pl.position.set(-11,0,-2.5);world.add(pl);
+  pa=makeChar(pd);pa.position.set(10,0,-3.5);pa.rotation.y=-.6;pa.add(label(pd.name,0,2.7,0,.7));world.add(pa);cfg.st=cfg.st||{a:0,t:0,x:0};cfg.n=cfg.n||0;updStats();go('out');setMode('play')}
+
+$('#newbtn').onclick=()=>{paused=false;$('#cont').textContent='Continue';cfg=def();buildCreate();buildPrev();setMode('create')};
+$('#cont').onclick=()=>{if(paused){paused=false;$('#cont').textContent='Continue';setMode('play');return}cfg=load()||def();startPlay()};
+$('#reroll').onclick=()=>{cfg.seed=rs();buildPrev()};
+$('#play').onclick=()=>{save();startPlay()};
+$('#act').onclick=act;$('#wdone').onclick=closeW;
+addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=1;if(k==='e')act();if(k==='Escape'||k==='F1'){if(k==='F1')e.preventDefault();menuKey()}});
+addEventListener('keyup',e=>{delete keys[e.key.length===1?e.key.toLowerCase():e.key]});
+const joy=$('#joy'),nub=$('#nub');let jid=null;
+function jm(e){const r=joy.getBoundingClientRect();let x=(e.clientX-r.left-60)/50,z=(e.clientY-r.top-60)/50;const l=Math.hypot(x,z);if(l>1){x/=l;z/=l}jv.x=x;jv.z=z;nub.style.transform='translate('+x*40+'px,'+z*40+'px)'}
+joy.onpointerdown=e=>{jid=e.pointerId;joy.setPointerCapture(jid);jm(e)};
+joy.onpointermove=e=>{if(e.pointerId===jid)jm(e)};
+joy.onpointerup=joy.onpointercancel=()=>{jid=null;jv.x=jv.z=0;nub.style.transform=''};
+
+/* ---- loop ---- */
+function tick(dt){
+  let x=(keys.d||keys.ArrowRight?1:0)-(keys.a||keys.ArrowLeft?1:0)+jv.x,z=(keys.s||keys.ArrowDown?1:0)-(keys.w||keys.ArrowUp?1:0)+jv.z;
+  if(wOpen||dOpen||pOpen)x=z=0;const l=Math.hypot(x,z),mv=l>.08,p=pl.position;
+  if(mv){x/=Math.max(l,1);z/=Math.max(l,1);p.x+=x*5.2*spd*dt;p.z+=z*5.2*spd*dt;
+    let d=Math.atan2(x,z)-pl.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));pl.rotation.y+=d*Math.min(1,dt*14)}
+  if(!noclip)for(const c of col){const dx=p.x-c.x,dz=p.z-c.z,px=c.hx+.35-Math.abs(dx),pz=c.hz+.35-Math.abs(dz);
+    if(px>0&&pz>0){if(px<pz)p.x+=(dx<0?-1:1)*px;else p.z+=(dz<0?-1:1)*pz}}
+  const B=AR[loc].b;p.x=Math.max(B[0],Math.min(B[1],p.x));p.z=Math.max(B[2],Math.min(B[3],p.z));p.y+=((loc==='out'?gy(p.x,p.z):0)-p.y)*Math.min(1,dt*20);
+  anim(pl,mv,tm);
+  const ax=p.x-pa.position.x,az=p.z-pa.position.z,da=Math.hypot(ax,az);
+  if(da<9&&!pmv){let d=Math.atan2(ax,az)-pa.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));pa.rotation.y+=d*Math.min(1,dt*4)}
+  anim(pa,pmv,tm);pa.children[0].position.y=Math.sin(tm*2)*.02;pl.children[0].position.y=Math.sin(tm*2+1)*.015;if(dOpen&&!mo)pa.userData.arms[1].rotation.x=-.9+Math.sin(tm*8)*.25;
+  {const M=cfg.mis&&MS[cfg.mis],q=pa.position;let tx=null,tz=null,sp=0,stop=.15;pmv=false;
+  if(pt){tx=pt.x;tz=pt.z;sp=3.2;stop=.2}else if(loc==='out'&&!dOpen&&!sc){if(M&&M.f){const dd=Math.hypot(p.x-q.x,p.z-q.z);if(dd>2.2){tx=p.x;tz=p.z;stop=2;sp=Math.min(7,4+(dd-2.2)*1.5)}}
+    else if(!M||M.loc!=='out'){tx=10;tz=-3.5;sp=3.2}}
+  if(tx!=null){const dx=tx-q.x,dz=tz-q.z,dd=Math.hypot(dx,dz);if(dd>stop){pmv=true;const st=Math.min(dd-stop,sp*dt);pstep(q,dx/dd,dz/dd,st);
+        let d=Math.atan2(dx,dz)-pa.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));pa.rotation.y+=d*Math.min(1,dt*10)}}
+  if(M)mtick(dt,mv)}setObj();
+  if(cfg.met&&!dOpen&&!sc&&(!cfg.end||cfg.free)&&(ptm-=dt)<=0){ptm=70+Math.random()*60;const p=phS();if(!p.pend&&!pOpen){const K2=Object.keys(PH).filter(i=>i!=='hello'&&PH[i].g<=tier()&&i!==p.last);phSend(p.th.length?K2[(Math.random()*K2.length)|0]:'hello')}}
+  near=null;if(loc==='out'&&!cfg.met&&!dOpen&&!wOpen&&!pOpen&&da<3.8)talk();
+  if(loc==='out'){if(Math.hypot(p.x+14,p.z+5.2)<1.9)near='enter-apt';else if(Math.hypot(p.x-14,p.z+5.7)<1.9)near='enter-cafe';else if(da<3.2)near='partner';else{npi=NPCS.findIndex(n=>Math.hypot(p.x-n.position.x,p.z-n.position.z)<2.6);if(npi>=0)near='npc'}}
+  else if(p.z>4.2&&Math.abs(p.x-AR[loc].p[0])<2)near='exit';else if(loc==='cafe'&&pa.visible&&da<3.2)near='partner';else if(loc==='apt'&&Math.hypot(p.x-WARD.x,p.z-WARD.z)<3.2)near='wardrobe';
+  const a=$('#act');if(near&&!wOpen&&!dOpen&&!pOpen){a.style.display='block';a.textContent=near==='npc'?'Talk to '+NP[npi][0]:LB[near]||('Talk to '+pd.name)}else a.style.display='none';
+  if(mo){cam.position.lerp(new T.Vector3(mo.x,2,mo.z+3.8),Math.min(1,dt*3));cam.lookAt(mo.x,1.5,mo.z)}else{cam.position.lerp(new T.Vector3(p.x,10,p.z+13),Math.min(1,dt*5));cam.lookAt(p.x,1,p.z)}}
+const clock=new T.Clock();
+function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.05);tm+=dt;fps+=(1/Math.max(dt,.001)-fps)*.05;if(dbgOn)dbgUpdate();
+  if(mode==='play'){tick(dt);sky();cafeAnim();moAnim();rd.render(world,cam)}
+  else if(mode==='create'){cam.position.set(0,1.7,6.6);cam.lookAt(0,1.1,0);
+    pc.forEach((c,i)=>c.rotation.y=(i?-.4:.4)+(rm?0:Math.sin(tm*.9)*.35));rd.render(prev,cam)}
+  else{if(!rm)ang+=dt*.1;const c=AR[loc].b,cx=(c[0]+c[1])/2,cz=(c[2]+c[3])/2,r=loc==='out'?36:15;cam.position.set(cx+Math.sin(ang)*r,loc==='out'?15:9,cz+Math.cos(ang)*r);cam.lookAt(cx,2,cz);rd.render(world,cam)}}
+/* ---- debug menu: F2, type DEBUG, or tap the logo 5 times ---- */
+let dbgOn=false,noclip=false,spd=1,fps=60,kb='',lt=0;
+const dbg=$('#dbg'),dbgTxt=document.createElement('pre'),dbgBar=document.createElement('div');
+dbg.append(Object.assign(document.createElement('b'),{textContent:'Debug (F2 or type DEBUG)'}),dbgTxt,dbgBar);
+function dbgUpdate(){const p=pl?pl.position:null;
+  dbgTxt.textContent=['FPS '+fps.toFixed(0),'Mode '+mode,'Pos '+(p?p.x.toFixed(1)+', '+p.z.toFixed(1):'-'),'Near '+(near||'-'),
+  'Partner '+(pd?pd.name+' ('+pd.gender+')':'-'),'Seed '+cfg.seed,'Pref '+cfg.pref,'Speed x'+spd,'Noclip '+(noclip?'on':'off'),'Colliders '+col.length].join('\n')}
+function dbgToggle(){dbgOn=!dbgOn;dbg.style.display=dbgOn?'block':'none';dbgUpdate()}
+function dbgBtn(t,f){const b=document.createElement('button');b.type='button';b.textContent=t;b.onclick=()=>{f();dbgUpdate()};dbgBar.appendChild(b)}
+function dbgPartner(){if(mode!=='play')return;world.remove(pa);pd=genPartner(cfg.seed,cfg.pref);pa=makeChar(pd);pa.position.set(10,0,-3.5);pa.rotation.y=-.6;pa.add(label(pd.name,0,2.7,0,.7));world.add(pa)}
+const tp=(x,z)=>()=>{if(mode==='play'&&!wOpen&&!dOpen)go('out',x,z)};
+dbgBtn('Apartment',tp(-11,-2.5));dbgBtn('Apt inside',()=>{if(mode==='play')go('apt')});dbgBtn('Café inside',()=>{if(mode==='play')go('cafe')});dbgBtn('Partner',tp(8,-3.5));dbgBtn('Café',tp(14,-4));dbgBtn('Park',tp(0,8));
+dbgBtn('Next story beat',()=>{cfg.lb=-99;toast('Talk to your partner')});dbgBtn('Add note',()=>{cfg.nt=(cfg.nt||0)+1});const showNode=id=>{if(mode!=='play'||dOpen||wOpen||pOpen)return;dOpen=true;$('#dlg').style.display='block';$('#act').style.display='none';say(DL[id])};
+const dbgSc=id=>{if(mode!=='play'||dOpen||wOpen)return;closePh();const M=MS[id],W=M.at[M.at.length-1];cfg.mis=id;ms=0;go(W[2]||M.loc,W[0],W[1]);startScene()};
+const setTier=t=>{cfg.dating=t>=3?1:0;cfg.b=cfg.b||{};cfg.b.close=t>=1?1:0;cfg.b.more=t>=2?1:0;updStats()};
+[['Beat: first hangout','know1'],['Beat: date ask','date1'],['Beat: festival ask','fest0'],['Beat: the fight','fight1'],['Beat: repair','repair1'],['Beat: life test','test1'],['Beat: final choice','final1'],['Beat: rowan secret','sec1']].forEach(a=>dbgBtn(a[0],()=>showNode(a[1])));
+['rush','listen','film','photo','walk','morning','date','fest'].forEach(id=>dbgBtn('Scene: '+MS[id].t,()=>dbgSc(id)));
+dbgBtn('Random side event',()=>{const ev=['chicken','rain','ex','bill','sick','note1','note2','note3'];showNode(ev[(Math.random()*ev.length)|0])});
+dbgBtn('Moment: kiss',()=>{if(mode==='play'&&!dOpen)moment('kiss')});dbgBtn('Moment: hug',()=>{if(mode==='play'&&!dOpen)moment('hug')});
+[['tog','Together'],['ld','Long distance'],['fri','Friends'],['part','Parted ways'],['sec','Secret']].forEach(a=>dbgBtn('Ending: '+a[1],()=>runEnd(a[0],1)));
+dbgBtn('Send random text',()=>{const p=phS();if(mode==='play'&&!p.pend)phSend(Object.keys(PH).filter(i=>PH[i].g<=tier())[0===p.th.length?0:(Math.random()*Object.keys(PH).filter(i=>PH[i].g<=tier()).length)|0])});
+dbgBtn('Stage: next',()=>{setTier((tier()+1)%4);toast('Stage: '+stage())});
+dbgBtn('Stats +20',()=>{if(cfg.st){for(const q in cfg.st)cfg.st[q]=Math.min(100,cfg.st[q]+20);updStats()}});
+dbgBtn('Reset story',()=>{Object.assign(cfg,{ch:0,lb:0,nt:0,n:0,dn:{},mis:null,k:{},end:null,dating:0,b:{},ph:null});if(cfg.st)cfg.st={a:0,t:0,x:0};updStats();save();toast('Story reset')});
+dbgBtn('Cycle speed',()=>{spd=spd>=4?1:spd*2});
+dbgBtn('Toggle noclip',()=>{noclip=!noclip});
+dbgBtn('Toggle fog',()=>{world.fog=world.fog?null:new T.Fog('#f6cfa3',48,115)});
+dbgBtn('Reroll partner',()=>{cfg.seed=rs();dbgPartner();save()});
+dbgBtn('Partner: next type',()=>{cfg.pref={m:'f',f:'r',r:'m'}[cfg.pref]||'f';dbgPartner();save()});
+dbgBtn('Open wardrobe',()=>{if(mode==='play'&&!wOpen)openW()});
+dbgBtn('Clear save',()=>{try{localStorage.removeItem(K)}catch(e){}toast('Save cleared')});
+addEventListener('keydown',e=>{if(e.key==='F2'){e.preventDefault();dbgToggle();return}
+  if(e.key.length===1){kb=(kb+e.key.toLowerCase()).slice(-5);if(kb==='debug'){kb='';dbgToggle()}}});
+$('.logo').onclick=()=>{if(++lt>=5){lt=0;dbgToggle()}};
+$('#cont').style.display=load()?'':'none';
+setMode('title');loop();
+</script>
+</body></html>
