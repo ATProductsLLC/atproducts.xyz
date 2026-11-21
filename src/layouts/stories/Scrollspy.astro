@@ -25,7 +25,7 @@ const { id, scrollcontent } = Astro.props;
           <button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Close"></button>
         </div>
         <div class="drawer-body">
-          <nav id={`${id}-list`} class="nav flex-column story-buttons pb-5 md:mt-5 gap-3" aria-label="On this page">
+          <nav id={`${id}-list`} class="nav flex-column story-buttons pb-5 lg:mt-5 gap-3" aria-label="On this page">
             <p class="text-uppercase fw-semibold fg-2 px-3 mb-2 d-none md:d-block fs-md">On this page</p>
             {scrollcontent.map(({ name, href, additionalClasses = "" }) => (
               <a class={`d-block text-decoration-none border-start border-2 fg-2 px-3 py-2 md:py-1 fs-md ${additionalClasses}`} href={href}>
@@ -37,7 +37,7 @@ const { id, scrollcontent } = Astro.props;
       </dialog>
     ) : (
       <nav id={`${id}-list`} class="nav flex-column story-buttons">
-        <p class="px-3 small fg-2 mb-0">There are no sections to scroll to in this story/article.</p>
+        <p class="px-3 small fg-2 mb-0 d-none md:d-block lg:mt-5">There are no sections to scroll to in this story/article.</p>
       </nav>
     )}
   </div>
