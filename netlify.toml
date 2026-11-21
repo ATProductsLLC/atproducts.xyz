@@ -4,6 +4,12 @@
   status = 308
   force = true
 
+[[redirects]]
+  from = "/404"
+  to = "/media"
+  status = 308
+  force = true
+
 # Enable if maintenance mode.
 # [[redirects]]
 #   from = "/*"
