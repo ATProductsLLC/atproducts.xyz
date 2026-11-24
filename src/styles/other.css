@@ -150,11 +150,11 @@ body.dialog-open {
 }
 
 [data-bs-theme=dark] .mdickie-img {
-  content: url(/media/images/mdickiepro.webp) !important;
+  content: url(/media/images/mdickiepro-light.webp) !important;
 }
 
 [data-bs-theme=dark] .flash-img {
-  content: url(/media/images/flashdoc.webp) !important;
+  content: url(/media/images/flashdoc-light.webp) !important;
 }
 
 .accordion-body p:last-child {
