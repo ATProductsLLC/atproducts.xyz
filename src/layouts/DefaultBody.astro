@@ -1,26 +1,26 @@
 ---
-const { title, heroid, icon, color, bulletin, description, keywords, author, additionalContent, fourofour, apply } = Astro.props;
-
-import "../styles/bootstrap.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import bootstrap from "../scripts/bootstrap.bundle.js?url";
+import bootstrap from "bootstrap/js/dist/bootstrap.bundle.min.js?url";
 
 import jquery from "jquery/dist/jquery.min.js?url";
 import jqueryui from "jquery-ui/dist/jquery-ui.min.js?url";
 
-import { Font } from "astro:assets";
-
 import '../styles/font.css';
 import '../styles/other.css';
 import '../styles/cookie.css';
+
+import { Font } from 'astro:assets';
+
+const { title, heroid, icon, color, bulletin, description, keywords, author, additionalContent, index, contact, fourofour, accordion } = Astro.props;
 ---
 
 <!DOCTYPE html>
 <html class="fixedtopnavimage" lang="en">
   <head>
       <title>{title}</title> 
-      <script src="/scripts/darkmode.js" is:inline></script>
-      <script src="/scripts/navbar.js" is:inline></script>
+      <script is:inline src="/scripts/darkmode.js"></script>
+      <script is:inline src="/scripts/navbar.js"></script>
       {heroid ?
         <Fragment>
         <link rel="preload" as="image" href={`/media/images/hero-${heroid}.webp`}>
@@ -47,11 +47,12 @@ import '../styles/cookie.css';
           <link rel="apple-touch-icon" sizes="180x180" href="/media/favicon/apple-touch-icon.png">
           <link rel="icon" type="image/png" href="/media/favicon/favicon.png">
           <link rel="icon" type="image/png" href="/media/favicon/android-chrome-192x192.png">
+          <link rel="icon" type="image/png" sizes="192x192" href="/media/favicon/android.png">
           <link rel="icon" type="image/png" sizes="32x32" href="/media/favicon/favicon-32x32.png">
           <link rel="icon" type="image/png" sizes="16x16" href="/media/favicon/favicon-16x16.png">
           <link rel="mask-icon" href="/media/favicon/safari-pinned-tab.svg" color="#5bbad5">
           <meta property="og:image" content="/media/favicon/iconembed.png">
-          <meta name="twitter:image" content="/media/favicon/iconembed.png">
+          <meta name="twitter:image" content="https://atproducts.xyz/media/favicon/iconembed.png">
         </Fragment>
       }    
       <link rel="manifest" href="/media/favicon/site.webmanifest">
@@ -59,7 +60,7 @@ import '../styles/cookie.css';
       <Font cssVariable="--font-title" preload/>
       <Font cssVariable="--font-secondary-title" preload/>
       <meta charset="UTF-8">
-      <meta name="msapplication-TileColor" content="#da532c">
+      <meta name="msapplication-TileColor" content="#131415">
       <meta name="title" content={title}>
       <meta name="description" content={description}>
       <meta name="twitter:card" content="summary">
@@ -76,11 +77,11 @@ import '../styles/cookie.css';
       <meta property="og:title" content={title}>
       <meta property="og:description" content={description}>
       <meta property="og:site_name" content="AT Products LLC">
-      {color ?
+      {color ? (
         <meta name="theme-color" content={color}>
-        :
-        <meta name="theme-color" content="#212529">
-      }
+      ) : (
+        <meta name="theme-color" content="#131415">
+      )}
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <Fragment set:html={additionalContent} />
@@ -91,26 +92,33 @@ import '../styles/cookie.css';
     </Fragment>
     <Fragment>
       <script>
-        import * as bootstrap from '../scripts/bootstrap.bundle.js';
+        import * as bootstrap from 'bootstrap';
         Object.assign(window, bootstrap);
-        window.bootstrap = bootstrap;
+        window.bootstrap = bootstrap as unknown as typeof window.bootstrap;
         window.bootstrapReady?.();
       </script>
 
-      <script src={jquery} is:inline></script>
-      <script src={jqueryui} is:inline></script>
-      <script src="/scripts/message.js" is:inline></script>
-      <script src="/scripts/scroll.js" is:inline></script>
-      <script src="/scripts/purecookie.js" is:inline></script>
-      <script src="/scripts/alert-1.js" is:inline></script>
-      <script src="/scripts/alert-2.js" is:inline></script>
-      <script src="/scripts/enabler.js" is:inline></script>
-      {apply && (
-        <script src="/scripts/contact.js" is:inline></script>
-      )}
+      <script is:inline src={jquery}></script>
+      <script is:inline src={jqueryui}></script>
+      <script is:inline src="/scripts/alert-1.js"></script>
+      <script is:inline src="/scripts/alert-2.js"></script>
+      <script is:inline src="/scripts/hero.js"></script>
+      <script is:inline src="/scripts/message.js"></script>
+      <script is:inline src="/scripts/scroll.js"></script>
+      <script is:inline src="/scripts/purecookie.js"></script>
+      <script is:inline src="/scripts/enabler.js"></script>
+      {index && (
+        <script is:inline src="/scripts/index.js"></script>
+      )}  
+      {contact && (
+        <script is:inline src="/scripts/contact.js"></script>
+      )}   
       {fourofour && (
-        <script src="/scripts/404.js" is:inline></script>
+        <script is:inline src="/scripts/404.js"></script>
       )}
+      {accordion && (
+        <script is:inline src="/scripts/accordion-id.js"></script>
+      )}    
     </Fragment>
   </body>
 </html>

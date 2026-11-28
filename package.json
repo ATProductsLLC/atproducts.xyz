@@ -16,16 +16,16 @@
     "@astrojs/react": "^6.0.2",
     "@netlify/blobs": "^11.1.12",
     "astro": "^7.4.13",
-    "bootstrap": "^5.3.8",
-    "bootstrap-icons": "^1.13.1",
+    "bootstrap": "^6.0.0-alpha.2",
+    "bootstrap-icons": "^1.13.2",
     "jquery": "^4.1.0",
     "jquery-ui": "^1.14.2",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "@types/jquery": "^4.0.1",
-    "@types/bootstrap": "^5.2.11"
+    "@types/bootstrap": "^5.2.11",
+    "@types/jquery": "^4.0.1"
   },
   "allowScripts": {
     "esbuild@0.28.1": true,
