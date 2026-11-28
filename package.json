@@ -12,19 +12,20 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/netlify": "^8.2.1",
+    "@astrojs/netlify": "^8.2.14",
     "@astrojs/react": "^6.0.2",
-    "@types/bootstrap": "^5.2.11",
-    "astro": "^7.2.1",
+    "@netlify/blobs": "^11.1.12",
+    "astro": "^7.4.13",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
-    "jquery": "^4.0.0",
+    "jquery": "^4.1.0",
     "jquery-ui": "^1.14.2",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "@types/jquery": "^4.0.1"
+    "@types/jquery": "^4.0.1",
+    "@types/bootstrap": "^5.2.11"
   },
   "allowScripts": {
     "esbuild@0.28.1": true,
