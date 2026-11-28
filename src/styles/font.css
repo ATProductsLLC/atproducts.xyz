@@ -9,7 +9,14 @@ body {
 }
 
 .hero .secondary-title {
+    --bs-fg: var(--bs-secondary-fg-emphasis);
     font-family: var(--font-secondary-title), sans-serif;
+    color: var(--bs-fg);
+}
+
+[data-bs-theme="dark"] .hero .secondary-title {
+    --bs-fg: var(--bs-secondary-fg);
+    color: var(--bs-fg);
 }
 
 @media (min-width: 768px) {
